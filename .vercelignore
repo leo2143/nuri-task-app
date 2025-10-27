@@ -1,0 +1,11 @@
+# Archivos que Vercel debe ignorar al desplegar
+node_modules
+.env
+.env.local
+.git
+.gitignore
+*.log
+coverage
+.vscode
+.idea
+

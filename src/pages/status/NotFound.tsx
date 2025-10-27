@@ -1,0 +1,54 @@
+import { Link } from 'react-router-dom';
+
+export default function NotFound() {
+  return (
+    <article className="flex items-center justify-center min-h-[60vh]">
+      <div className="text-center">
+        <header className="mb-8">
+          <h1 className="text-9xl font-heading font-bold text-warmth opacity-50">
+            404
+          </h1>
+          <h2 className="text-3xl font-heading font-semibold text-contrast mb-4">
+            Página No Encontrada
+          </h2>
+          <p className="text-xl font-body text-depth mb-8">
+            <em>¡Oops! La página que buscas no existe.</em>
+          </p>
+        </header>
+
+        <nav className="mb-12">
+          <Link
+            to="/"
+            className="inline-block px-6 py-3 bg-primary text-base font-body font-medium rounded-lg hover:bg-balance focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 shadow-md hover:shadow-lg"
+          >
+            Volver al Inicio
+          </Link>
+        </nav>
+
+        <section className="mt-12 bg-warmth bg-opacity-10 p-6 rounded-lg border border-warmth inline-block">
+          <h3 className="text-lg font-heading font-medium text-contrast mb-4">
+            Enlaces Rápidos
+          </h3>
+          <ul className="space-y-2 font-body">
+            <li>
+              <Link 
+                to="/" 
+                className="text-primary hover:text-balance hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1 inline-block transition-colors duration-200"
+              >
+                Inicio
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/tasks" 
+                className="text-primary hover:text-balance hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1 inline-block transition-colors duration-200"
+              >
+                Tareas
+              </Link>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </article>
+  );
+}

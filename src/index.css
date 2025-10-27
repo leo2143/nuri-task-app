@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Configuración global del documento */
+  :root {
+    font-family: theme('fontFamily.body');
+    line-height: 1.6;
+    font-weight: 400;
+    
+    color-scheme: light;
+    
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Body base */
+  body {
+    @apply bg-base text-contrast font-body;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+  
+  /* Headings con Montserrat Alternates */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-semibold text-contrast;
+    line-height: 1.2;
+  }
+  
+  h1 {
+    @apply text-4xl font-bold;
+  }
+  
+  h2 {
+    @apply text-3xl;
+  }
+  
+  h3 {
+    @apply text-2xl;
+  }
+  
+  h4 {
+    @apply text-xl;
+  }
+  
+  h5 {
+    @apply text-lg;
+  }
+  
+  h6 {
+    @apply text-base;
+  }
+  
+  /* Links con colores de la paleta */
+  a {
+    @apply text-primary font-medium no-underline transition-colors duration-300;
+  }
+  
+  a:hover {
+    @apply text-tranquility;
+  }
+  
+  a:focus-visible {
+    @apply outline-2 outline-primary outline-offset-2 rounded;
+  }
+  
+  /* Strong y Em semánticos */
+  strong {
+    @apply font-bold text-contrast;
+  }
+  
+  em {
+    @apply italic text-depth;
+  }
+  
+  /* Buttons base */
+  button {
+    @apply font-body cursor-pointer transition-all duration-200;
+  }
+  
+  /* Inputs y forms */
+  input, textarea, select {
+    @apply font-body;
+  }
+}
+
+@layer components {
+  /* Clases de utilidad personalizadas */
+  .text-heading {
+    font-family: theme('fontFamily.heading');
+  }
+  
+  .text-body {
+    font-family: theme('fontFamily.body');
+  }
+}
+
+/* Soporte para prefers-reduced-motion (accesibilidad) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
