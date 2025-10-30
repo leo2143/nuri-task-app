@@ -11,7 +11,7 @@ export default function TaskDetail() {
     description: 'Esta es una descripción detallada de la tarea. Puedes agregar más información sobre qué necesita hacerse, plazos y cualquier otro detalle relevante.',
     completed: false,
     createdAt: new Date().toLocaleDateString(),
-    priority: 'medium' as const,
+    priority: 'high' as const,
   };
 
   const handleGoBack = () => {
