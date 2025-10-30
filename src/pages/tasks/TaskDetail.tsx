@@ -1,4 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import Button from '../../components/ui/Button';
 
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
@@ -35,13 +36,14 @@ export default function TaskDetail() {
     <article className="max-w-3xl mx-auto">
       <header className="mb-8">
         <nav className="mb-4">
-          <button
+          <Button
             type="button"
             onClick={handleGoBack}
-            className="font-body text-primary hover:text-balance hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1 transition-colors duration-200"
+            variant="secondary"
+            size="sm"
           >
             ← Volver a Tareas
-          </button>
+          </Button>
         </nav>
 
         <h1 className="text-3xl font-heading font-bold text-contrast mb-2">
@@ -91,18 +93,20 @@ export default function TaskDetail() {
       </section>
 
       <footer className="flex flex-wrap gap-4">
-        <button
+        <Button
           type="button"
-          className="px-6 py-3 bg-primary text-base font-body font-medium rounded-lg hover:bg-balance focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 shadow-md hover:shadow-lg"
+          variant="primary"
+          size="md"
         >
           Editar Tarea
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className="px-6 py-3 bg-red-600 text-white font-body font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200 shadow-md hover:shadow-lg"
+          variant="danger"
+          size="md"
         >
           Eliminar Tarea
-        </button>
+        </Button>
         <Link
           to="/tasks"
           className="px-6 py-3 bg-warmth text-contrast font-body font-medium rounded-lg hover:bg-neutral focus:outline-none focus:ring-2 focus:ring-warmth focus:ring-offset-2 transition-colors duration-200 inline-flex items-center justify-center shadow-md hover:shadow-lg"

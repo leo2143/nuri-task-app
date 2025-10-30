@@ -1,25 +1,15 @@
-import { Link } from 'react-router-dom';
-import { userService } from '../services/userService';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
-  // Obtener información del usuario desde localStorage
-  const authToken = localStorage.getItem('authToken');
-  const isAuthenticated = authToken !== null;
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   
-  let userName = '';
-  try {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      userName = user.name || user.email || 'Usuario';
-    }
-  } catch (error) {
-    console.error('Error al parsear usuario:', error);
-  }
+  const userName = user?.name || user?.email || 'Usuario';
 
   const handleLogout = () => {
-    localStorage.removeItem('user'); // También limpiamos el usuario
-    userService.logout();
+    logout();
+    navigate('/login');
   };
 
   return (

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import Button from '../../components/ui/Button';
 
 interface Task {
   id: string;
@@ -27,12 +28,13 @@ export default function TaskList() {
       </header>
 
       <section className="mb-6">
-        <button 
+        <Button 
           type="button"
-          className="px-6 py-3 bg-primary text-base font-body font-medium rounded-lg hover:bg-balance focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 shadow-md hover:shadow-lg"
+          variant="primary"
+          size="md"
         >
           Agregar Nueva Tarea
-        </button>
+        </Button>
       </section>
 
       <section>

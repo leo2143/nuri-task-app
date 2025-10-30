@@ -6,6 +6,8 @@ import TaskDetail from '../pages/tasks/TaskDetail';
 import NotFound from '../pages/status/NotFound';
 import Login from '../pages/user/Login';
 import Register from '../pages/user/Register';
+import ForgotPassword from '../pages/user/ForgotPassword';
+import ResetPassword from '../pages/user/ResetPassword';
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +26,14 @@ export const router = createBrowserRouter([
       {
         path: 'register',
         element: <Register />
+      },
+      {
+        path: 'forgot-password',
+        element: <ForgotPassword />
+      },
+      {
+        path: 'reset-password',
+        element: <ResetPassword />
       },
       {
         path: 'tasks',

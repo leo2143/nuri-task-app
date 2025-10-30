@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Button from '../components/ui/Button';
 
 export default function Home() {
   return (
@@ -35,12 +36,13 @@ export default function Home() {
           <p className="font-body text-depth mb-4">
             Monitorea tu progreso y mantente al tanto de tus objetivos con un seguimiento detallado.
           </p>
-          <button 
+          <Button 
             type="button"
-            className="px-4 py-2 bg-tranquility text-contrast font-body font-medium rounded hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-tranquility focus:ring-offset-2 transition-colors duration-200"
+            variant="secondary"
+            size="sm"
           >
             Comenzar
-          </button>
+          </Button>
         </article>
       </section>
 

@@ -4,41 +4,38 @@ import { userService } from '../../services/userService';
 import type { ILoginUser } from '../../interfaces/IUser';
 import Alert from '../../components/Alert';
 import Loading from '../../components/Loading';
+import { useField } from '../../hooks/useField';
+import { Button, Input } from '../../components/ui';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Login() {
 
   const navigate = useNavigate();
+  const { login } = useAuth();
   
   const [error, setError] = useState(false);
   const [msgError, setMsgError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<ILoginUser>({ 
-    email: '', 
-    password: '' 
-  });
-
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setForm((f) => ({ ...f, [name]: value }));
-    setError(false);
-    setMsgError('');
-  };
+  
+  // Usar el custom hook useField para cada campo
+  const email = useField('email');
+  const password = useField('password');
 
   const validar = (): string | null => {
-    if (!form.email.trim()) {
+    if (!email.value.trim()) {
       return 'El email es obligatorio';
     }
     
     const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!regex.test(form.email)) {
+    if (!regex.test(email.value)) {
       return 'El email no es válido';
     }
     
-    if (!form.password.trim()) {
+    if (!password.value.trim()) {
       return 'La contraseña es obligatoria';
     }
     
-    if (form.password.length < 4) {
+    if (password.value.length < 4) {
       return 'La contraseña debe tener al menos 4 caracteres';
     }
     
@@ -61,21 +58,21 @@ export default function Login() {
     
     try {
       // 3. LLAMAR al servicio de login
-      // IMPORTANTE: El servicio automáticamente guarda el token en localStorage
-      const authResponse = await userService.login(form);
+      const loginData: ILoginUser = {
+        email: email.value,
+        password: password.value
+      };
+      const authResponse = await userService.login(loginData);
       
       // 4. Login exitoso
       console.log('Login exitoso:', authResponse);
       console.log('Usuario:', authResponse.user);
       console.log('Token guardado:', authResponse.token);
       
-      // 5. Guardar información del usuario en localStorage
-      localStorage.setItem('user', JSON.stringify(authResponse.user));
+      // 5. Actualizar el contexto de autenticación (esto actualiza el Navbar automáticamente)
+      login(authResponse.user, authResponse.token);
       
-      // 6. Limpiar formulario
-      setForm({ email: '', password: '' });
-      
-      // 7. Redirigir al home o dashboard
+      // 6. Redirigir al home o dashboard
       navigate('/');
       
     } catch (error: unknown) {
@@ -157,58 +154,28 @@ export default function Login() {
 
           <form onSubmit={onSubmit} className="space-y-6">
             {/* Campo Email */}
-            <div className="space-y-2">
-              <label 
-                htmlFor="email" 
-                className="block text-sm font-medium text-contrast font-body"
-              >
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={form.email}
-                onChange={onChange}
-                required
-                aria-required="true"
-                autoComplete="email"
-                disabled={loading}
-                className="w-full px-4 py-3 rounded-lg border-2 border-base/30 
-                  focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none
-                  disabled:bg-base/10 disabled:cursor-not-allowed
-                  transition-all duration-200 font-body text-contrast
-                  placeholder:text-contrast/40"
-                placeholder="tu.correo@ejemplo.com"
-              />
-            </div>
+            <Input
+              {...email}
+              id="email"
+              name="email"
+              label="Correo Electrónico"
+              placeholder="tu.correo@ejemplo.com"
+              required
+              autoComplete="email"
+              disabled={loading}
+            />
 
             {/* Campo Password */}
-            <div className="space-y-2">
-              <label 
-                htmlFor="password" 
-                className="block text-sm font-medium text-contrast font-body"
-              >
-                Contraseña
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={form.password}
-                onChange={onChange}
-                required
-                aria-required="true"
-                autoComplete="current-password"
-                disabled={loading}
-                className="w-full px-4 py-3 rounded-lg border-2 border-base/30 
-                  focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none
-                  disabled:bg-base/10 disabled:cursor-not-allowed
-                  transition-all duration-200 font-body text-contrast
-                  placeholder:text-contrast/40"
-                placeholder="Ingresa tu contraseña"
-              />
-            </div>
+            <Input
+              {...password}
+              id="password"
+              name="password"
+              label="Contraseña"
+              placeholder="Ingresa tu contraseña"
+              required
+              autoComplete="current-password"
+              disabled={loading}
+            />
 
             {/* Forgot Password Link */}
             <div className="flex justify-end">
@@ -230,52 +197,23 @@ export default function Login() {
             )}
 
             {/* Botón Submit */}
-            <button
+            <Button
               type="submit"
+              loading={loading}
               disabled={loading}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold 
-                py-3 px-6 rounded-lg shadow-lg hover:shadow-xl
-                focus:outline-none focus:ring-4 focus:ring-primary/50
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary
-                transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]
-                font-body text-lg"
+              variant="primary"
+              size="lg"
+              fullWidth
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg 
-                    className="animate-spin h-5 w-5" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <circle 
-                      className="opacity-25" 
-                      cx="12" 
-                      cy="12" 
-                      r="10" 
-                      stroke="currentColor" 
-                      strokeWidth="4"
-                    />
-                    <path 
-                      className="opacity-75" 
-                      fill="currentColor" 
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Iniciando sesión...
-                </span>
-              ) : (
-                'Iniciar Sesión'
-              )}
-            </button>
+              {loading ? 'Iniciando sesión' : 'Iniciar Sesión'}
+            </Button>
 
             {/* Register Link */}
             <div className="text-center pt-4 border-t border-base/20">
               <p className="text-contrast/70 font-body">
                 ¿No tienes una cuenta?{' '}
                 <Link 
-                  to="/user/register"
+                  to="/register"
                   className="text-primary hover:text-warmth font-semibold 
                     transition-colors duration-200 focus:outline-none focus:ring-2 
                     focus:ring-primary/50 rounded px-1"
