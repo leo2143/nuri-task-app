@@ -6,27 +6,31 @@
 /**
  * Tendencias de progreso
  */
-export type ProgressTrend = 'improving' | 'declining' | 'stable' | 'stagnant';
+export type ProgressTrend = "improving" | "declining" | "stable" | "stagnant";
 
 /**
  * Estados de ánimo durante el progreso
  */
-export type ProgressMood = 'motivated' | 'neutral' | 'challenged' | 'frustrated';
+export type ProgressMood =
+  | "motivated"
+  | "neutral"
+  | "challenged"
+  | "frustrated";
 
 /**
  * Severidad de bloqueadores
  */
-export type BlockerSeverity = 'low' | 'medium' | 'high' | 'critical';
+export type BlockerSeverity = "low" | "medium" | "high" | "critical";
 
 /**
  * Tipos de alertas
  */
-export type AlertType = 'warning' | 'danger' | 'info' | 'success';
+export type AlertType = "warning" | "danger" | "info" | "success";
 
 /**
  * Estados de salud de la métrica
  */
-export type HealthStatus = 'excellent' | 'good' | 'at-risk' | 'critical';
+export type HealthStatus = "excellent" | "good" | "at-risk" | "critical";
 
 /**
  * Interface para hitos (milestones)
@@ -106,47 +110,47 @@ export interface IMetrics {
   totalCompletedTasks: number;
   totalTasks: number;
   missingTasks: number;
-  
+
   // Métricas de velocidad y tendencias
   averageWeeklyProgress: number;
   progressTrend: ProgressTrend;
   taskCompletionRate: number;
-  
+
   // Hitos y logros
   milestones: IMilestone[];
   currentStreak: number;
   bestStreak: number;
-  
+
   // Métricas de calidad y eficiencia
   estimatedTimeInvested: number;
   efficiency: number;
   qualityScore: number;
-  
+
   // Predicciones y proyecciones
   projectedCompletionDate?: Date | null;
   expectedProgress: number;
   progressDeviation: number;
-  
+
   // Contexto y notas enriquecidas
   blockers: IBlocker[];
   weeklyWins: IWeeklyWin[];
-  
+
   // Análisis de tareas
   taskBreakdown: ITaskBreakdown;
   overdueTasks: number;
   onTimeCompletionRate: number;
-  
+
   // Alertas y notificaciones
   alerts: IAlert[];
   healthStatus: HealthStatus;
-  
+
   // Historial
   history: IWeeklyHistory[];
   lastUpdated: Date;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
-  
+
   // Propiedades virtuales
   currentCompletionPercentage?: number;
   activeBlockersCount?: number;
@@ -220,4 +224,3 @@ export interface IAddHistoryEntry {
   mood?: ProgressMood;
   achievements?: string[];
 }
-

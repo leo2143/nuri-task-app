@@ -17,6 +17,7 @@ Documentación completa de las interfaces TypeScript para las respuestas del bac
 ### Respuestas Exitosas
 
 #### `ISuccessResponse<T>`
+
 Respuesta exitosa con datos (200 OK)
 
 ```typescript
@@ -30,6 +31,7 @@ interface ISuccessResponse<T = unknown> {
 ```
 
 #### `ICreatedResponse<T>`
+
 Recurso creado exitosamente (201 Created)
 
 ```typescript
@@ -46,6 +48,7 @@ interface ICreatedResponse<T = unknown> {
 ### Respuestas de Error
 
 #### `IErrorResponse`
+
 Error genérico
 
 ```typescript
@@ -57,6 +60,7 @@ interface IErrorResponse {
 ```
 
 #### `INotFoundResponse`
+
 Recurso no encontrado (404 Not Found)
 
 ```typescript
@@ -68,6 +72,7 @@ interface INotFoundResponse {
 ```
 
 #### `IValidationErrorResponse`
+
 Errores de validación (400 Bad Request)
 
 ```typescript
@@ -84,6 +89,7 @@ interface IValidationErrorResponse {
 ## 🆕 Nuevas Interfaces
 
 ### `IConflictResponse`
+
 Conflicto - Recurso ya existe (409 Conflict)
 
 ```typescript
@@ -92,29 +98,32 @@ interface IConflictResponse {
   status: 409;
   success: false;
   conflict: {
-    field: string | null;  // Campo que está en conflicto
-    value: unknown;        // Valor que causó el conflicto
+    field: string | null; // Campo que está en conflicto
+    value: unknown; // Valor que causó el conflicto
   };
 }
 ```
 
 **Casos de uso:**
+
 - Email ya registrado
 - Username duplicado
 - Código único ya existe
 - Recurso duplicado
 
 **Ejemplo del backend:**
+
 ```javascript
 // Backend (JavaScript)
 return new ConflictResponseModel(
-  'El email ya está registrado',
-  'email',
-  'usuario@ejemplo.com'
+  "El email ya está registrado",
+  "email",
+  "usuario@ejemplo.com",
 );
 ```
 
 **Respuesta esperada:**
+
 ```json
 {
   "message": "El email ya está registrado",
@@ -130,6 +139,7 @@ return new ConflictResponseModel(
 ---
 
 ### `IBadRequestResponse`
+
 Solicitud incorrecta (400 Bad Request)
 
 ```typescript
@@ -137,26 +147,29 @@ interface IBadRequestResponse {
   message: string | null;
   status: 400;
   success: false;
-  details: unknown;  // Detalles adicionales del error
+  details: unknown; // Detalles adicionales del error
 }
 ```
 
 **Casos de uso:**
+
 - Parámetros faltantes
 - Formato incorrecto
 - Datos inválidos
 - ID malformado
 
 **Ejemplo del backend:**
+
 ```javascript
 // Backend (JavaScript)
-return new BadRequestResponseModel(
-  'El ID proporcionado no es válido',
-  { providedId: 'abc123', expectedFormat: 'ObjectId' }
-);
+return new BadRequestResponseModel("El ID proporcionado no es válido", {
+  providedId: "abc123",
+  expectedFormat: "ObjectId",
+});
 ```
 
 **Respuesta esperada:**
+
 ```json
 {
   "message": "El ID proporcionado no es válido",
@@ -176,39 +189,38 @@ return new BadRequestResponseModel(
 ### Ejemplo 1: Registro con Email Duplicado (409)
 
 ```typescript
-import { userService } from '../services/userService';
-import type { IConflictResponse } from '../interfaces';
+import { userService } from "../services/userService";
+import type { IConflictResponse } from "../interfaces";
 
 async function handleRegister(email: string, password: string) {
   try {
-    const response = await userService.register({ 
-      name: 'Juan',
-      email, 
-      password 
+    const response = await userService.register({
+      name: "Juan",
+      email,
+      password,
     });
-    
-    console.log('Usuario creado:', response);
-    
+
+    console.log("Usuario creado:", response);
   } catch (error) {
     // Axios envuelve la respuesta en error.response
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as { 
-        response?: { 
-          status?: number; 
-          data?: IConflictResponse 
-        } 
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as {
+        response?: {
+          status?: number;
+          data?: IConflictResponse;
+        };
       };
-      
+
       if (axiosError.response?.status === 409) {
         const conflictData = axiosError.response.data;
-        
-        console.log('Error:', conflictData?.message);
-        console.log('Campo:', conflictData?.conflict.field); // 'email'
-        console.log('Valor:', conflictData?.conflict.value); // 'usuario@ejemplo.com'
-        
+
+        console.log("Error:", conflictData?.message);
+        console.log("Campo:", conflictData?.conflict.field); // 'email'
+        console.log("Valor:", conflictData?.conflict.value); // 'usuario@ejemplo.com'
+
         // Mostrar mensaje específico
-        if (conflictData?.conflict.field === 'email') {
-          alert('Este email ya está registrado. ¿Olvidaste tu contraseña?');
+        if (conflictData?.conflict.field === "email") {
+          alert("Este email ya está registrado. ¿Olvidaste tu contraseña?");
         }
       }
     }
@@ -221,37 +233,36 @@ async function handleRegister(email: string, password: string) {
 ### Ejemplo 2: Parámetro Inválido (400)
 
 ```typescript
-import type { IBadRequestResponse } from '../interfaces';
+import type { IBadRequestResponse } from "../interfaces";
 
 async function getTodoById(id: string) {
   try {
     const response = await todoService.getTodoById(id);
     return response;
-    
   } catch (error) {
-    if (error && typeof error === 'object' && 'response' in error) {
-      const axiosError = error as { 
-        response?: { 
-          status?: number; 
-          data?: IBadRequestResponse 
-        } 
+    if (error && typeof error === "object" && "response" in error) {
+      const axiosError = error as {
+        response?: {
+          status?: number;
+          data?: IBadRequestResponse;
+        };
       };
-      
+
       if (axiosError.response?.status === 400) {
         const badRequestData = axiosError.response.data;
-        
-        console.log('Error:', badRequestData?.message);
-        console.log('Detalles:', badRequestData?.details);
-        
+
+        console.log("Error:", badRequestData?.message);
+        console.log("Detalles:", badRequestData?.details);
+
         // Ejemplo: { providedId: 'abc', expectedFormat: 'ObjectId' }
-        if (typeof badRequestData?.details === 'object') {
+        if (typeof badRequestData?.details === "object") {
           const details = badRequestData.details as Record<string, unknown>;
-          console.log('ID proporcionado:', details.providedId);
-          console.log('Formato esperado:', details.expectedFormat);
+          console.log("ID proporcionado:", details.providedId);
+          console.log("Formato esperado:", details.expectedFormat);
         }
       }
     }
-    
+
     throw error;
   }
 }
@@ -262,71 +273,74 @@ async function getTodoById(id: string) {
 ### Ejemplo 3: Manejo Completo de Errores en Register
 
 ```typescript
-import { useState } from 'react';
-import { userService } from '../services/userService';
-import type { 
-  IConflictResponse, 
-  IBadRequestResponse, 
-  IValidationErrorResponse 
-} from '../interfaces';
+import { useState } from "react";
+import { userService } from "../services/userService";
+import type {
+  IConflictResponse,
+  IBadRequestResponse,
+  IValidationErrorResponse,
+} from "../interfaces";
 
 export default function Register() {
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const handleSubmit = async (formData: RegisterData) => {
     try {
       const response = await userService.register(formData);
-      console.log('Registro exitoso:', response);
-      
+      console.log("Registro exitoso:", response);
     } catch (error: unknown) {
-      let errorMessage = 'Error al registrar usuario';
-      
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { 
-          response?: { 
-            status?: number; 
-            data?: IConflictResponse | IBadRequestResponse | IValidationErrorResponse 
-          } 
+      let errorMessage = "Error al registrar usuario";
+
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: {
+            status?: number;
+            data?:
+              | IConflictResponse
+              | IBadRequestResponse
+              | IValidationErrorResponse;
+          };
         };
-        
+
         const status = axiosError.response?.status;
         const data = axiosError.response?.data;
-        
+
         // Conflicto (409) - Email duplicado
-        if (status === 409 && data && 'conflict' in data) {
+        if (status === 409 && data && "conflict" in data) {
           const conflictData = data as IConflictResponse;
-          if (conflictData.conflict.field === 'email') {
-            errorMessage = 'Este email ya está registrado. ¿Deseas iniciar sesión?';
+          if (conflictData.conflict.field === "email") {
+            errorMessage =
+              "Este email ya está registrado. ¿Deseas iniciar sesión?";
           } else {
-            errorMessage = conflictData.message || 'El recurso ya existe';
+            errorMessage = conflictData.message || "El recurso ya existe";
           }
         }
-        
+
         // Solicitud incorrecta (400)
         else if (status === 400 && data) {
           // Puede ser IBadRequestResponse o IValidationErrorResponse
-          if ('errors' in data) {
+          if ("errors" in data) {
             // Es un error de validación
             const validationData = data as IValidationErrorResponse;
             const firstError = Object.values(validationData.errors || {})[0];
-            errorMessage = firstError?.[0] || 'Error de validación';
-          } else if ('details' in data) {
+            errorMessage = firstError?.[0] || "Error de validación";
+          } else if ("details" in data) {
             // Es un BadRequest genérico
             const badRequestData = data as IBadRequestResponse;
-            errorMessage = badRequestData.message || 'Solicitud incorrecta';
+            errorMessage = badRequestData.message || "Solicitud incorrecta";
           }
         }
-        
+
         // Otros errores
         else if (data?.message) {
           errorMessage = data.message;
         }
       }
-      
+
       setError(errorMessage);
     }
   };
-  
+
   // ... resto del componente
 }
 ```
@@ -344,44 +358,50 @@ import type {
   IConflictResponse,
   IBadRequestResponse,
   IValidationErrorResponse,
-  ISuccessResponse
-} from '../interfaces';
+  ISuccessResponse,
+} from "../interfaces";
 
 export function isConflictResponse(data: unknown): data is IConflictResponse {
   return (
-    typeof data === 'object' &&
+    typeof data === "object" &&
     data !== null &&
-    'status' in data &&
+    "status" in data &&
     (data as IConflictResponse).status === 409 &&
-    'conflict' in data
+    "conflict" in data
   );
 }
 
-export function isBadRequestResponse(data: unknown): data is IBadRequestResponse {
+export function isBadRequestResponse(
+  data: unknown,
+): data is IBadRequestResponse {
   return (
-    typeof data === 'object' &&
+    typeof data === "object" &&
     data !== null &&
-    'status' in data &&
+    "status" in data &&
     (data as IBadRequestResponse).status === 400 &&
-    'details' in data
+    "details" in data
   );
 }
 
-export function isValidationErrorResponse(data: unknown): data is IValidationErrorResponse {
+export function isValidationErrorResponse(
+  data: unknown,
+): data is IValidationErrorResponse {
   return (
-    typeof data === 'object' &&
+    typeof data === "object" &&
     data !== null &&
-    'status' in data &&
+    "status" in data &&
     (data as IValidationErrorResponse).status === 400 &&
-    'errors' in data
+    "errors" in data
   );
 }
 
-export function isSuccessResponse<T>(data: unknown): data is ISuccessResponse<T> {
+export function isSuccessResponse<T>(
+  data: unknown,
+): data is ISuccessResponse<T> {
   return (
-    typeof data === 'object' &&
+    typeof data === "object" &&
     data !== null &&
-    'success' in data &&
+    "success" in data &&
     (data as ISuccessResponse<T>).success === true
   );
 }
@@ -390,21 +410,20 @@ export function isSuccessResponse<T>(data: unknown): data is ISuccessResponse<T>
 **Uso de Type Guards:**
 
 ```typescript
-import { isConflictResponse, isBadRequestResponse } from '../utils/typeGuards';
+import { isConflictResponse, isBadRequestResponse } from "../utils/typeGuards";
 
 try {
   const response = await userService.register(data);
 } catch (error) {
   const errorData = (error as any)?.response?.data;
-  
+
   if (isConflictResponse(errorData)) {
     // TypeScript sabe que errorData es IConflictResponse
-    console.log('Campo conflictivo:', errorData.conflict.field);
-    console.log('Valor:', errorData.conflict.value);
-  } 
-  else if (isBadRequestResponse(errorData)) {
+    console.log("Campo conflictivo:", errorData.conflict.field);
+    console.log("Valor:", errorData.conflict.value);
+  } else if (isBadRequestResponse(errorData)) {
     // TypeScript sabe que errorData es IBadRequestResponse
-    console.log('Detalles:', errorData.details);
+    console.log("Detalles:", errorData.details);
   }
 }
 ```
@@ -413,15 +432,15 @@ try {
 
 ## 📊 Tabla Resumen de Códigos de Estado
 
-| Código | Interface | Uso |
-|--------|-----------|-----|
-| 200 | `ISuccessResponse<T>` | Operación exitosa con datos |
-| 201 | `ICreatedResponse<T>` | Recurso creado exitosamente |
-| 400 | `IBadRequestResponse` | Solicitud incorrecta (genérico) |
-| 400 | `IValidationErrorResponse` | Errores de validación específicos |
-| 404 | `INotFoundResponse` | Recurso no encontrado |
-| **409** | **`IConflictResponse`** | **Conflicto (recurso duplicado)** ⭐ |
-| 5xx | `IErrorResponse` | Error del servidor |
+| Código  | Interface                  | Uso                                  |
+| ------- | -------------------------- | ------------------------------------ |
+| 200     | `ISuccessResponse<T>`      | Operación exitosa con datos          |
+| 201     | `ICreatedResponse<T>`      | Recurso creado exitosamente          |
+| 400     | `IBadRequestResponse`      | Solicitud incorrecta (genérico)      |
+| 400     | `IValidationErrorResponse` | Errores de validación específicos    |
+| 404     | `INotFoundResponse`        | Recurso no encontrado                |
+| **409** | **`IConflictResponse`**    | **Conflicto (recurso duplicado)** ⭐ |
+| 5xx     | `IErrorResponse`           | Error del servidor                   |
 
 ---
 
@@ -432,14 +451,14 @@ Para manejar errores globalmente con Axios:
 ```typescript
 // src/config/axios.ts
 
-import axios from 'axios';
-import type { IConflictResponse, IBadRequestResponse } from '../interfaces';
+import axios from "axios";
+import type { IConflictResponse, IBadRequestResponse } from "../interfaces";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // Interceptor de respuestas
@@ -448,19 +467,18 @@ apiClient.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const data = error.response?.data;
-    
+
     // Logging de errores específicos
     if (status === 409 && data) {
       const conflictData = data as IConflictResponse;
-      console.log('⚠️ Conflicto detectado:', conflictData.conflict);
-    } 
-    else if (status === 400 && data && 'details' in data) {
+      console.log("⚠️ Conflicto detectado:", conflictData.conflict);
+    } else if (status === 400 && data && "details" in data) {
       const badRequestData = data as IBadRequestResponse;
-      console.log('❌ Solicitud incorrecta:', badRequestData.details);
+      console.log("❌ Solicitud incorrecta:", badRequestData.details);
     }
-    
+
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;
@@ -471,11 +489,13 @@ export default apiClient;
 ## ✅ Mejores Prácticas
 
 1. **Siempre tipar las respuestas:**
+
    ```typescript
-   const response = await apiClient.get<ISuccessResponse<IUser>>('/users/1');
+   const response = await apiClient.get<ISuccessResponse<IUser>>("/users/1");
    ```
 
 2. **Usar type guards para verificar tipos:**
+
    ```typescript
    if (isConflictResponse(errorData)) {
      // Manejo específico de conflictos
@@ -483,6 +503,7 @@ export default apiClient;
    ```
 
 3. **Manejo específico por código de estado:**
+
    ```typescript
    if (status === 409) {
      // Email duplicado
@@ -492,15 +513,16 @@ export default apiClient;
    ```
 
 4. **Mensajes de error claros para el usuario:**
+
    ```typescript
-   if (conflictData?.conflict.field === 'email') {
-     setError('Este email ya está en uso. Intenta con otro.');
+   if (conflictData?.conflict.field === "email") {
+     setError("Este email ya está en uso. Intenta con otro.");
    }
    ```
 
 5. **Logging de detalles para debugging:**
    ```typescript
-   console.error('Error details:', badRequestData?.details);
+   console.error("Error details:", badRequestData?.details);
    ```
 
 ---
@@ -579,4 +601,3 @@ export default apiClient;
 ---
 
 **¡Interfaces de respuesta actualizadas y documentadas!** 🎉✅
-

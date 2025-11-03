@@ -6,7 +6,7 @@
 /**
  * Tipos de logros disponibles
  */
-export type AchievementType = 'task' | 'goal' | 'metric' | 'streak' | 'comment';
+export type AchievementType = "task" | "goal" | "metric" | "streak" | "comment";
 
 /**
  * Interface para el modelo de Achievement (Plantilla Global)
@@ -46,4 +46,3 @@ export interface IUpdateAchievement {
   type?: AchievementType;
   isActive?: boolean;
 }
-

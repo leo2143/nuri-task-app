@@ -65,23 +65,24 @@ src/
 Solicita recuperación de contraseña enviando un email con el token.
 
 ```typescript
-import { userService } from '../../services/userService';
+import { userService } from "../../services/userService";
 
 try {
-  const response = await userService.forgotPassword('user@ejemplo.com');
+  const response = await userService.forgotPassword("user@ejemplo.com");
   console.log(response.message);
   // En desarrollo, muestra el token
   if (response.devToken) {
-    console.log('Token:', response.devToken);
+    console.log("Token:", response.devToken);
   }
 } catch (error) {
-  console.error('Error:', error);
+  console.error("Error:", error);
 }
 ```
 
 **Backend Endpoint:** `POST /api/users/forgot-password`
 
 **Request Body:**
+
 ```json
 {
   "email": "user@ejemplo.com"
@@ -89,6 +90,7 @@ try {
 ```
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -109,18 +111,19 @@ Verifica si un token de recuperación es válido antes de mostrar el formulario.
 
 ```typescript
 try {
-  const response = await userService.verifyResetToken('abc123...');
+  const response = await userService.verifyResetToken("abc123...");
   if (response.valid) {
-    console.log('Token válido para:', response.email);
+    console.log("Token válido para:", response.email);
   }
 } catch (error) {
-  console.error('Token inválido');
+  console.error("Token inválido");
 }
 ```
 
 **Backend Endpoint:** `GET /api/users/verify-reset-token/:token`
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -142,16 +145,17 @@ Resetea la contraseña usando el token válido.
 
 ```typescript
 try {
-  const response = await userService.resetPassword('abc123...', 'newPass123');
-  console.log('Contraseña actualizada para:', response.email);
+  const response = await userService.resetPassword("abc123...", "newPass123");
+  console.log("Contraseña actualizada para:", response.email);
 } catch (error) {
-  console.error('Error reseteando contraseña');
+  console.error("Error reseteando contraseña");
 }
 ```
 
 **Backend Endpoint:** `POST /api/users/reset-password`
 
 **Request Body:**
+
 ```json
 {
   "token": "abc123...",
@@ -160,6 +164,7 @@ try {
 ```
 
 **Response (Success):**
+
 ```json
 {
   "success": true,
@@ -181,6 +186,7 @@ try {
 **Ruta:** `/forgot-password`
 
 **Características:**
+
 - ✅ Formulario con input de email
 - ✅ Validación de email
 - ✅ Estado de loading con spinner
@@ -193,6 +199,7 @@ try {
 - ✅ Token de desarrollo en consola (solo dev)
 
 **Estados:**
+
 ```typescript
 - loading: boolean      // Muestra spinner mientras envía
 - error: boolean       // Si hubo error
@@ -208,6 +215,7 @@ try {
 **Ruta:** `/reset-password?token=abc123...`
 
 **Características:**
+
 - ✅ Verifica token automáticamente al cargar
 - ✅ Muestra loading mientras verifica
 - ✅ Formulario con 2 campos de contraseña
@@ -220,6 +228,7 @@ try {
 - ✅ Diseño responsive
 
 **Estados:**
+
 ```typescript
 - verifying: boolean    // Verificando token
 - tokenValid: boolean   // Token es válido
@@ -231,6 +240,7 @@ try {
 ```
 
 **Flujo de Verificación:**
+
 1. Componente carga → Extrae token de URL
 2. `useEffect` ejecuta `verifyResetToken()`
 3. Si válido → Muestra formulario
@@ -254,6 +264,7 @@ try {
 ```
 
 **URLs:**
+
 - Solicitar recuperación: `http://localhost:5173/forgot-password`
 - Resetear contraseña: `http://localhost:5173/reset-password?token=abc123...`
 
@@ -307,48 +318,50 @@ try {
 
 ```typescript
 // Email vacío
-'El email es obligatorio'
+"El email es obligatorio";
 
 // Email inválido
-'El email no es válido'
+"El email no es válido";
 
 // Contraseña vacía
-'La contraseña es obligatoria'
+"La contraseña es obligatoria";
 
 // Contraseña muy corta
-'La contraseña debe tener al menos 6 caracteres'
+"La contraseña debe tener al menos 6 caracteres";
 
 // Contraseñas no coinciden
-'Las contraseñas no coinciden'
+"Las contraseñas no coinciden";
 
 // Token no proporcionado
-'Token no proporcionado. Por favor, usa el enlace del email.'
+"Token no proporcionado. Por favor, usa el enlace del email.";
 ```
 
 ### Errores de Backend
 
 ```typescript
 // Demasiados intentos (429)
-'Demasiados intentos. Por favor, espera unos minutos e intenta de nuevo.'
+"Demasiados intentos. Por favor, espera unos minutos e intenta de nuevo.";
 
 // Token inválido (400)
-'Token inválido o expirado'
+"Token inválido o expirado";
 
 // Token ya usado (400)
-'Token inválido, expirado o ya usado'
+"Token inválido, expirado o ya usado";
 
 // Error de servidor (500)
-'Error al solicitar recuperación de contraseña'
+"Error al solicitar recuperación de contraseña";
 ```
 
 ### Componente Alert Reutilizable
 
 ```tsx
-{error && (
-  <div className="animate-shake">
-    <Alert msg={msgError} />
-  </div>
-)}
+{
+  error && (
+    <div className="animate-shake">
+      <Alert msg={msgError} />
+    </div>
+  );
+}
 ```
 
 ---
@@ -554,4 +567,3 @@ VITE_API_BASE_URL=https://tu-api.herokuapp.com
 ---
 
 **¡Flujo de recuperación de contraseña completamente implementado y listo para usar!** 🎉
-

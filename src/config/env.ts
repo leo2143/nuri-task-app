@@ -4,7 +4,8 @@
  */
 
 // Obtener la URL base del API desde las variables de entorno
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 // Obtener el entorno actual (development, production)
 export const NODE_ENV = import.meta.env.MODE;
@@ -16,7 +17,9 @@ export const IS_PRODUCTION = import.meta.env.PROD;
 export const IS_DEVELOPMENT = import.meta.env.DEV;
 
 // Timeout para las peticiones (en milisegundos)
-export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '10000');
+export const API_TIMEOUT = parseInt(
+  import.meta.env.VITE_API_TIMEOUT || "10000",
+);
 
 // Configuración para logging
 export const ENABLE_LOGGING = IS_DEVELOPMENT;
@@ -26,13 +29,13 @@ export const ENABLE_LOGGING = IS_DEVELOPMENT;
  */
 export function devLog(...args: unknown[]) {
   if (ENABLE_LOGGING) {
-    console.log('[DEV]', ...args);
+    console.log("[DEV]", ...args);
   }
 }
 
 /**
  * Variables de entorno disponibles en Vite:
- * 
+ *
  * import.meta.env.MODE           - 'development' o 'production'
  * import.meta.env.BASE_URL       - base URL configurada
  * import.meta.env.PROD           - boolean (true en producción)
@@ -40,4 +43,3 @@ export function devLog(...args: unknown[]) {
  * import.meta.env.SSR            - boolean (true en server-side)
  * import.meta.env.VITE_*         - variables personalizadas
  */
-

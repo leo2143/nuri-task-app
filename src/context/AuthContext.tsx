@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import type { IAuthUser } from '../interfaces';
+import { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import type { IAuthUser } from "../interfaces";
 
 interface AuthContextType {
   user: IAuthUser | null;
@@ -18,27 +18,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Inicializar desde localStorage al montar
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const userStr = localStorage.getItem('user');
-    
+    const token = localStorage.getItem("authToken");
+    const userStr = localStorage.getItem("user");
+
     if (token && userStr) {
       try {
         const userData = JSON.parse(userStr);
         setUser(userData);
         setIsAuthenticated(true);
       } catch (error) {
-        console.error('Error al cargar usuario desde localStorage:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
+        console.error("Error al cargar usuario desde localStorage:", error);
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
       }
     }
   }, []);
 
   const login = (userData: IAuthUser, token: string) => {
     // Guardar en localStorage
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
     // Actualizar estado
     setUser(userData);
     setIsAuthenticated(true);
@@ -46,9 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     // Limpiar localStorage
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+
     // Limpiar estado
     setUser(null);
     setIsAuthenticated(false);
@@ -56,14 +56,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateUser = (userData: IAuthUser) => {
     // Actualizar localStorage
-    localStorage.setItem('user', JSON.stringify(userData));
-    
+    localStorage.setItem("user", JSON.stringify(userData));
+
     // Actualizar estado
     setUser(userData);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated, login, logout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -73,8 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
   }
   return context;
 }
-

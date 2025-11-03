@@ -66,4 +66,3 @@ export interface IAddMoodboardImage {
 export interface IAddMoodboardPhrase {
   phrase: string;
 }
-

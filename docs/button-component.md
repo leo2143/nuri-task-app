@@ -11,91 +11,84 @@ src/components/ui/Button.tsx
 ## 🚀 Uso Básico
 
 ```tsx
-import Button from '../../components/ui/Button';
+import Button from "../../components/ui/Button";
 
 function MyComponent() {
-  return (
-    <Button type="button">
-      Haz clic aquí
-    </Button>
-  );
+  return <Button type="button">Haz clic aquí</Button>;
 }
 ```
 
 ## 🎨 Props
 
-| Prop | Tipo | Default | Descripción |
-|------|------|---------|-------------|
-| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | Tipo del botón HTML |
-| `onClick` | `(event) => void` | `undefined` | Función que se ejecuta al hacer clic |
-| `disabled` | `boolean` | `false` | Deshabilita el botón |
-| `loading` | `boolean` | `false` | Muestra spinner de carga |
-| `variant` | `'primary' \| 'secondary' \| 'danger' \| 'success'` | `'primary'` | Variante de color |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Tamaño del botón |
-| `fullWidth` | `boolean` | `false` | El botón ocupa todo el ancho |
-| `children` | `React.ReactNode` | - | Contenido del botón |
-| `className` | `string` | `''` | Clases CSS adicionales |
-| `ariaLabel` | `string` | `undefined` | Etiqueta ARIA para accesibilidad |
+| Prop        | Tipo                                                | Default     | Descripción                          |
+| ----------- | --------------------------------------------------- | ----------- | ------------------------------------ |
+| `type`      | `'button' \| 'submit' \| 'reset'`                   | `'button'`  | Tipo del botón HTML                  |
+| `onClick`   | `(event) => void`                                   | `undefined` | Función que se ejecuta al hacer clic |
+| `disabled`  | `boolean`                                           | `false`     | Deshabilita el botón                 |
+| `loading`   | `boolean`                                           | `false`     | Muestra spinner de carga             |
+| `variant`   | `'primary' \| 'secondary' \| 'danger' \| 'success'` | `'primary'` | Variante de color                    |
+| `size`      | `'sm' \| 'md' \| 'lg'`                              | `'md'`      | Tamaño del botón                     |
+| `fullWidth` | `boolean`                                           | `false`     | El botón ocupa todo el ancho         |
+| `children`  | `React.ReactNode`                                   | -           | Contenido del botón                  |
+| `className` | `string`                                            | `''`        | Clases CSS adicionales               |
+| `ariaLabel` | `string`                                            | `undefined` | Etiqueta ARIA para accesibilidad     |
 
 ## 🎭 Variantes
 
 ### Primary (Por defecto)
+
 ```tsx
-<Button variant="primary">
-  Botón Principal
-</Button>
+<Button variant="primary">Botón Principal</Button>
 ```
+
 - Color: Azul primario
 - Uso: Acciones principales (guardar, enviar, confirmar)
 
 ### Secondary
+
 ```tsx
-<Button variant="secondary">
-  Botón Secundario
-</Button>
+<Button variant="secondary">Botón Secundario</Button>
 ```
+
 - Color: Warmth (naranja claro)
 - Uso: Acciones secundarias (cancelar, volver)
 
 ### Danger
+
 ```tsx
-<Button variant="danger">
-  Eliminar
-</Button>
+<Button variant="danger">Eliminar</Button>
 ```
+
 - Color: Rojo
 - Uso: Acciones destructivas (eliminar, descartar)
 
 ### Success
+
 ```tsx
-<Button variant="success">
-  Completar
-</Button>
+<Button variant="success">Completar</Button>
 ```
+
 - Color: Verde
 - Uso: Acciones de éxito (completar, aprobar)
 
 ## 📏 Tamaños
 
 ### Small
+
 ```tsx
-<Button size="sm">
-  Pequeño
-</Button>
+<Button size="sm">Pequeño</Button>
 ```
 
 ### Medium (Por defecto)
+
 ```tsx
-<Button size="md">
-  Mediano
-</Button>
+<Button size="md">Mediano</Button>
 ```
 
 ### Large
+
 ```tsx
-<Button size="lg">
-  Grande
-</Button>
+<Button size="lg">Grande</Button>
 ```
 
 ## ⏳ Estado de Loading
@@ -103,15 +96,13 @@ function MyComponent() {
 ```tsx
 const [loading, setLoading] = useState(false);
 
-<Button 
-  loading={loading}
-  disabled={loading}
->
-  {loading ? 'Cargando' : 'Enviar'}
-</Button>
+<Button loading={loading} disabled={loading}>
+  {loading ? "Cargando" : "Enviar"}
+</Button>;
 ```
 
 Cuando `loading={true}`:
+
 - Muestra un spinner animado
 - Se deshabilita automáticamente
 - Agrega "..." al texto si es un string
@@ -129,7 +120,7 @@ Cuando `loading={true}`:
   size="lg"
   fullWidth
 >
-  {loading ? 'Iniciando sesión' : 'Iniciar Sesión'}
+  {loading ? "Iniciando sesión" : "Iniciar Sesión"}
 </Button>
 ```
 
@@ -137,28 +128,18 @@ Cuando `loading={true}`:
 
 ```tsx
 const handleDelete = () => {
-  console.log('Eliminando...');
+  console.log("Eliminando...");
 };
 
-<Button
-  type="button"
-  onClick={handleDelete}
-  variant="danger"
-  size="md"
->
+<Button type="button" onClick={handleDelete} variant="danger" size="md">
   Eliminar Tarea
-</Button>
+</Button>;
 ```
 
 ### Botón con Ancho Completo
 
 ```tsx
-<Button
-  type="button"
-  variant="primary"
-  size="lg"
-  fullWidth
->
+<Button type="button" variant="primary" size="lg" fullWidth>
   Guardar Cambios
 </Button>
 ```
@@ -166,11 +147,7 @@ const handleDelete = () => {
 ### Botón Deshabilitado
 
 ```tsx
-<Button
-  type="button"
-  disabled={!isFormValid}
-  variant="primary"
->
+<Button type="button" disabled={!isFormValid} variant="primary">
   Continuar
 </Button>
 ```
@@ -178,11 +155,7 @@ const handleDelete = () => {
 ### Botón con Clases Personalizadas
 
 ```tsx
-<Button
-  type="button"
-  variant="primary"
-  className="mt-4 mb-2"
->
+<Button type="button" variant="primary" className="mt-4 mb-2">
   Mi Botón
 </Button>
 ```
@@ -211,11 +184,7 @@ El componente incluye características de accesibilidad:
 Si necesitas agregar estilos personalizados, puedes usar la prop `className`:
 
 ```tsx
-<Button
-  type="button"
-  variant="primary"
-  className="shadow-2xl hover:shadow-3xl"
->
+<Button type="button" variant="primary" className="shadow-2xl hover:shadow-3xl">
   Botón Personalizado
 </Button>
 ```
@@ -231,6 +200,7 @@ Si necesitas agregar estilos personalizados, puedes usar la prop `className`:
 ## 🔄 Comparación Antes/Después
 
 ### Antes (Sin componente)
+
 ```tsx
 <button
   type="submit"
@@ -248,21 +218,16 @@ Si necesitas agregar estilos personalizados, puedes usar la prop `className`:
       Cargando...
     </span>
   ) : (
-    'Enviar'
+    "Enviar"
   )}
 </button>
 ```
 
 ### Después (Con componente)
+
 ```tsx
-<Button
-  type="submit"
-  loading={loading}
-  variant="primary"
-  size="lg"
-  fullWidth
->
-  {loading ? 'Cargando' : 'Enviar'}
+<Button type="submit" loading={loading} variant="primary" size="lg" fullWidth>
+  {loading ? "Cargando" : "Enviar"}
 </Button>
 ```
 
@@ -274,4 +239,3 @@ Si necesitas agregar estilos personalizados, puedes usar la prop `className`:
 4. **Accesibilidad** - ARIA y semántica integradas
 5. **TypeScript** - Props totalmente tipadas
 6. **Responsive** - Funciona en todos los dispositivos
-

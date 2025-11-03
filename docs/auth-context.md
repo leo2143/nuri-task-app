@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     const userStr = localStorage.getItem('user');
-    
+
     if (token && userStr) {
       try {
         const userData = JSON.parse(userStr);
@@ -128,24 +128,25 @@ createRoot(document.getElementById('root')!).render(
 ### 3. Usar en Navbar (`src/components/Navbar.tsx`)
 
 **Antes:**
+
 ```typescript
 export default function Navbar() {
-  const authToken = localStorage.getItem('authToken');
+  const authToken = localStorage.getItem("authToken");
   const isAuthenticated = authToken !== null;
-  
-  let userName = '';
+
+  let userName = "";
   try {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem("user");
     if (userStr) {
       const user = JSON.parse(userStr);
-      userName = user.name || user.email || 'Usuario';
+      userName = user.name || user.email || "Usuario";
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
     userService.logout();
   };
   // ...
@@ -153,24 +154,26 @@ export default function Navbar() {
 ```
 
 **Después:**
+
 ```typescript
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  
-  const userName = user?.name || user?.email || 'Usuario';
+
+  const userName = user?.name || user?.email || "Usuario";
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
   // ...
 }
 ```
 
 ✅ **Ventajas:**
+
 - Código más limpio (12 líneas menos)
 - Reactividad automática
 - No más parsing manual de JSON
@@ -181,28 +184,31 @@ export default function Navbar() {
 ### 4. Usar en Login (`src/pages/user/Login.tsx`)
 
 **Antes:**
+
 ```typescript
 // Guardar en localStorage
-localStorage.setItem('user', JSON.stringify(authResponse.user));
+localStorage.setItem("user", JSON.stringify(authResponse.user));
 
 // Redirigir
-navigate('/');
+navigate("/");
 ```
 
 **Después:**
+
 ```typescript
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
   const { login } = useAuth();
-  
+
   // En onSubmit después de login exitoso:
   login(authResponse.user, authResponse.token);
-  navigate('/');
+  navigate("/");
 }
 ```
 
 ✅ **Ventajas:**
+
 - El Navbar se actualiza automáticamente
 - Estado sincronizado en toda la app
 - No duplicar lógica de guardado
@@ -218,11 +224,13 @@ const { user, isAuthenticated, login, logout, updateUser } = useAuth();
 ```
 
 #### `user: IAuthUser | null`
+
 - Usuario autenticado actual
 - `null` si no hay sesión
 - Tipo `IAuthUser` (sin password)
 
 **Propiedades de user:**
+
 ```typescript
 {
   _id: string;
@@ -235,44 +243,51 @@ const { user, isAuthenticated, login, logout, updateUser } = useAuth();
 ```
 
 #### `isAuthenticated: boolean`
+
 - `true` si hay sesión activa
 - `false` si no hay sesión
 
 #### `login(user: IAuthUser, token: string): void`
+
 - Inicia sesión del usuario
 - Guarda en localStorage
 - Actualiza estado global
 
 **Ejemplo:**
+
 ```typescript
 const { login } = useAuth();
 
 const response = await userService.login(credentials);
 login(response.user, response.token);
-navigate('/');
+navigate("/");
 ```
 
 #### `logout(): void`
+
 - Cierra sesión
 - Limpia localStorage
 - Limpia estado global
 
 **Ejemplo:**
+
 ```typescript
 const { logout } = useAuth();
 
 const handleLogout = () => {
   logout();
-  navigate('/login');
+  navigate("/login");
 };
 ```
 
 #### `updateUser(user: IAuthUser): void`
+
 - Actualiza información del usuario
 - Sincroniza localStorage
 - Actualiza estado global
 
 **Ejemplo:**
+
 ```typescript
 const { user, updateUser } = useAuth();
 
@@ -295,11 +310,11 @@ import { Navigate } from 'react-router-dom';
 
 export default function ProtectedPage() {
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <div>Contenido protegido</div>;
 }
 ```
@@ -311,7 +326,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Profile() {
   const { user } = useAuth();
-  
+
   return (
     <div>
       <h1>Perfil de {user?.name}</h1>
@@ -329,7 +344,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
-  
+
   return (
     <div>
       {isAuthenticated ? (
@@ -358,20 +373,20 @@ interface ProtectedRouteProps {
   requireAdmin?: boolean;
 }
 
-export default function ProtectedRoute({ 
-  children, 
-  requireAdmin = false 
+export default function ProtectedRoute({
+  children,
+  requireAdmin = false
 }: ProtectedRouteProps) {
   const { isAuthenticated, user } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   if (requireAdmin && !user?.isAdmin) {
     return <Navigate to="/" replace />;
   }
-  
+
   return <>{children}</>;
 }
 ```
@@ -463,22 +478,22 @@ export const router = createBrowserRouter([
 
 ### Navbar
 
-| Aspecto | Antes | Después |
-|---------|-------|---------|
-| **Líneas de código** | ~25 | ~13 |
-| **Reactividad** | ❌ No | ✅ Sí |
-| **Parsing manual** | ✅ Sí | ❌ No |
-| **Error handling** | Manual con try/catch | Automático en Context |
-| **TypeScript** | Parcial | ✅ Completo |
-| **Re-render** | ❌ Manual | ✅ Automático |
+| Aspecto              | Antes                | Después               |
+| -------------------- | -------------------- | --------------------- |
+| **Líneas de código** | ~25                  | ~13                   |
+| **Reactividad**      | ❌ No                | ✅ Sí                 |
+| **Parsing manual**   | ✅ Sí                | ❌ No                 |
+| **Error handling**   | Manual con try/catch | Automático en Context |
+| **TypeScript**       | Parcial              | ✅ Completo           |
+| **Re-render**        | ❌ Manual            | ✅ Automático         |
 
 ### Login
 
-| Aspecto | Antes | Después |
-|---------|-------|---------|
-| **Guardado en localStorage** | Manual | Automático vía Context |
-| **Actualización UI** | ❌ No automática | ✅ Automática |
-| **Código duplicado** | ✅ Sí | ❌ No |
+| Aspecto                      | Antes            | Después                |
+| ---------------------------- | ---------------- | ---------------------- |
+| **Guardado en localStorage** | Manual           | Automático vía Context |
+| **Actualización UI**         | ❌ No automática | ✅ Automática          |
+| **Código duplicado**         | ✅ Sí            | ❌ No                  |
 
 ---
 
@@ -568,7 +583,7 @@ const [error, setError] = useState<string | null>(null);
 try {
   // ...
 } catch (err) {
-  setError('Error al cargar sesión');
+  setError("Error al cargar sesión");
 }
 ```
 
@@ -583,4 +598,3 @@ try {
 ---
 
 **¡Autenticación global implementada con éxito!** 🎉✅
-

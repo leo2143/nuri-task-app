@@ -11,8 +11,6 @@ import type {
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
-;
-
 /**
  * Servicio para operaciones relacionadas con usuarios
  * Rutas sincronizadas con el backend Express
@@ -27,7 +25,7 @@ export const userService = {
     try {
       const response = await apiClient.post<ISuccessResponse<IAuthResponse>>(
         `${API_BASE_URL}/api/users/login`,
-        credentials
+        credentials,
       );
 
       // Guardar token en localStorage
@@ -47,13 +45,13 @@ export const userService = {
    * POST /api/users
    * @public
    */
-  createUser: async (userData: ICreateUser): Promise<ISuccessResponse> => {
+  createUser: async (userData: ICreateUser): Promise<IUser> => {
     try {
       const response = await apiClient.post<ISuccessResponse<IUser>>(
         `${API_BASE_URL}/api/users`,
-        userData
+        userData,
       );
-      return response.data;
+      return response.data.data!;
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -63,7 +61,7 @@ export const userService = {
   /**
    * Alias para registro de usuario
    */
-  register: async (userData: ICreateUser): Promise<ISuccessResponse> => {
+  register: async (userData: ICreateUser): Promise<IUser> => {
     return userService.createUser(userData);
   },
 
@@ -76,12 +74,13 @@ export const userService = {
    * POST /api/users/forgot-password
    * @public
    */
-  forgotPassword: async (email: string): Promise<{ message: string; devToken?: string }> => {
+  forgotPassword: async (
+    email: string,
+  ): Promise<{ message: string; devToken?: string }> => {
     try {
-      const response = await apiClient.post<ISuccessResponse<{ message: string; devToken?: string }>>(
-        `${API_BASE_URL}/api/users/forgot-password`,
-        { email }
-      );
+      const response = await apiClient.post<
+        ISuccessResponse<{ message: string; devToken?: string }>
+      >(`${API_BASE_URL}/api/users/forgot-password`, { email });
       return response.data.data!;
     } catch (error) {
       console.error("Error requesting password reset:", error);
@@ -94,11 +93,13 @@ export const userService = {
    * GET /api/users/verify-reset-token/:token
    * @public
    */
-  verifyResetToken: async (token: string): Promise<{ valid: boolean; email?: string; message: string }> => {
+  verifyResetToken: async (
+    token: string,
+  ): Promise<{ valid: boolean; email?: string; message: string }> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<{ valid: boolean; email?: string; message: string }>>(
-        `${API_BASE_URL}/api/users/verify-reset-token/${token}`
-      );
+      const response = await apiClient.get<
+        ISuccessResponse<{ valid: boolean; email?: string; message: string }>
+      >(`${API_BASE_URL}/api/users/verify-reset-token/${token}`);
       return response.data.data!;
     } catch (error) {
       console.error("Error verifying reset token:", error);
@@ -111,12 +112,14 @@ export const userService = {
    * POST /api/users/reset-password
    * @public
    */
-  resetPassword: async (token: string, newPassword: string): Promise<{ message: string; email: string }> => {
+  resetPassword: async (
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string; email: string }> => {
     try {
-      const response = await apiClient.post<ISuccessResponse<{ message: string; email: string }>>(
-        `${API_BASE_URL}/api/users/reset-password`,
-        { token, newPassword }
-      );
+      const response = await apiClient.post<
+        ISuccessResponse<{ message: string; email: string }>
+      >(`${API_BASE_URL}/api/users/reset-password`, { token, newPassword });
       return response.data.data!;
     } catch (error) {
       console.error("Error resetting password:", error);
@@ -135,7 +138,10 @@ export const userService = {
    */
   changePassword: async (passwordData: IChangePassword): Promise<void> => {
     try {
-      await apiClient.put(`${API_BASE_URL}/api/users/change-password`, passwordData);
+      await apiClient.put(
+        `${API_BASE_URL}/api/users/change-password`,
+        passwordData,
+      );
     } catch (error) {
       console.error("Error changing password:", error);
       throw error;
@@ -165,7 +171,7 @@ export const userService = {
   getUsers: async (): Promise<IUser[]> => {
     try {
       const response = await apiClient.get<ISuccessResponse<IUser[]>>(
-        `${API_BASE_URL}/api/users`
+        `${API_BASE_URL}/api/users`,
       );
       return response.data.data || [];
     } catch (error) {
@@ -189,7 +195,7 @@ export const userService = {
   getUserById: async (id: string): Promise<IUser | null> => {
     try {
       const response = await apiClient.get<ISuccessResponse<IUser>>(
-        `${API_BASE_URL}/api/users/${id}`
+        `${API_BASE_URL}/api/users/${id}`,
       );
       return response.data.data;
     } catch (error) {
@@ -207,7 +213,7 @@ export const userService = {
     try {
       const response = await apiClient.put<ISuccessResponse<IUser>>(
         `${API_BASE_URL}/api/users/${id}`,
-        userData
+        userData,
       );
       return response.data.data!;
     } catch (error) {
@@ -237,12 +243,12 @@ export const userService = {
    */
   resetUserPassword: async (
     userId: string,
-    passwordData: IResetPassword
+    passwordData: IResetPassword,
   ): Promise<void> => {
     try {
       await apiClient.put(
         `${API_BASE_URL}/api/admin/users/${userId}/reset-password`,
-        passwordData
+        passwordData,
       );
     } catch (error) {
       console.error(`Error resetting password for user ${userId}:`, error);

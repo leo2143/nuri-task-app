@@ -1,48 +1,48 @@
-import { createBrowserRouter } from 'react-router-dom';
-import Layout from '../components/Layout';
-import Home from '../pages/Home';
-import TaskList from '../pages/tasks/TaskList';
-import TaskDetail from '../pages/tasks/TaskDetail';
-import NotFound from '../pages/status/NotFound';
-import Login from '../pages/user/Login';
-import Register from '../pages/user/Register';
-import ForgotPassword from '../pages/user/ForgotPassword';
-import ResetPassword from '../pages/user/ResetPassword';
+import { createBrowserRouter } from "react-router-dom";
+import Layout from "../components/Layout";
+import Home from "../pages/Home";
+import TaskList from "../pages/tasks/TaskList";
+import TaskDetail from "../pages/tasks/TaskDetail";
+import NotFound from "../pages/status/NotFound";
+import Login from "../pages/user/Login";
+import Register from "../pages/user/Register";
+import ForgotPassword from "../pages/user/ForgotPassword";
+import ResetPassword from "../pages/user/ResetPassword";
 
 export const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <Layout />,
     errorElement: <NotFound />,
     children: [
       {
         index: true,
-        element: <Home />
+        element: <Home />,
       },
       {
-        path: 'login',
-        element: <Login />
+        path: "login",
+        element: <Login />,
       },
       {
-        path: 'register',
-        element: <Register />
+        path: "register",
+        element: <Register />,
       },
       {
-        path: 'forgot-password',
-        element: <ForgotPassword />
+        path: "forgot-password",
+        element: <ForgotPassword />,
       },
       {
-        path: 'reset-password',
-        element: <ResetPassword />
+        path: "reset-password",
+        element: <ResetPassword />,
       },
       {
-        path: 'tasks',
-        element: <TaskList />
+        path: "tasks",
+        element: <TaskList />,
       },
       {
-        path: 'tasks/:id',
-        element: <TaskDetail />
-      }
-    ]
-  }
+        path: "tasks/:id",
+        element: <TaskDetail />,
+      },
+    ],
+  },
 ]);

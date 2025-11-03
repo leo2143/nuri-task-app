@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 interface UseFieldReturn {
   type: string;
@@ -12,7 +12,7 @@ interface UseFieldReturn {
  * @returns Objeto con propiedades para conectar directamente al input
  */
 export const useField = (type: string): UseFieldReturn => {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
@@ -21,7 +21,6 @@ export const useField = (type: string): UseFieldReturn => {
   return {
     type,
     value,
-    onChange
+    onChange,
   };
 };
-

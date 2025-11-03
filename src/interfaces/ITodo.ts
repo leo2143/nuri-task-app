@@ -6,7 +6,7 @@
 /**
  * Niveles de prioridad para las tareas
  */
-export type TodoPriority = 'low' | 'medium' | 'high';
+export type TodoPriority = "low" | "medium" | "high";
 
 /**
  * Interface para comentarios en una tarea
@@ -66,4 +66,3 @@ export interface IAddTodoComment {
   text: string;
   author: string;
 }
-

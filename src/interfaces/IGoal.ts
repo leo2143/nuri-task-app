@@ -6,12 +6,12 @@
 /**
  * Estados posibles de una meta
  */
-export type GoalStatus = 'active' | 'paused' | 'completed';
+export type GoalStatus = "active" | "paused" | "completed";
 
 /**
  * Niveles de prioridad para las metas
  */
-export type GoalPriority = 'low' | 'medium' | 'high';
+export type GoalPriority = "low" | "medium" | "high";
 
 /**
  * Interface para los criterios SMART de una meta
@@ -87,4 +87,3 @@ export interface IAddGoalComment {
   text: string;
   author: string;
 }
-
