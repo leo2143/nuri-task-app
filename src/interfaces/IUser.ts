@@ -93,4 +93,3 @@ export interface IResetPassword {
  * @deprecated Use IUser instead
  * Mantenido por compatibilidad con código existente
  */
-  

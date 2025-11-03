@@ -11,8 +11,6 @@ import type {
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
-;
-
 /**
  * Servicio para operaciones relacionadas con usuarios
  * Rutas sincronizadas con el backend Express
@@ -27,7 +25,7 @@ export const userService = {
     try {
       const response = await apiClient.post<ISuccessResponse<IAuthResponse>>(
         `${API_BASE_URL}/api/users/login`,
-        credentials
+        credentials,
       );
 
       // Guardar token en localStorage
@@ -51,7 +49,7 @@ export const userService = {
     try {
       const response = await apiClient.post<ISuccessResponse<IUser>>(
         `${API_BASE_URL}/api/users`,
-        userData
+        userData,
       );
       return response.data.data!;
     } catch (error) {
@@ -68,6 +66,68 @@ export const userService = {
   },
 
   // ==========================================
+  // RUTAS DE RECUPERACIÓN DE CONTRASEÑA
+  // ==========================================
+
+  /**
+   * Solicitar recuperación de contraseña (Envía email con token)
+   * POST /api/users/forgot-password
+   * @public
+   */
+  forgotPassword: async (
+    email: string,
+  ): Promise<{ message: string; devToken?: string }> => {
+    try {
+      const response = await apiClient.post<
+        ISuccessResponse<{ message: string; devToken?: string }>
+      >(`${API_BASE_URL}/api/users/forgot-password`, { email });
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error requesting password reset:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Verificar si un token de recuperación es válido
+   * GET /api/users/verify-reset-token/:token
+   * @public
+   */
+  verifyResetToken: async (
+    token: string,
+  ): Promise<{ valid: boolean; email?: string; message: string }> => {
+    try {
+      const response = await apiClient.get<
+        ISuccessResponse<{ valid: boolean; email?: string; message: string }>
+      >(`${API_BASE_URL}/api/users/verify-reset-token/${token}`);
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error verifying reset token:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Resetear contraseña con token
+   * POST /api/users/reset-password
+   * @public
+   */
+  resetPassword: async (
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string; email: string }> => {
+    try {
+      const response = await apiClient.post<
+        ISuccessResponse<{ message: string; email: string }>
+      >(`${API_BASE_URL}/api/users/reset-password`, { token, newPassword });
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      throw error;
+    }
+  },
+
+  // ==========================================
   // RUTAS PROTEGIDAS (Requieren token válido)
   // ==========================================
 
@@ -78,7 +138,10 @@ export const userService = {
    */
   changePassword: async (passwordData: IChangePassword): Promise<void> => {
     try {
-      await apiClient.put(`${API_BASE_URL}/api/users/change-password`, passwordData);
+      await apiClient.put(
+        `${API_BASE_URL}/api/users/change-password`,
+        passwordData,
+      );
     } catch (error) {
       console.error("Error changing password:", error);
       throw error;
@@ -88,12 +151,12 @@ export const userService = {
   /**
    * Logout de usuario (Local)
    * Elimina el token del localStorage
+   * NOTA: Usar el contexto AuthContext.logout() en lugar de este método
+   * @deprecated Usar useAuth().logout() para mejor manejo de estado
    */
   logout: (): void => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
-    // Opcional: redirigir al login
-    window.location.href = `/login`;
   },
 
   // ==========================================
@@ -108,7 +171,7 @@ export const userService = {
   getUsers: async (): Promise<IUser[]> => {
     try {
       const response = await apiClient.get<ISuccessResponse<IUser[]>>(
-        `${API_BASE_URL}/api/users`
+        `${API_BASE_URL}/api/users`,
       );
       return response.data.data || [];
     } catch (error) {
@@ -132,7 +195,7 @@ export const userService = {
   getUserById: async (id: string): Promise<IUser | null> => {
     try {
       const response = await apiClient.get<ISuccessResponse<IUser>>(
-        `${API_BASE_URL}/api/users/${id}`
+        `${API_BASE_URL}/api/users/${id}`,
       );
       return response.data.data;
     } catch (error) {
@@ -150,7 +213,7 @@ export const userService = {
     try {
       const response = await apiClient.put<ISuccessResponse<IUser>>(
         `${API_BASE_URL}/api/users/${id}`,
-        userData
+        userData,
       );
       return response.data.data!;
     } catch (error) {
@@ -180,12 +243,12 @@ export const userService = {
    */
   resetUserPassword: async (
     userId: string,
-    passwordData: IResetPassword
+    passwordData: IResetPassword,
   ): Promise<void> => {
     try {
       await apiClient.put(
         `${API_BASE_URL}/api/admin/users/${userId}/reset-password`,
-        passwordData
+        passwordData,
       );
     } catch (error) {
       console.error(`Error resetting password for user ${userId}:`, error);

@@ -4,26 +4,25 @@
  */
 
 // User
-export * from './IUser';
+export * from "./IUser";
 
 // Todo
-export * from './ITodo';
+export * from "./ITodo";
 
 // Goal
-export * from './IGoal';
+export * from "./IGoal";
 
 // Metrics
-export * from './IMetrics';
+export * from "./IMetrics";
 
 // Moodboard
-export * from './IMoodboard';
+export * from "./IMoodboard";
 
 // Achievement
-export * from './IAchievement';
+export * from "./IAchievement";
 
 // UserAchievement
-export * from './IUserAchievement';
+export * from "./IUserAchievement";
 
 // API Responses
-export * from './IApiResponse';
-
+export * from "./IApiResponse";

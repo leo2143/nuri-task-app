@@ -5,11 +5,12 @@ Esta es la guía de referencia de la paleta de colores configurada en Tailwind C
 ## 🎨 Colores Principales
 
 ### Primary (Verde Azulado)
+
 - **`primary-light`**: `#75BDC9` - Azul claro
   - **Uso**: Acentos, estados hover, elementos secundarios
   - **Significado**: Transmite tranquilidad, claridad mental y frescura
   - **Clases Tailwind**: `bg-primary-light`, `text-primary-light`, `border-primary-light`
-  - **Alias**: `tranquility`
+  - **Alias**: `secondary`
 
 - **`primary`** (DEFAULT): `#2F9685` - Verde azulado
   - **Uso**: Botones principales, enlaces, elementos destacados
@@ -24,6 +25,7 @@ Esta es la guía de referencia de la paleta de colores configurada en Tailwind C
   - **Alias**: `contrast`
 
 ### Neutral (Tonos Neutros y Cálidos)
+
 - **`neutral-light`**: `#F7F6F2` - Beige claro
   - **Uso**: Fondo base de la aplicación, áreas neutras
   - **Significado**: Color base neutro que aporta limpieza visual
@@ -48,17 +50,18 @@ Para mayor claridad en el código, también puedes usar estos nombres:
 
 ```tsx
 // Colores semánticos
-bg-tranquility   // #75BDC9 - Azul claro
-bg-balance       // #2F9685 - Verde azulado
-bg-base          // #F7F6F2 - Beige claro
-bg-warmth        // #EDCBB1 - Melocotón
-bg-contrast      // #37241C - Marrón oscuro
-bg-depth         // #3A251D - Marrón muy oscuro
+bg - secondary; // #75BDC9 - Azul claro
+bg - balance; // #2F9685 - Verde azulado
+bg - base; // #F7F6F2 - Beige claro
+bg - warmth; // #EDCBB1 - Melocotón
+bg - contrast; // #37241C - Marrón oscuro
+bg - depth; // #3A251D - Marrón muy oscuro
 ```
 
 ## 🎨 Ejemplos de Uso
 
 ### Botones
+
 ```tsx
 // Botón primario
 <button className="bg-primary hover:bg-balance text-base">
@@ -66,7 +69,7 @@ bg-depth         // #3A251D - Marrón muy oscuro
 </button>
 
 // Botón secundario
-<button className="bg-tranquility hover:bg-primary-light text-contrast">
+<button className="bg-secondary hover:bg-primary-light text-contrast">
   Secondary Button
 </button>
 
@@ -77,6 +80,7 @@ bg-depth         // #3A251D - Marrón muy oscuro
 ```
 
 ### Tarjetas
+
 ```tsx
 <div className="bg-white border border-neutral-light hover:border-warmth">
   <h2 className="text-contrast">Título</h2>
@@ -85,6 +89,7 @@ bg-depth         // #3A251D - Marrón muy oscuro
 ```
 
 ### Texto
+
 ```tsx
 <h1 className="text-contrast">Encabezado Principal</h1>
 <p className="text-depth">Texto de cuerpo</p>
@@ -94,6 +99,7 @@ bg-depth         // #3A251D - Marrón muy oscuro
 ## 🔤 Tipografía
 
 ### Montserrat Alternates - Títulos
+
 - **Uso**: Todos los encabezados (h1-h6)
 - **Clases**: `font-heading`
 - **Pesos disponibles**: 100, 200, 300, 400, 500, 600, 700, 800, 900
@@ -102,10 +108,11 @@ bg-depth         // #3A251D - Marrón muy oscuro
 <h1 className="font-heading font-bold">Título Principal</h1>
 ```
 
-### PT Sans - Texto de cuerpo
+### Nunito Sans - Texto de cuerpo
+
 - **Uso**: Párrafos, texto general, UI
 - **Clases**: `font-body`
-- **Pesos disponibles**: 400 (regular), 700 (bold)
+- **Pesos disponibles**: 300 (light), 400 (regular), 600 (semibold), 700 (bold), 800 (extrabold)
 
 ```tsx
 <p className="font-body">Texto de párrafo</p>
@@ -114,11 +121,13 @@ bg-depth         // #3A251D - Marrón muy oscuro
 ## ✅ Combinaciones Recomendadas
 
 ### Header/Navigation
+
 - Background: `bg-primary`
 - Text: `text-base`
 - Hover: `hover:text-warmth`
 
 ### Content Cards
+
 - Background: `bg-white`
 - Border: `border-neutral-light`
 - Hover Border: `hover:border-warmth`
@@ -126,24 +135,27 @@ bg-depth         // #3A251D - Marrón muy oscuro
 - Body: `text-depth`
 
 ### Buttons
+
 - **Primary Action**: `bg-primary text-base hover:bg-balance`
-- **Secondary Action**: `bg-tranquility text-contrast hover:bg-primary-light`
+- **Secondary Action**: `bg-secondary text-contrast hover:bg-primary-light`
 - **Tertiary Action**: `bg-warmth text-contrast hover:bg-neutral`
 
 ### Footer
+
 - Background: `bg-contrast`
 - Text: `text-base`
 
 ## 🌈 Accesibilidad
 
 Todas las combinaciones de colores han sido diseñadas teniendo en cuenta:
+
 - Contraste mínimo WCAG AA (4.5:1 para texto normal)
 - Legibilidad en diferentes dispositivos
 - Armonía visual y coherencia
 
 ### Combinaciones de Alto Contraste Validadas
+
 - ✅ `text-contrast` sobre `bg-base` (fondo principal)
 - ✅ `text-base` sobre `bg-primary` (botones/header)
 - ✅ `text-depth` sobre `bg-base` (texto secundario)
 - ✅ `text-contrast` sobre `bg-warmth` (elementos cálidos)
-

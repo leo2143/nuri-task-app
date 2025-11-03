@@ -1,144 +1,113 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { userService } from '../../services/userService';
-import type { ILoginUser } from '../../interfaces/IUser';
-import Alert from '../../components/Alert';
-import Loading from '../../components/Loading';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { userService } from "../../services/userService";
+import type { ILoginUser } from "../../interfaces/IUser";
+import Alert from "../../components/Alert";
+import Loading from "../../components/Loading";
+import { useField, useHttpError } from "../../hooks";
+import { Button, Input } from "../../components/ui";
+import { useAuth } from "../../context/AuthContext";
+import { validateEmail, validatePassword } from "../../utils/validations";
 
 export default function Login() {
-
   const navigate = useNavigate();
-  
-  const [error, setError] = useState(false);
-  const [msgError, setMsgError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<ILoginUser>({ 
-    email: '', 
-    password: '' 
-  });
+  const { login } = useAuth();
 
-  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setForm((f) => ({ ...f, [name]: value }));
-    setError(false);
-    setMsgError('');
+  // Hook para manejar errores HTTP
+  const { error, errorMessage, handleError, clearError } = useHttpError();
+
+  const [loading, setLoading] = useState(false);
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const email = useField("email");
+  const password = useField("password");
+
+  const validar = (): { email?: string; password?: string } | null => {
+    const errors: { email?: string; password?: string } = {};
+
+    const emailValidation = validateEmail(email.value);
+    if (emailValidation) errors.email = emailValidation;
+
+    const passwordValidation = validatePassword(password.value);
+    if (passwordValidation) errors.password = passwordValidation;
+
+    return Object.keys(errors).length > 0 ? errors : null;
   };
 
-  const validar = (): string | null => {
-    if (!form.email.trim()) {
-      return 'El email es obligatorio';
-    }
-    
-    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!regex.test(form.email)) {
-      return 'El email no es válido';
-    }
-    
-    if (!form.password.trim()) {
-      return 'La contraseña es obligatoria';
-    }
-    
-    if (form.password.length < 4) {
-      return 'La contraseña debe tener al menos 4 caracteres';
-    }
-    
-    return null;
+  const handleEmailBlur = () => {
+    setEmailError(validateEmail(email.value) || "");
+  };
+
+  const handlePasswordBlur = () => {
+    setPasswordError(validatePassword(password.value) || "");
   };
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
-    // 1. VALIDAR formulario
+
+    // validar formulario
     const errorValidacion = validar();
     if (errorValidacion) {
-      setMsgError(errorValidacion);
-      setError(true);
+      setEmailError(errorValidacion.email || "");
+      setPasswordError(errorValidacion.password || "");
       return;
     }
 
-    // 2. ACTIVAR loading
+    // Limpiar errores si la validación pasa
+    setEmailError("");
+    setPasswordError("");
+    clearError();
+
+    // activo loading
     setLoading(true);
-    
+
     try {
-      // 3. LLAMAR al servicio de login
-      // IMPORTANTE: El servicio automáticamente guarda el token en localStorage
-      const authResponse = await userService.login(form);
-      
-      // 4. Login exitoso
-      console.log('Login exitoso:', authResponse);
-      console.log('Usuario:', authResponse.user);
-      console.log('Token guardado:', authResponse.token);
-      
-      // 5. Guardar información del usuario en localStorage
-      localStorage.setItem('user', JSON.stringify(authResponse.user));
-      
-      // 6. Limpiar formulario
-      setForm({ email: '', password: '' });
-      
-      // 7. Redirigir al home o dashboard
-      navigate('/');
-      
+      const loginData: ILoginUser = {
+        email: email.value,
+        password: password.value,
+      };
+      const authResponse = await userService.login(loginData);
+
+      login(authResponse.user, authResponse.token);
+
+      // 6. Redirigir al home o dashboard
+      navigate("/");
     } catch (error: unknown) {
-      // 7. MANEJAR errores
-      console.error('Error en login:', error);
-      
-      // Extraer mensaje de error del backend
-      let mensajeError = 'Error al iniciar sesión';
-      
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
-        
-        if (axiosError.response?.status === 401) {
-          mensajeError = 'Email o contraseña incorrectos';
-        } else if (axiosError.response?.status === 404) {
-          mensajeError = 'Usuario no encontrado';
-        } else if (axiosError.response?.data?.message) {
-          mensajeError = axiosError.response.data.message;
-        }
-      } else if (error instanceof Error && error.message) {
-        mensajeError = error.message;
-      }
-      
-      setError(true);
-      setMsgError(mensajeError);
-      
+      console.error("Error en login:", error);
+      handleError(error);
     } finally {
-      // 8. SIEMPRE desactivar loading
       setLoading(false);
     }
   };
 
-
-
-
-
-
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary via-base to-warmth/20 flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen bg-gradient-to-br from-primary via-neutral to-secondary/20 flex items-center justify-center px-4 py-12">
       {loading && <Loading />}
 
       <section className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
         {/* Ilustración / Imagen lateral */}
         <div className="hidden md:flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm rounded-3xl shadow-xl">
           <div className="text-center">
-            <svg 
+            <svg
               className="w-64 h-64 mx-auto text-primary opacity-80"
-              fill="none" 
-              stroke="currentColor" 
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
               aria-hidden="true"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={1.5} 
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <h2 className="text-3xl font-heading font-bold text-contrast mt-6 mb-3">
+            <h2 className="text-3xl font-heading font-bold text-tertiary mt-6 mb-3">
               ¡Bienvenido de Nuevo!
             </h2>
-            <p className="text-lg text-contrast/70 font-body">
+            <p className="text-lg text-tertiary/70 font-body">
               Gestiona tus tareas de manera eficiente y aumenta tu productividad
             </p>
           </div>
@@ -146,75 +115,54 @@ export default function Login() {
 
         {/* Formulario de Login */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-          <header className="mb-8">
-            <h1 className="text-4xl font-heading font-bold text-contrast mb-2">
+          <div className="mb-8">
+            <h1 className="text-4xl font-heading font-bold text-tertiary mb-2">
               Iniciar Sesión
             </h1>
-            <p className="text-contrast/60 font-body">
+            <p className="text-tertiary/60 font-body">
               Ingresa tus credenciales para acceder a tu cuenta
             </p>
-          </header>
+          </div>
 
-          <form onSubmit={onSubmit} className="space-y-6">
+          <form
+            onSubmit={onSubmit}
+            className="space-y-6"
+            method="post"
+            noValidate
+          >
             {/* Campo Email */}
-            <div className="space-y-2">
-              <label 
-                htmlFor="email" 
-                className="block text-sm font-medium text-contrast font-body"
-              >
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={form.email}
-                onChange={onChange}
-                required
-                aria-required="true"
-                autoComplete="email"
-                disabled={loading}
-                className="w-full px-4 py-3 rounded-lg border-2 border-base/30 
-                  focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none
-                  disabled:bg-base/10 disabled:cursor-not-allowed
-                  transition-all duration-200 font-body text-contrast
-                  placeholder:text-contrast/40"
-                placeholder="tu.correo@ejemplo.com"
-              />
-            </div>
+            <Input
+              {...email}
+              id="email"
+              name="email"
+              label="Correo Electrónico"
+              placeholder="tu.correo@ejemplo.com"
+              required
+              autoComplete="email"
+              disabled={loading}
+              error={emailError}
+              onBlur={handleEmailBlur}
+            />
 
             {/* Campo Password */}
-            <div className="space-y-2">
-              <label 
-                htmlFor="password" 
-                className="block text-sm font-medium text-contrast font-body"
-              >
-                Contraseña
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={form.password}
-                onChange={onChange}
-                required
-                aria-required="true"
-                autoComplete="current-password"
-                disabled={loading}
-                className="w-full px-4 py-3 rounded-lg border-2 border-base/30 
-                  focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none
-                  disabled:bg-base/10 disabled:cursor-not-allowed
-                  transition-all duration-200 font-body text-contrast
-                  placeholder:text-contrast/40"
-                placeholder="Ingresa tu contraseña"
-              />
-            </div>
+            <Input
+              {...password}
+              id="password"
+              name="password"
+              label="Contraseña"
+              placeholder="Ingresa tu contraseña"
+              required
+              autoComplete="current-password"
+              disabled={loading}
+              error={passwordError}
+              onBlur={handlePasswordBlur}
+            />
 
             {/* Forgot Password Link */}
             <div className="flex justify-end">
-              <Link 
+              <Link
                 to="/forgot-password"
-                className="text-sm text-primary hover:text-warmth font-medium 
+                className="text-sm text-primary hover:text-secondary font-medium 
                   transition-colors duration-200 focus:outline-none focus:ring-2 
                   focus:ring-primary/50 rounded px-1"
               >
@@ -222,61 +170,32 @@ export default function Login() {
               </Link>
             </div>
 
-            {/* Error Alert */}
-            {error && (
+            {/* Error Alert - Solo mostrar errores del servidor */}
+            {error && !emailError && !passwordError && (
               <div className="animate-shake">
-                <Alert msg={msgError} />
+                <Alert msg={errorMessage} />
               </div>
             )}
 
             {/* Botón Submit */}
-            <button
+            <Button
               type="submit"
+              loading={loading}
               disabled={loading}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold 
-                py-3 px-6 rounded-lg shadow-lg hover:shadow-xl
-                focus:outline-none focus:ring-4 focus:ring-primary/50
-                disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary
-                transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]
-                font-body text-lg"
+              variant="primary"
+              size="lg"
+              fullWidth
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg 
-                    className="animate-spin h-5 w-5" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <circle 
-                      className="opacity-25" 
-                      cx="12" 
-                      cy="12" 
-                      r="10" 
-                      stroke="currentColor" 
-                      strokeWidth="4"
-                    />
-                    <path 
-                      className="opacity-75" 
-                      fill="currentColor" 
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Iniciando sesión...
-                </span>
-              ) : (
-                'Iniciar Sesión'
-              )}
-            </button>
+              {loading ? "Iniciando sesión" : "Iniciar Sesión"}
+            </Button>
 
             {/* Register Link */}
-            <div className="text-center pt-4 border-t border-base/20">
-              <p className="text-contrast/70 font-body">
-                ¿No tienes una cuenta?{' '}
-                <Link 
-                  to="/user/register"
-                  className="text-primary hover:text-warmth font-semibold 
+            <div className="text-center pt-4 border-t border-neutral/20">
+              <p className="text-tertiary/70 font-body">
+                ¿No tienes una cuenta?{" "}
+                <Link
+                  to="/register"
+                  className="text-primary hover:text-secondary font-semibold 
                     transition-colors duration-200 focus:outline-none focus:ring-2 
                     focus:ring-primary/50 rounded px-1"
                 >

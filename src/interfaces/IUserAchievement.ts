@@ -6,7 +6,7 @@
 /**
  * Estado del progreso del logro
  */
-export type AchievementStatus = 'locked' | 'unlocked' | 'completed';
+export type AchievementStatus = "locked" | "unlocked" | "completed";
 
 /**
  * Interface para el progreso individual de un logro de usuario
@@ -44,4 +44,3 @@ export interface IUpdateUserAchievement {
   unlockedAt?: Date | null;
   completedAt?: Date | null;
 }
-
