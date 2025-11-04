@@ -124,9 +124,6 @@ export interface IBadRequestResponse extends IBaseResponse {
   success: false;
 }
 
-/**
- * Tipo unión para todas las posibles respuestas de la API
- */
 export type ApiResponse<T = unknown> =
   | ISuccessResponse<T>
   | IErrorResponse

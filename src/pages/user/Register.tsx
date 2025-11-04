@@ -17,12 +17,15 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
+import NuriAlegre from "../../assets/illustrations/nuri-alegre.svg";
+import Trama from "../../assets/icons/trama-white.svg";
 
 export default function Register() {
   const navigate = useNavigate();
 
   // Hook para manejar errores HTTP
-  const { error, errorMessage, clearError, setErrorMessage } = useHttpError();
+  const { error, errorMessage, clearError, setError, setErrorMessage } =
+    useHttpError();
 
   const [loading, setLoading] = useState(false);
 
@@ -125,7 +128,7 @@ export default function Register() {
       console.log("Usuario creado exitosamente:", newUser);
 
       // 6. Redirigir al login
-      navigate("/user/login");
+      navigate("/login");
     } catch (error: unknown) {
       // 7. MANEJAR errores con type guards
       console.error("Error en registro:", error);
@@ -175,6 +178,7 @@ export default function Register() {
         }
       }
 
+      setError(true);
       setErrorMessage(mensajeError);
     } finally {
       // 8. SIEMPRE desactivar loading
@@ -183,44 +187,43 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary via-neutral to-secondary/20 flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen flex items-center justify-center md:px-4 md:py-12">
       {loading && <Loading />}
 
-      <section className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
-        {/* Ilustración / Imagen lateral */}
-        <div className="hidden md:flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm rounded-3xl shadow-xl">
-          <div className="text-center">
-            <svg
-              className="w-64 h-64 mx-auto text-primary opacity-80"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h2 className="text-3xl font-heading font-bold text-tertiary mt-6 mb-3">
+      <section className="w-full md:max-w-6xl grid md:grid-cols-2 gap-0 items-stretch overflow-hidden md:rounded-3xl md:shadow-2xl h-screen md:h-auto">
+        {/* Sección del Dibujo - Oculta en móvil */}
+        <div className="hidden md:flex relative bg-secondary flex-col items-center justify-center h-full px-8 py-12">
+          <div className="text-center flex flex-col justify-center items-center gap-10 z-10">
+            <h2 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
               ¡Únete a Nosotros!
             </h2>
-            <p className="text-lg text-tertiary/70 font-body">
-              Crea tu cuenta y comienza a gestionar tus tareas de manera
-              eficiente
-            </p>
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <img
+                className="w-64"
+                src={NuriAlegre}
+                alt="Nuri mascota alegre"
+              />
+            </div>
+          </div>
+
+          {/* Textura decorativa */}
+          <div className="absolute bottom-0 left-0 right-0 opacity-20">
+            <img
+              className="w-full h-auto"
+              src={Trama}
+              alt="trama de la marca"
+              aria-hidden="true"
+            />
           </div>
         </div>
 
         {/* Formulario de Registro */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-          <div className="mb-8">
-            <h1 className="text-4xl font-heading font-bold text-tertiary mb-2">
+        <div className="bg-secondary md:bg-neutral md:rounded-r-3xl p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-heading font-bold text-neutral md:text-tertiary mb-2">
               Crear Cuenta
             </h1>
-            <p className="text-tertiary/60 font-body">
+            <p className="text-neutral/60 md:text-tertiary/60 font-body">
               Ingresa tus datos para registrarte
             </p>
           </div>
@@ -238,6 +241,7 @@ export default function Register() {
               disabled={loading}
               error={nameError}
               onBlur={handleNameBlur}
+              responsiveDarkMode
             />
 
             {/* Campo Email */}
@@ -252,6 +256,7 @@ export default function Register() {
               disabled={loading}
               error={emailError}
               onBlur={handleEmailBlur}
+              responsiveDarkMode
             />
 
             {/* Campo Password */}
@@ -267,6 +272,7 @@ export default function Register() {
               error={passwordError}
               onBlur={handlePasswordBlur}
               helperText="Mínimo 4 caracteres"
+              responsiveDarkMode
             />
 
             {/* Campo Confirmar Password */}
@@ -281,6 +287,7 @@ export default function Register() {
               disabled={loading}
               error={confirmPasswordError}
               onBlur={handleConfirmPasswordBlur}
+              responsiveDarkMode
             />
 
             {/* Error Alert - Solo mostrar errores del servidor */}
@@ -308,7 +315,7 @@ export default function Register() {
 
             {/* Login Link */}
             <div className="text-center pt-4 border-t border-neutral/20">
-              <p className="text-tertiary/70 font-body">
+              <p className="text-neutral/70 md:text-tertiary/70 font-body">
                 ¿Ya tienes una cuenta?{" "}
                 <Link
                   to="/login"

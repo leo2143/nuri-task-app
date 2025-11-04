@@ -10,20 +10,53 @@ Documentación del sistema de autenticación global usando React Context API.
 
 ---
 
-## 📁 Archivos Creados/Modificados
+## 📁 Estructura de Archivos
 
 ```
 src/
 ├── context/
-│   ├── AuthContext.tsx       # ✅ Nuevo - Contexto de autenticación
-│   └── index.ts              # ✅ Nuevo - Exportaciones
-├── main.tsx                  # ✅ Modificado - Envuelve app con Provider
-├── components/
-│   └── Navbar.tsx            # ✅ Modificado - Usa useAuth hook
-└── pages/
-    └── user/
-        └── Login.tsx         # ✅ Modificado - Usa context al login
+│   ├── AuthContext.tsx  # Contexto y Provider (solo componente)
+│   └── index.ts         # Exporta AuthProvider y tipos
+└── hooks/
+    ├── useAuth.ts       # Hook personalizado para usar el contexto
+    └── index.ts         # Exporta todos los hooks
 ```
+
+## ⚡ ¿Por qué están separados?
+
+El hook `useAuth` está en un archivo separado del `AuthProvider` para cumplir con las **reglas de Fast Refresh** de React.
+
+### Problema Anterior (❌)
+
+```tsx
+// AuthContext.tsx exportaba ambos
+export function AuthProvider() {
+  /* ... */
+} // Componente
+export function useAuth() {
+  /* ... */
+} // Hook
+
+// ⚠️ Warning: Fast refresh only works when a file only exports components
+```
+
+### Solución Actual (✅)
+
+```tsx
+// src/context/AuthContext.tsx - Solo componente
+export function AuthProvider() {
+  /* ... */
+}
+export { AuthContext }; // Para que el hook lo use
+export type { AuthContextType }; // Tipos
+
+// src/hooks/useAuth.ts - Solo hook
+export function useAuth() {
+  /* ... */
+}
+```
+
+**Resultado:** ✅ Sin warnings, Fast Refresh funciona perfectamente.
 
 ---
 
@@ -32,11 +65,11 @@ src/
 ### 1. Context Provider (`src/context/AuthContext.tsx`)
 
 ```typescript
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import type { IAuthUser } from '../interfaces';
+import { createContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import type { IAuthUser } from "../interfaces";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: IAuthUser | null;
   isAuthenticated: boolean;
   login: (user: IAuthUser, token: string) => void;
@@ -44,14 +77,19 @@ interface AuthContextType {
   updateUser: (user: IAuthUser) => void;
 }
 
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Exportar el contexto para que pueda ser usado por el hook
+export { AuthContext };
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<IAuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Inicializar desde localStorage al montar
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const userStr = localStorage.getItem('user');
+    const token = localStorage.getItem("authToken");
+    const userStr = localStorage.getItem("user");
 
     if (token && userStr) {
       try {
@@ -59,29 +97,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(userData);
         setIsAuthenticated(true);
       } catch (error) {
-        console.error('Error al cargar usuario:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
+        console.error("Error al cargar usuario:", error);
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("user");
       }
     }
   }, []);
 
   const login = (userData: IAuthUser, token: string) => {
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
     setUser(null);
     setIsAuthenticated(false);
   };
 
   const updateUser = (userData: IAuthUser) => {
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
@@ -91,12 +129,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
+```
 
-// Hook personalizado
+### 2. Custom Hook (`src/hooks/useAuth.ts`)
+
+```typescript
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
+/**
+ * Custom hook para acceder al contexto de autenticación
+ * @throws {Error} Si se usa fuera del AuthProvider
+ * @returns {AuthContextType} El contexto de autenticación
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
   }
   return context;
 }
@@ -104,14 +153,30 @@ export function useAuth() {
 
 ---
 
-### 2. Envolver la App (`src/main.tsx`)
+## 📦 Uso
+
+### Importar el Provider
+
+```tsx
+import { AuthProvider } from "../context";
+```
+
+### Importar el Hook
+
+```tsx
+import { useAuth } from "../hooks";
+// O específicamente:
+import { useAuth } from "../hooks/useAuth";
+```
+
+### Envolver la App (`src/main.tsx`)
 
 ```typescript
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { router } from './routes/router'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider } from './context'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
@@ -122,96 +187,6 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 ```
-
----
-
-### 3. Usar en Navbar (`src/components/Navbar.tsx`)
-
-**Antes:**
-
-```typescript
-export default function Navbar() {
-  const authToken = localStorage.getItem("authToken");
-  const isAuthenticated = authToken !== null;
-
-  let userName = "";
-  try {
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      userName = user.name || user.email || "Usuario";
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    userService.logout();
-  };
-  // ...
-}
-```
-
-**Después:**
-
-```typescript
-import { useAuth } from "../context/AuthContext";
-
-export default function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const userName = user?.name || user?.email || "Usuario";
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-  // ...
-}
-```
-
-✅ **Ventajas:**
-
-- Código más limpio (12 líneas menos)
-- Reactividad automática
-- No más parsing manual de JSON
-- Tipado correcto con TypeScript
-
----
-
-### 4. Usar en Login (`src/pages/user/Login.tsx`)
-
-**Antes:**
-
-```typescript
-// Guardar en localStorage
-localStorage.setItem("user", JSON.stringify(authResponse.user));
-
-// Redirigir
-navigate("/");
-```
-
-**Después:**
-
-```typescript
-import { useAuth } from "../../context/AuthContext";
-
-export default function Login() {
-  const { login } = useAuth();
-
-  // En onSubmit después de login exitoso:
-  login(authResponse.user, authResponse.token);
-  navigate("/");
-}
-```
-
-✅ **Ventajas:**
-
-- El Navbar se actualiza automáticamente
-- Estado sincronizado en toda la app
-- No duplicar lógica de guardado
 
 ---
 
@@ -256,6 +231,8 @@ const { user, isAuthenticated, login, logout, updateUser } = useAuth();
 **Ejemplo:**
 
 ```typescript
+import { useAuth } from "../hooks";
+
 const { login } = useAuth();
 
 const response = await userService.login(credentials);
@@ -272,6 +249,8 @@ navigate("/");
 **Ejemplo:**
 
 ```typescript
+import { useAuth } from "../hooks";
+
 const { logout } = useAuth();
 
 const handleLogout = () => {
@@ -289,6 +268,8 @@ const handleLogout = () => {
 **Ejemplo:**
 
 ```typescript
+import { useAuth } from "../hooks";
+
 const { user, updateUser } = useAuth();
 
 const handleUpdateProfile = async (newName: string) => {
@@ -302,10 +283,86 @@ const handleUpdateProfile = async (newName: string) => {
 
 ## 📦 Uso en Componentes
 
+### Navbar
+
+**Antes:**
+
+```typescript
+export default function Navbar() {
+  const authToken = localStorage.getItem("authToken");
+  const isAuthenticated = authToken !== null;
+
+  let userName = "";
+  try {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      userName = user.name || user.email || "Usuario";
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    userService.logout();
+  };
+  // ...
+}
+```
+
+**Después:**
+
+```typescript
+import { useAuth } from "../hooks";
+
+export default function Navbar() {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const userName = user?.name || user?.email || "Usuario";
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+  // ...
+}
+```
+
+✅ **Ventajas:**
+
+- Código más limpio (12 líneas menos)
+- Reactividad automática
+- No más parsing manual de JSON
+- Tipado correcto con TypeScript
+
+### Login Page
+
+```typescript
+import { useAuth } from "../../hooks";
+
+export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const onSubmit = async (event: React.FormEvent) => {
+    // ... validación ...
+
+    const authResponse = await userService.login(loginData);
+
+    // ✅ Usa el contexto en lugar de localStorage directamente
+    login(authResponse.user, authResponse.token);
+
+    navigate("/");
+  };
+}
+```
+
 ### Componente Protegido
 
 ```typescript
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks';
 import { Navigate } from 'react-router-dom';
 
 export default function ProtectedPage() {
@@ -319,10 +376,10 @@ export default function ProtectedPage() {
 }
 ```
 
-### Mostrar Nombre del Usuario
+### Mostrar Datos del Usuario
 
 ```typescript
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks';
 
 export default function Profile() {
   const { user } = useAuth();
@@ -335,91 +392,6 @@ export default function Profile() {
     </div>
   );
 }
-```
-
-### Conditional Rendering
-
-```typescript
-import { useAuth } from '../context/AuthContext';
-
-export default function Home() {
-  const { isAuthenticated, user } = useAuth();
-
-  return (
-    <div>
-      {isAuthenticated ? (
-        <h1>Bienvenido, {user?.name}!</h1>
-      ) : (
-        <h1>Bienvenido, invitado</h1>
-      )}
-    </div>
-  );
-}
-```
-
----
-
-## 🔒 Rutas Protegidas
-
-### Crear un ProtectedRoute Component
-
-```typescript
-import { useAuth } from '../context/AuthContext';
-import { Navigate } from 'react-router-dom';
-import type { ReactNode } from 'react';
-
-interface ProtectedRouteProps {
-  children: ReactNode;
-  requireAdmin?: boolean;
-}
-
-export default function ProtectedRoute({
-  children,
-  requireAdmin = false
-}: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAuth();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requireAdmin && !user?.isAdmin) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <>{children}</>;
-}
-```
-
-### Usar en Routes
-
-```typescript
-import ProtectedRoute from '../components/ProtectedRoute';
-
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Layout />,
-    children: [
-      {
-        path: 'profile',
-        element: (
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        )
-      },
-      {
-        path: 'admin',
-        element: (
-          <ProtectedRoute requireAdmin>
-            <AdminPanel />
-          </ProtectedRoute>
-        )
-      }
-    ]
-  }
-]);
 ```
 
 ---
@@ -461,40 +433,6 @@ export const router = createBrowserRouter([
 7. Navega a /login
 ```
 
-### 4. Actualización de Perfil
-
-```
-1. Usuario actualiza su nombre
-2. Componente llama context.updateUser(newUserData)
-3. Context guarda en localStorage
-4. Context actualiza estado
-5. Navbar se re-renderiza automáticamente ✅
-6. Muestra nuevo nombre ✅
-```
-
----
-
-## 🎨 Comparación Antes/Después
-
-### Navbar
-
-| Aspecto              | Antes                | Después               |
-| -------------------- | -------------------- | --------------------- |
-| **Líneas de código** | ~25                  | ~13                   |
-| **Reactividad**      | ❌ No                | ✅ Sí                 |
-| **Parsing manual**   | ✅ Sí                | ❌ No                 |
-| **Error handling**   | Manual con try/catch | Automático en Context |
-| **TypeScript**       | Parcial              | ✅ Completo           |
-| **Re-render**        | ❌ Manual            | ✅ Automático         |
-
-### Login
-
-| Aspecto                      | Antes            | Después                |
-| ---------------------------- | ---------------- | ---------------------- |
-| **Guardado en localStorage** | Manual           | Automático vía Context |
-| **Actualización UI**         | ❌ No automática | ✅ Automática          |
-| **Código duplicado**         | ✅ Sí            | ❌ No                  |
-
 ---
 
 ## ✅ Ventajas del Context API
@@ -515,13 +453,13 @@ export const router = createBrowserRouter([
    - Tipado fuerte en toda la app
    - Autocomplete en el IDE
 
-5. **✅ Fácil de Extender**
+5. **✅ Fast Refresh Compatible**
+   - Sin warnings de ESLint
+   - Hot Module Replacement funciona correctamente
+
+6. **✅ Fácil de Extender**
    - Agregar nuevas funciones al contexto
    - Agregar nuevos estados (ej: loading)
-
-6. **✅ Testing**
-   - Fácil de mockear el contexto
-   - Tests más simples
 
 ---
 
@@ -552,49 +490,12 @@ const mockAuthValue = {
 
 ---
 
-## 🚀 Próximos Pasos (Opcional)
-
-### 1. Loading State
-
-```typescript
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  // Verificar localStorage
-  setLoading(false);
-}, []);
-
-if (loading) return <Loading />;
-```
-
-### 2. Persistencia Avanzada
-
-```typescript
-// Sincronizar con sessionStorage también
-// Verificar expiración de token
-// Refresh token automático
-```
-
-### 3. Error Handling
-
-```typescript
-const [error, setError] = useState<string | null>(null);
-
-try {
-  // ...
-} catch (err) {
-  setError("Error al cargar sesión");
-}
-```
-
----
-
 ## 📚 Referencias
 
 - [React Context API](https://react.dev/reference/react/useContext)
-- [React Patterns - Auth Context](https://react.dev/learn/managing-state#sharing-state-between-components)
-- [TypeScript + React Context](https://react-typescript-cheatsheet.netlify.app/docs/basic/getting-started/context)
+- [React Fast Refresh](https://github.com/facebook/react/tree/main/packages/react-refresh)
+- [ESLint react-refresh plugin](https://github.com/ArnaudBarre/eslint-plugin-react-refresh)
 
 ---
 
-**¡Autenticación global implementada con éxito!** 🎉✅
+**¡Autenticación global implementada con Fast Refresh compatible!** 🎉✅

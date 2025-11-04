@@ -4,10 +4,12 @@ import { userService } from "../../services/userService";
 import type { ILoginUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
-import { useField, useHttpError } from "../../hooks";
+import { useField, useHttpError, useAuth } from "../../hooks";
 import { Button, Input } from "../../components/ui";
-import { useAuth } from "../../context/AuthContext";
 import { validateEmail, validatePassword } from "../../utils/validations";
+import Nuri from "../../assets/illustrations/nuri-completo.svg";
+import GoogleIcon from "../../assets/icons/google.svg";
+import Trama from "../../assets/icons/trama-white.svg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -83,54 +85,49 @@ export default function Login() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary via-neutral to-secondary/20 flex items-center justify-center px-4 py-12">
+    <section className="min-h-screen flex items-center justify-center lg:px-4 lg:py-12">
       {loading && <Loading />}
 
-      <section className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
-        {/* Ilustración / Imagen lateral */}
-        <div className="hidden md:flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm rounded-3xl shadow-xl">
-          <div className="text-center">
-            <svg
-              className="w-64 h-64 mx-auto text-primary opacity-80"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h2 className="text-3xl font-heading font-bold text-tertiary mt-6 mb-3">
-              ¡Bienvenido de Nuevo!
+      <div className="w-full md:max-w-6xl grid md:grid-cols-2 gap-0 items-stretch overflow-hidden md:rounded-3xl md:shadow-2xl h-screen md:h-auto">
+        {/* Sección del Dibujo - Oculta en móvil */}
+        <div className="hidden md:flex relative bg-secondary flex-col items-center justify-center h-full px-8 py-12">
+          <div className="text-center flex flex-col justify-center items-center gap-10 z-10">
+            <h2 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
+              Bienvenido a Nuri Task
             </h2>
-            <p className="text-lg text-tertiary/70 font-body">
-              Gestiona tus tareas de manera eficiente y aumenta tu productividad
-            </p>
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <img className="w-64" src={Nuri} alt="Nuri mascota" />
+            </div>
+          </div>
+
+          {/* Textura decorativa */}
+          <div className="absolute bottom-0 left-0 right-0 opacity-20">
+            <img
+              className="w-full h-auto"
+              src={Trama}
+              alt="trama de la marca"
+              aria-hidden="true"
+            />
           </div>
         </div>
 
-        {/* Formulario de Login */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-          <div className="mb-8">
-            <h1 className="text-4xl font-heading font-bold text-tertiary mb-2">
+        {/* Sección del Formulario - Visible en móvil y desktop */}
+        <div className="bg-secondary md:bg-neutral lg:rounded-r-3xl p-8 lg:p-12          flex flex-col justify-center overflow-y-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-heading font-bold  md:text-tertiary text-neutral  mb-2">
               Iniciar Sesión
             </h1>
-            <p className="text-tertiary/60 font-body">
+            <p className=" md:text-tertiary/60 text-neutral/60 font-body">
               Ingresa tus credenciales para acceder a tu cuenta
             </p>
           </div>
 
           <form
             onSubmit={onSubmit}
-            className="space-y-6"
+            className="space-y-6 w-full"
             method="post"
             noValidate
           >
-            {/* Campo Email */}
             <Input
               {...email}
               id="email"
@@ -142,9 +139,9 @@ export default function Login() {
               disabled={loading}
               error={emailError}
               onBlur={handleEmailBlur}
+              responsiveDarkMode
             />
 
-            {/* Campo Password */}
             <Input
               {...password}
               id="password"
@@ -156,9 +153,9 @@ export default function Login() {
               disabled={loading}
               error={passwordError}
               onBlur={handlePasswordBlur}
+              responsiveDarkMode
             />
 
-            {/* Forgot Password Link */}
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
@@ -170,14 +167,12 @@ export default function Login() {
               </Link>
             </div>
 
-            {/* Error Alert - Solo mostrar errores del servidor */}
             {error && !emailError && !passwordError && (
               <div className="animate-shake">
                 <Alert msg={errorMessage} />
               </div>
             )}
 
-            {/* Botón Submit */}
             <Button
               type="submit"
               loading={loading}
@@ -189,9 +184,9 @@ export default function Login() {
               {loading ? "Iniciando sesión" : "Iniciar Sesión"}
             </Button>
 
-            {/* Register Link */}
+            {/* Sección de Registro */}
             <div className="text-center pt-4 border-t border-neutral/20">
-              <p className="text-tertiary/70 font-body">
+              <p className=" md:text-tertiary/70 text-neutral/70 font-body">
                 ¿No tienes una cuenta?{" "}
                 <Link
                   to="/register"
@@ -203,9 +198,29 @@ export default function Login() {
                 </Link>
               </p>
             </div>
+
+            {/* Divider */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="bg-primary h-1 w-24 rounded"></div>
+              <p className="md:text-tertiary/70 text-neutral/70 font-body text-sm">
+                O continúa con
+              </p>
+              <div className="bg-primary h-1 w-24 rounded"></div>
+            </div>
+
+            {/* Botón de Google */}
+            <div className="flex items-center justify-center">
+              <div className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+                <img
+                  className="w-7 h-7"
+                  src={GoogleIcon}
+                  alt="Continuar con Google"
+                />
+              </div>
+            </div>
           </form>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
   );
 }

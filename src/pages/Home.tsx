@@ -22,11 +22,10 @@ export default function Home() {
             Crea y organiza fácilmente tus tareas diarias con nuestra interfaz
             intuitiva.
           </p>
-          <Link
-            to="/tasks"
-            className="inline-block px-4 py-2 bg-primary text-white font-body font-medium rounded hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200"
-          >
-            Ver Tareas
+          <Link to="/tasks">
+            <Button type="button" variant="primary" size="sm">
+              Ver Tareas
+            </Button>
           </Link>
         </article>
 
@@ -38,9 +37,11 @@ export default function Home() {
             Monitorea tu progreso y mantente al tanto de tus objetivos con un
             seguimiento detallado.
           </p>
-          <Button type="button" variant="secondary" size="sm">
-            Comenzar
-          </Button>
+          <Link to="/tasks">
+            <Button type="button" variant="secondary" size="sm">
+              Comenzar
+            </Button>
+          </Link>
         </article>
       </section>
 
