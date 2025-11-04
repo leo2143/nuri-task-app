@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks";
+import { Button } from "./ui";
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -13,13 +14,13 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-primary text-white shadow-md">
+    <header className="bg-primary text-neutral shadow-md">
       <nav className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-heading font-bold">
             <Link
               to="/"
-              className="text-white hover:text-secondary transition-colors duration-200"
+              className="text-neutral hover:text-neutral-dark transition-colors duration-200"
             >
               Nuri Task App
             </Link>
@@ -29,7 +30,7 @@ export default function Navbar() {
             <li>
               <Link
                 to="/"
-                className="text-white hover:text-secondary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
+                className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
               >
                 Inicio
               </Link>
@@ -37,7 +38,7 @@ export default function Navbar() {
             <li>
               <Link
                 to="/tasks"
-                className="text-white hover:text-secondary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
+                className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
               >
                 Tareas
               </Link>
@@ -49,20 +50,22 @@ export default function Navbar() {
                   <li>
                     <Link
                       to="/profile"
-                      className="text-white hover:text-secondary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
+                      className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
                     >
                       {userName}
                     </Link>
                   </li>
                 )}
                 <li>
-                  <button
+                  <Button
                     onClick={handleLogout}
-                    className="text-white hover:text-secondary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
                     type="button"
+                    variant="secondary"
+                    size="sm"
+                    className="!px-2 !py-1 !text-sm !bg-neutral hover:!bg-neutral/20"
                   >
                     Cerrar Sesión
-                  </button>
+                  </Button>
                 </li>
               </>
             ) : (
@@ -70,7 +73,7 @@ export default function Navbar() {
                 <li>
                   <Link
                     to="/login"
-                    className="text-white hover:text-secondary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
+                    className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
                   >
                     Iniciar Sesión
                   </Link>
@@ -78,7 +81,7 @@ export default function Navbar() {
                 <li>
                   <Link
                     to="/register"
-                    className="text-white hover:text-secondary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
+                    className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
                   >
                     Registrarse
                   </Link>

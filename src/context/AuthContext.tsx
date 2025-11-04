@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { IAuthUser } from "../interfaces";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: IAuthUser | null;
   isAuthenticated: boolean;
   login: (user: IAuthUser, token: string) => void;
@@ -11,6 +11,9 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Exportar el contexto para que pueda ser usado por el hook
+export { AuthContext };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<IAuthUser | null>(null);
@@ -69,13 +72,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-// Hook personalizado para usar el contexto
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth debe ser usado dentro de un AuthProvider");
-  }
-  return context;
 }

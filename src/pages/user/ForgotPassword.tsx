@@ -6,6 +6,8 @@ import { Button, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { validateEmail } from "../../utils/validations";
+import NuriTriste from "../../assets/illustrations/nuri-triste.svg";
+import Trama from "../../assets/icons/trama-white.svg";
 
 export default function ForgotPassword() {
   // Hook para manejar errores HTTP
@@ -79,43 +81,43 @@ export default function ForgotPassword() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary via-neutral to-secondary/20 flex items-center justify-center px-4 py-12">
+    <main className="min-h-screen flex items-center justify-center md:px-4 md:py-12">
       {loading && <Loading />}
 
-      <section className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
-        {/* Ilustración / Imagen lateral */}
-        <div className="hidden md:flex flex-col items-center justify-center p-8 bg-white/50 backdrop-blur-sm rounded-3xl shadow-xl">
-          <div className="text-center">
-            <svg
-              className="w-64 h-64 mx-auto text-primary opacity-80"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-              />
-            </svg>
-            <h2 className="text-3xl font-heading font-bold text-tertiary mt-6 mb-3">
+      <section className="w-full md:max-w-6xl grid md:grid-cols-2 gap-0 items-stretch overflow-hidden md:rounded-3xl md:shadow-2xl h-screen md:h-auto">
+        {/* Sección del Dibujo - Oculta en móvil */}
+        <div className="hidden md:flex relative bg-secondary flex-col items-center justify-center h-full px-8 py-12">
+          <div className="text-center flex flex-col justify-center items-center gap-10 z-10">
+            <h2 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
               ¿Olvidaste tu Contraseña?
             </h2>
-            <p className="text-lg text-tertiary/70 font-body">
-              No te preocupes, te ayudaremos a recuperar el acceso a tu cuenta
-            </p>
+            <div className="transform hover:scale-105 transition-transform duration-300">
+              <img
+                className="w-64"
+                src={NuriTriste}
+                alt="Nuri mascota triste"
+              />
+            </div>
+          </div>
+
+          {/* Textura decorativa */}
+          <div className="absolute bottom-0 left-0 right-0 opacity-20">
+            <img
+              className="w-full h-auto"
+              src={Trama}
+              alt=""
+              aria-hidden="true"
+            />
           </div>
         </div>
 
         {/* Formulario de Forgot Password */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-          <div className="mb-8">
-            <h1 className="text-4xl font-heading font-bold text-tertiary mb-2">
+        <div className="bg-secondary md:bg-neutral md:rounded-r-3xl p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-heading font-bold text-neutral md:text-tertiary mb-2">
               Recuperar Contraseña
             </h1>
-            <p className="text-tertiary/60 font-body">
+            <p className="text-neutral/60 md:text-tertiary/60 font-body">
               Ingresa tu email y te enviaremos instrucciones para recuperar tu
               contraseña
             </p>
@@ -136,6 +138,7 @@ export default function ForgotPassword() {
                 error={emailError}
                 onBlur={handleEmailBlur}
                 helperText="Ingresa el email con el que te registraste"
+                responsiveDarkMode
               />
 
               {/* Error Alert - Solo mostrar errores del servidor */}
@@ -159,7 +162,7 @@ export default function ForgotPassword() {
 
               {/* Login Link */}
               <div className="text-center pt-4 border-t border-neutral/20">
-                <p className="text-tertiary/70 font-body">
+                <p className="text-neutral/70 md:text-tertiary/70 font-body">
                   ¿Recordaste tu contraseña?{" "}
                   <Link
                     to="/login"

@@ -1,4 +1,5 @@
 import React from "react";
+import { useClassNames } from "../../hooks";
 
 interface ButtonProps {
   type?: "button" | "submit" | "reset";
@@ -37,12 +38,12 @@ export default function Button({
   // Estilos por variante
   const variantStyles = {
     primary: `
-      bg-primary hover:bg-primary/90 text-white
+      bg-primary hover:bg-primary-light text-white
       focus:ring-primary/50
       disabled:hover:bg-primary
     `,
     secondary: `
-      bg-secondary hover:bg-neutral text-white
+      bg-secondary hover:bg-secondary-dark hover: text-neutral 
       focus:ring-secondary/50
       disabled:hover:bg-secondary
     `,
@@ -58,26 +59,22 @@ export default function Button({
     `,
   };
 
-  // Estilos por tamaño
+  //tamaños
   const sizeStyles = {
     sm: "px-4 py-2 text-sm",
     md: "px-6 py-3 text-base",
     lg: "px-8 py-4 text-lg",
   };
 
-  // Ancho completo
   const widthStyle = fullWidth ? "w-full" : "";
 
-  // Combinar estilos
-  const buttonClasses = `
-    ${baseStyles}
-    ${variantStyles[variant]}
-    ${sizeStyles[size]}
-    ${widthStyle}
-    ${className}
-  `
-    .trim()
-    .replace(/\s+/g, " ");
+  const buttonClasses = useClassNames(
+    baseStyles,
+    variantStyles[variant],
+    sizeStyles[size],
+    widthStyle,
+    className,
+  );
 
   return (
     <button

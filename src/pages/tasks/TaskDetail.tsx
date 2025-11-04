@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
+import { Button, Badge } from "../../components/ui";
 
 export default function TaskDetail() {
   const { id } = useParams<{ id: string }>();
@@ -18,19 +18,6 @@ export default function TaskDetail() {
 
   const handleGoBack = () => {
     navigate(-1);
-  };
-
-  const getPriorityStyles = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800 border-red-300";
-      case "medium":
-        return "bg-secondary bg-opacity-30 text-tertiary border-secondary";
-      case "low":
-        return "bg-secondary bg-opacity-30 text-primary-dark border-secondary";
-      default:
-        return "bg-neutral text-tertiary border-neutral";
-    }
   };
 
   return (
@@ -55,16 +42,7 @@ export default function TaskDetail() {
           <time dateTime={task.createdAt} className="flex items-center gap-1">
             <span className="font-semibold">Creada:</span> {task.createdAt}
           </time>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityStyles(task.priority)}`}
-          >
-            Prioridad{" "}
-            {task.priority === "high"
-              ? "Alta"
-              : task.priority === "medium"
-                ? "Media"
-                : "Baja"}
-          </span>
+          <Badge variant="priority" priority={task.priority} />
         </div>
       </header>
 
@@ -112,11 +90,10 @@ export default function TaskDetail() {
         <Button type="button" variant="danger" size="md">
           Eliminar Tarea
         </Button>
-        <Link
-          to="/tasks"
-          className="px-6 py-3 bg-secondary text-white font-body font-medium rounded-lg hover:bg-neutral focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-colors duration-200 inline-flex items-center justify-center shadow-md hover:shadow-lg"
-        >
-          Volver a la Lista
+        <Link to="/tasks">
+          <Button type="button" variant="secondary" size="md">
+            Volver a la Lista
+          </Button>
         </Link>
       </footer>
     </article>

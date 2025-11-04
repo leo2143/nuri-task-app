@@ -6,9 +6,9 @@ export default {
       colors: {
         // Paleta principal de la app
         primary: {
-          light: "#3BB6A2",
+          light: "#257D6F",
           DEFAULT: "#2F9685",
-          dark: "#257D6F",
+          dark: "#3BB6A2",
         },
         neutral: {
           DEFAULT: "#F7F6F2",
@@ -16,9 +16,9 @@ export default {
         },
 
         secondary: {
-          light: "#8CDFED",
-          DEFAULT: "#75BDC9",
-          dark: "#599DA8",
+          light: "#003844",
+          DEFAULT: "#003844",
+          dark: "#002F39",
         },
         tertiary: {
           light: "#624033",
