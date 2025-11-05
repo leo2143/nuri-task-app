@@ -11,6 +11,7 @@ import Home from "../pages/Home";
 import TaskList from "../pages/tasks/TaskList";
 import TaskDetail from "../pages/tasks/TaskDetail";
 import NotFound from "../pages/status/NotFound";
+import TaskCreate from "../pages/tasks/taskCreate";
 
 export const router = createBrowserRouter([
   {
@@ -56,6 +57,11 @@ export const router = createBrowserRouter([
             path: "tasks",
             element: <TaskList />,
           },
+          {
+            path: "tasks/create",
+            element: <TaskCreate />,
+          },
+
           {
             path: "tasks/:id",
             element: <TaskDetail />,
