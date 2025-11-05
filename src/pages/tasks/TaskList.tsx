@@ -1,24 +1,38 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../components/ui/Button";
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-}
+import type { ITodo } from "../../interfaces";
+import { useHttpError } from "../../hooks";
+import { todoservice } from "../../services/todoService";
+import Loading from "../../components/Loading";
 
 export default function TaskList() {
-  const [tasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "Completar configuración de React Router",
-      completed: true,
-    },
-    { id: "2", title: "Crear componentes de tareas", completed: false },
-    { id: "3", title: "Agregar animaciones GSAP", completed: false },
-    { id: "4", title: "Estilos con Tailwind CSS", completed: false },
-  ]);
+  const [tasks, setTasks] = useState<ITodo[]>([]);
+  const { errorMessage, handleError, clearError } = useHttpError();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        setLoading(true);
+        clearError();
+        const data = await todoservice.gettodos();
+        setTasks(data);
+      } catch (err) {
+        handleError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo queremos ejecutar esto al montar el componente
+
+  // Estado de carga
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <article className="max-w-4xl mx-auto">
@@ -31,10 +45,18 @@ export default function TaskList() {
         </p>
       </header>
 
+      {errorMessage && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="font-body text-red-600">{errorMessage}</p>
+        </div>
+      )}
+
       <section className="mb-6">
-        <Button type="button" variant="primary" size="md">
-          Agregar Nueva Tarea
-        </Button>
+        <Link to="/tasks/create">
+          <Button type="button" variant="primary" size="md">
+            Agregar Nueva Tarea
+          </Button>
+        </Link>
       </section>
 
       <section>
@@ -45,35 +67,35 @@ export default function TaskList() {
         {tasks.length > 0 ? (
           <ul className="space-y-3">
             {tasks.map((task) => (
-              <li
-                key={task.id}
-                className="bg-white p-4 rounded-lg shadow border border-neutral hover:shadow-md hover:border-secondary transition-all duration-200"
-              >
-                <article className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id={`task-${task.id}`}
-                      checked={task.completed}
-                      readOnly
-                      className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary cursor-pointer"
-                      aria-label={`Marcar tarea "${task.title}" como ${task.completed ? "incompleta" : "completa"}`}
-                    />
-                    <label
-                      htmlFor={`task-${task.id}`}
-                      className={`text-lg font-body cursor-pointer ${task.completed ? "line-through text-neutral-dark" : "text-tertiary"}`}
-                    >
-                      {task.title}
-                    </label>
-                  </div>
+              <li key={task._id}>
+                <Link
+                  to={`/tasks/${task._id}`}
+                  className="block bg-white p-4 rounded-lg shadow border border-neutral hover:shadow-md hover:border-secondary transition-all duration-200"
+                >
+                  <article className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id={`task-${task._id}`}
+                        checked={task.completed}
+                        readOnly
+                        onClick={(e) => e.preventDefault()}
+                        className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary cursor-pointer"
+                        aria-label={`Marcar tarea "${task.title}" como ${task.completed ? "incompleta" : "completa"}`}
+                      />
+                      <label
+                        htmlFor={`task-${task._id}`}
+                        className={`text-lg font-body cursor-pointer ${task.completed ? "line-through text-neutral-dark" : "text-tertiary"}`}
+                      >
+                        {task.title}
+                      </label>
+                    </div>
 
-                  <Link
-                    to={`/tasks/${task.id}`}
-                    className="px-4 py-2 text-sm font-body text-primary hover:text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary rounded transition-colors duration-200"
-                  >
-                    Ver Detalles
-                  </Link>
-                </article>
+                    <span className="px-4 py-2 text-sm font-body text-primary group-hover:underline">
+                      Ver Detalles
+                    </span>
+                  </article>
+                </Link>
               </li>
             ))}
           </ul>
