@@ -29,14 +29,6 @@ export default function Navbar() {
           <ul className="flex gap-6 font-body items-center">
             <li>
               <Link
-                to="/"
-                className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
-              >
-                Inicio
-              </Link>
-            </li>
-            <li>
-              <Link
                 to="/tasks"
                 className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
               >
@@ -62,7 +54,7 @@ export default function Navbar() {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    className="!px-2 !py-1 !text-sm !bg-neutral hover:!bg-neutral/20"
+                    className=""
                   >
                     Cerrar Sesión
                   </Button>

@@ -16,7 +16,7 @@ interface InputProps {
   className?: string;
   helperText?: string;
   darkMode?: boolean;
-  responsiveDarkMode?: boolean; // Dark en mobile, light en desktop (md:)
+  responsiveDarkMode?: boolean;
 }
 
 export default function Input({

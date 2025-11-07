@@ -45,32 +45,70 @@ export default function Home() {
         </article>
       </section>
 
-      <section className="mt-12 bg-secondary bg-opacity-20 p-6 rounded-lg border border-secondary">
+      <section className="mt-12 bg-primary bg-opacity-20 p-6 rounded-lg border border-secondary">
         <h2 className="text-2xl font-heading font-semibold text-tertiary mb-4">
-          Características
+          Características Actuales
         </h2>
-        <ul className="space-y-2 font-body text-tertiary">
-          <li className="flex items-center">
-            <span className="mr-2 text-primary font-bold">✓</span>
-            <span>
-              <strong className="text-tertiary">Gestión fácil de tareas</strong>{" "}
-              - Crea, edita y elimina tareas
-            </span>
-          </li>
-          <li className="flex items-center">
-            <span className="mr-2 text-primary font-bold">✓</span>
+        <ul className="space-y-3 font-body text-tertiary">
+          <li className="flex items-start">
+            <span className="mr-2 text-primary font-bold text-xl">✓</span>
             <span>
               <strong className="text-tertiary">
-                Flujo de trabajo organizado
+                Autenticación de usuarios
               </strong>{" "}
-              - Mantén tus tareas estructuradas
+              - Registro e inicio de sesión seguro con JWT
             </span>
           </li>
-          <li className="flex items-center">
-            <span className="mr-2 text-primary font-bold">✓</span>
+          <li className="flex items-start">
+            <span className="mr-2 text-primary font-bold text-xl">✓</span>
             <span>
-              <strong className="text-tertiary">Diseño responsivo</strong> -
-              Funciona en todos los dispositivos
+              <strong className="text-tertiary">
+                Gestión completa de tareas
+              </strong>{" "}
+              - Crea, edita, elimina y marca tareas como completadas
+            </span>
+          </li>
+
+          <li className="flex items-start">
+            <span className="mr-2 text-primary font-bold text-xl">✓</span>
+            <span>
+              <strong className="text-tertiary">Metas y objetivos SMART</strong>{" "}
+              - Define y alcanza tus metas con objetivos específicos, medibles y
+              alcanzables
+            </span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-primary font-bold text-xl">✓</span>
+            <span>
+              <strong className="text-tertiary">Interfaz responsiva</strong> -
+              Diseño adaptable que funciona para telefonos, tablets y desktop
+            </span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-secondary font-bold text-xl">⏳</span>
+            <span>
+              <strong className="text-tertiary/70">
+                Logros y métricas de progreso
+              </strong>{" "}
+              <em className="text-tertiary/60">- Próximamente</em>
+            </span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-secondary font-bold text-xl">⏳</span>
+            <span>
+              <strong className="text-tertiary/70">
+                Notificaciones y recordatorios
+              </strong>{" "}
+              <em className="text-tertiary/60">- Próximamente</em>
+            </span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-secondary font-bold text-xl">⏳</span>
+            <span>
+              <strong className="text-tertiary/70">
+                Tablero de visualización (Moodboard)
+              </strong>{" "}
+              <em className="text-tertiary/60">- Próximamente</em>
             </span>
           </li>
         </ul>
