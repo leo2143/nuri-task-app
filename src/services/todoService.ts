@@ -6,6 +6,7 @@ import type {
   ICreateTodo,
   ITodoFilters,
   IAddTodoComment,
+  IUpdateTodoState,
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
@@ -164,6 +165,24 @@ export const todoservice = {
       const response = await apiClient.put<ISuccessResponse<ITodo>>(
         `${API_BASE_URL}/api/todos/${id}`,
         TodoData,
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error(`Error updating Todo ${id}:`, error);
+      throw error;
+    }
+  },
+  /**
+   * Actualizar estado de una tarea
+   * PUT /api/todos/:id
+   * @requires Bearer Token
+   */
+  updateTodoState: async (id: string, status: boolean): Promise<ITodo> => {
+    try {
+      const body: IUpdateTodoState = { completed: status };
+      const response = await apiClient.patch<ISuccessResponse<ITodo>>(
+        `${API_BASE_URL}/api/todos/${id}/state`,
+        body,
       );
       return response.data.data!;
     } catch (error) {

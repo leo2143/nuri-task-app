@@ -1,17 +1,28 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import Button from "../../components/ui/Button";
-import type { ICreateTodo, TodoPriority } from "../../interfaces";
+import type { ICreateTodo, ITodo, TodoPriority } from "../../interfaces";
 import { useHttpError } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import { Input } from "../../components/ui";
 
-export default function TaskCreate() {
+export default function TaskForm() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const { errorMessage, handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [task, setTask] = useState<ITodo | null>(null);
+  const isEditMode = !!id; // true si estamos editando
+
+  // Textos dinámicos según el modo
+  const pageTitle = isEditMode ? "Editar Tarea" : "Crear Nueva Tarea";
+  const pageDescription = isEditMode
+    ? "Modifica los campos que desees actualizar"
+    : "Completa los campos para agregar una nueva tarea";
+  const submitButtonText = isEditMode ? "Guardar Cambios" : "Crear Tarea";
+  const loadingButtonText = isEditMode ? "Guardando..." : "Creando...";
 
   // Estados del formulario
   const [title, setTitle] = useState("");
@@ -21,6 +32,39 @@ export default function TaskCreate() {
 
   // Estados de validación
   const [titleError, setTitleError] = useState("");
+
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const fetchTaskDetail = async () => {
+      try {
+        setLoading(true);
+        clearError();
+        const data = await todoservice.getTodoById(id!);
+
+        // Poblar el formulario con los datos de la tarea
+        if (data) {
+          setTask(data);
+          setTitle(data.title);
+          setDescription(data.description || "");
+          setPriority(data.priority);
+
+          // Formatear fecha para input type="date"
+          if (data.dueDate) {
+            const date = new Date(data.dueDate);
+            const formattedDate = date.toISOString().split("T")[0];
+            setDueDate(formattedDate);
+          }
+        }
+      } catch (err) {
+        handleError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTaskDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Validación del título
   const handleTitleBlur = () => {
@@ -46,7 +90,6 @@ export default function TaskCreate() {
     try {
       setLoading(true);
 
-      // Preparar datos para enviar
       const taskData: ICreateTodo = {
         title: title.trim(),
         description: description.trim(),
@@ -54,16 +97,21 @@ export default function TaskCreate() {
         dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
       };
 
-      // Crear la tarea
-      await todoservice.createTodo(taskData);
+      if (isEditMode) {
+        // ACTUALIZAR tarea existente
+        await todoservice.updateTodo(id!, taskData);
+        setSuccessMessage("¡Tarea actualizada exitosamente!");
+      } else {
+        // CREAR nueva tarea
+        await todoservice.createTodo(taskData);
+        setSuccessMessage("¡Tarea creada exitosamente!");
 
-      setSuccessMessage("¡Tarea creada exitosamente!");
-
-      // Limpiar formulario
-      setTitle("");
-      setDescription("");
-      setPriority("medium");
-      setDueDate("");
+        // Limpiar formulario solo en modo crear
+        setTitle("");
+        setDescription("");
+        setPriority("medium");
+        setDueDate("");
+      }
 
       // Redirigir a la lista de tareas después de 1.5 segundos
       setTimeout(() => {
@@ -76,15 +124,22 @@ export default function TaskCreate() {
     }
   };
 
+  // Loading inicial cuando se carga la tarea en modo edición
+  if (loading && isEditMode && !task) {
+    return (
+      <div className="max-w-2xl mx-auto text-center py-12">
+        <p className="font-body text-tertiary">Cargando tarea...</p>
+      </div>
+    );
+  }
+
   return (
     <article className="max-w-2xl mx-auto">
       <header className="mb-8">
         <h1 className="text-3xl font-heading font-bold text-tertiary mb-2">
-          Crear Nueva Tarea
+          {pageTitle}
         </h1>
-        <p className="font-body text-tertiary">
-          Completa los campos para agregar una nueva tarea
-        </p>
+        <p className="font-body text-tertiary">{pageDescription}</p>
       </header>
 
       {errorMessage && (
@@ -179,7 +234,7 @@ export default function TaskCreate() {
             disabled={loading}
             className="flex-1"
           >
-            {loading ? "Creando..." : "Crear Tarea"}
+            {loading ? loadingButtonText : submitButtonText}
           </Button>
 
           <Button

@@ -70,6 +70,12 @@ export interface IUpdateTodo {
   priority?: TodoPriority;
   dueDate?: Date | string | null;
 }
+/**
+ * Interface para actualizar estado de una tarea
+ */
+export interface IUpdateTodoState {
+  completed?: boolean;
+}
 
 /**
  * Interface para filtros de búsqueda de tareas

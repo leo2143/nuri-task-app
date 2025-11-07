@@ -27,15 +27,38 @@ export default function TaskList() {
 
     fetchTasks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo queremos ejecutar esto al montar el componente
+  }, []);
 
-  // Estado de carga
+  const handleToggleComplete = async (
+    taskId: string,
+    currentCompleted: boolean,
+  ) => {
+    try {
+      setTasks(
+        tasks.map((task) =>
+          task._id === taskId
+            ? { ...task, completed: !currentCompleted }
+            : task,
+        ),
+      );
+
+      await todoservice.updateTodoState(taskId, !currentCompleted);
+    } catch (err) {
+      setTasks(
+        tasks.map((task) =>
+          task._id === taskId ? { ...task, completed: currentCompleted } : task,
+        ),
+      );
+      handleError(err);
+    }
+  };
+
   if (loading) {
     return <Loading />;
   }
 
   return (
-    <article className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <header className="mb-8">
         <h1 className="text-3xl font-heading font-bold text-tertiary mb-2">
           Mis Tareas
@@ -52,7 +75,7 @@ export default function TaskList() {
       )}
 
       <section className="mb-6">
-        <Link to="/tasks/create">
+        <Link to="/tasks/new">
           <Button type="button" variant="primary" size="md">
             Agregar Nueva Tarea
           </Button>
@@ -68,34 +91,32 @@ export default function TaskList() {
           <ul className="space-y-3">
             {tasks.map((task) => (
               <li key={task._id}>
-                <Link
-                  to={`/tasks/${task._id}`}
-                  className="block bg-white p-4 rounded-lg shadow border border-neutral hover:shadow-md hover:border-secondary transition-all duration-200"
-                >
-                  <article className="flex items-center justify-between">
+                <div className="block bg-white p-4 rounded-lg shadow border border-neutral hover:shadow-md hover:border-secondary transition-all duration-200">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
+                      <div></div>
                       <input
                         type="checkbox"
                         id={`task-${task._id}`}
                         checked={task.completed}
-                        readOnly
-                        onClick={(e) => e.preventDefault()}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleToggleComplete(task._id!, task.completed);
+                        }}
                         className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary cursor-pointer"
                         aria-label={`Marcar tarea "${task.title}" como ${task.completed ? "incompleta" : "completa"}`}
                       />
-                      <label
-                        htmlFor={`task-${task._id}`}
-                        className={`text-lg font-body cursor-pointer ${task.completed ? "line-through text-neutral-dark" : "text-tertiary"}`}
-                      >
-                        {task.title}
-                      </label>
+                      <Link to={`/tasks/${task._id}`}>
+                        <label
+                          htmlFor={`task-${task._id}`}
+                          className={`w-100 text-lg font-body cursor-pointer ${task.completed ? "line-through text-neutral-dark" : "text-tertiary"}`}
+                        >
+                          {task.title}
+                        </label>
+                      </Link>
                     </div>
-
-                    <span className="px-4 py-2 text-sm font-body text-primary group-hover:underline">
-                      Ver Detalles
-                    </span>
-                  </article>
-                </Link>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
@@ -107,6 +128,6 @@ export default function TaskList() {
           </div>
         )}
       </section>
-    </article>
+    </div>
   );
 }
