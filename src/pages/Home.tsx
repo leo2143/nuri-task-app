@@ -5,9 +5,9 @@ export default function Home() {
   return (
     <article className="max-w-4xl mx-auto">
       <header className="text-center mb-8">
-        <h1 className="text-4xl font-heading font-bold text-tertiary mb-4">
+        <h2 className="text-4xl font-heading font-bold text-tertiary mb-4">
           Bienvenido a Nuri Task App
-        </h1>
+        </h2>
         <p className="text-xl font-body text-tertiary">
           Gestiona tus tareas de manera eficiente y mantente organizado
         </p>
@@ -15,9 +15,9 @@ export default function Home() {
 
       <section className="grid md:grid-cols-2 gap-6 mt-12">
         <article className="bg-white p-6 rounded-lg shadow-md border border-neutral hover:shadow-lg transition-shadow duration-200">
-          <h2 className="text-2xl font-heading font-semibold text-tertiary mb-3">
+          <h3 className="text-2xl font-heading font-semibold text-tertiary mb-3">
             Crear Tareas
-          </h2>
+          </h3>
           <p className="font-body text-tertiary mb-4">
             Crea y organiza fácilmente tus tareas diarias con nuestra interfaz
             intuitiva.
@@ -30,14 +30,14 @@ export default function Home() {
         </article>
 
         <article className="bg-white p-6 rounded-lg shadow-md border border-neutral hover:shadow-lg transition-shadow duration-200">
-          <h2 className="text-2xl font-heading font-semibold text-tertiary mb-3">
+          <h3 className="text-2xl font-heading font-semibold text-tertiary mb-3">
             Seguimiento de Progreso
-          </h2>
+          </h3>
           <p className="font-body text-tertiary mb-4">
             Monitorea tu progreso y mantente al tanto de tus objetivos con un
             seguimiento detallado.
           </p>
-          <Link to="/tasks">
+          <Link to="/goals">
             <Button type="button" variant="secondary" size="sm">
               Comenzar
             </Button>
@@ -46,9 +46,9 @@ export default function Home() {
       </section>
 
       <section className="mt-12 bg-primary bg-opacity-20 p-6 rounded-lg border border-secondary">
-        <h2 className="text-2xl font-heading font-semibold text-tertiary mb-4">
+        <h3 className="text-2xl font-heading font-semibold text-tertiary mb-4">
           Características Actuales
-        </h2>
+        </h3>
         <ul className="space-y-3 font-body text-tertiary">
           <li className="flex items-start">
             <span className="mr-2 text-primary font-bold text-xl">✓</span>
@@ -99,6 +99,13 @@ export default function Home() {
               <strong className="text-tertiary/70">
                 Notificaciones y recordatorios
               </strong>{" "}
+              <em className="text-tertiary/60">- Próximamente</em>
+            </span>
+          </li>
+          <li className="flex items-start">
+            <span className="mr-2 text-secondary font-bold text-xl">⏳</span>
+            <span>
+              <strong className="text-tertiary/70">Perfil de usuario</strong>{" "}
               <em className="text-tertiary/60">- Próximamente</em>
             </span>
           </li>

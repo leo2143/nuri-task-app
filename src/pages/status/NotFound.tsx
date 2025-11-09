@@ -5,12 +5,12 @@ export default function NotFound() {
     <article className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center">
         <header className="mb-8">
-          <h1 className="text-9xl font-heading font-bold text-secondary opacity-50">
+          <h2 className="text-9xl font-heading font-bold text-secondary opacity-50">
             404
-          </h1>
-          <h2 className="text-3xl font-heading font-semibold text-tertiary mb-4">
-            Página No Encontrada
           </h2>
+          <h3 className="text-3xl font-heading font-semibold text-tertiary mb-4">
+            Página No Encontrada
+          </h3>
           <p className="text-xl font-body text-tertiary mb-8">
             <em>¡Oops! La página que buscas no existe.</em>
           </p>
@@ -26,9 +26,9 @@ export default function NotFound() {
         </nav>
 
         <section className="mt-12 bg-secondary bg-opacity-10 p-6 rounded-lg border border-secondary inline-block">
-          <h3 className="text-lg font-heading font-medium text-tertiary mb-4">
+          <h4 className="text-lg font-heading font-medium text-tertiary mb-4">
             Enlaces Rápidos
-          </h3>
+          </h4>
           <ul className="space-y-2 font-body">
             <li>
               <Link

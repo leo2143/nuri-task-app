@@ -167,14 +167,12 @@ export default function Input({
         className={inputClasses}
       />
 
-      {/* Texto de ayuda */}
       {helperText && !error && (
         <p id={`${id}-helper`} className={helperTextStyles}>
           {helperText}
         </p>
       )}
 
-      {/* Mensaje de error */}
       {error && (
         <p id={`${id}-error`} className={errorStyles} role="alert">
           <svg
