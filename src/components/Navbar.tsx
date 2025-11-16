@@ -36,6 +36,15 @@ export default function Navbar() {
               </Link>
             </li>
 
+            <li>
+              <Link
+                to="/goals"
+                className="text-neutral hover:text-neutral-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 rounded px-2 py-1"
+              >
+                Metas
+              </Link>
+            </li>
+
             {isAuthenticated ? (
               <>
                 {userName && (
