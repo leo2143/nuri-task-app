@@ -1,19 +1,21 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Badge } from "../../components/ui";
-import { useEffect, useState } from "react";
 import { todoservice } from "../../services/todoService";
-import { useHttpError, useFormatDate } from "../../hooks";
+import { useFetchById, useFormatDate } from "../../hooks";
 import type { ITodo } from "../../interfaces";
 import Loading from "../../components/Loading";
 
 export default function TaskDetail() {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [task, setTask] = useState<ITodo | null>(null);
-  const { errorMessage, handleError, clearError } = useHttpError();
-  const [loading, setLoading] = useState(true);
 
-  // Formatear fechas usando el hook personalizado
+  const {
+    data: task,
+    loading,
+    errorMessage,
+  } = useFetchById<ITodo>({
+    fetchFn: todoservice.getTodoById,
+  });
+
   const createdDate = useFormatDate(task?.createdAt);
   const dueDate = useFormatDate(task?.dueDate);
 
@@ -21,27 +23,8 @@ export default function TaskDetail() {
     navigate(-1);
   };
 
-  useEffect(() => {
-    const taskId = id || "";
-
-    const fetchTaskDetail = async () => {
-      try {
-        setLoading(true);
-        clearError();
-        const data = await todoservice.getTodoById(taskId);
-        setTask(data);
-      } catch (err) {
-        handleError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTaskDetail();
-  }, [id, clearError, handleError]);
-
   const handleDeleteTask = async () => {
     if (!task?._id) {
-      handleError(new Error("ID de tarea no disponible"));
       return;
     }
 
@@ -52,8 +35,6 @@ export default function TaskDetail() {
     if (!confirmed) return;
 
     try {
-      setLoading(true);
-      clearError();
       await todoservice.deleteTodo(task._id);
 
       // Redirigir a la lista después de eliminar
@@ -62,8 +43,8 @@ export default function TaskDetail() {
         state: { message: "Tarea eliminada exitosamente" },
       });
     } catch (err) {
-      handleError(err);
-      setLoading(false);
+      console.error("Error al eliminar tarea:", err);
+      alert("Error al eliminar la tarea. Por favor, intenta de nuevo.");
     }
   };
 
@@ -73,9 +54,9 @@ export default function TaskDetail() {
   if (!task) {
     return (
       <div className="max-w-3xl mx-auto text-center py-12">
-        <h1 className="text-2xl font-heading font-bold text-tertiary mb-4">
+        <h2 className="text-2xl font-heading font-bold text-tertiary mb-4">
           Tarea no encontrada
-        </h1>
+        </h2>
         <Button
           type="button"
           onClick={handleGoBack}
@@ -119,9 +100,9 @@ export default function TaskDetail() {
           </Button>
         </nav>
 
-        <h1 className="text-3xl font-heading font-bold text-tertiary mb-2">
+        <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
           {task.title}
-        </h1>
+        </h2>
 
         <div className="flex items-center gap-4 text-sm font-body text-tertiary">
           {createdDate.isValid && (
@@ -143,9 +124,9 @@ export default function TaskDetail() {
       </header>
 
       <section className="bg-white p-6 rounded-lg shadow border border-neutral mb-6">
-        <h2 className="text-xl font-heading font-semibold text-tertiary mb-4">
+        <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
           Descripción
-        </h2>
+        </h3>
         <p className="font-body text-tertiary leading-relaxed">
           {task.description || (
             <em className="text-tertiary opacity-60">Sin descripción</em>
@@ -154,9 +135,9 @@ export default function TaskDetail() {
       </section>
 
       <section className="bg-white p-6 rounded-lg shadow border border-neutral mb-6">
-        <h2 className="text-xl font-heading font-semibold text-tertiary mb-4">
+        <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
           Estado
-        </h2>
+        </h3>
         <div className="flex items-center gap-3">
           <input
             type="checkbox"

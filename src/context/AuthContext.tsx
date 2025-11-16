@@ -5,6 +5,8 @@ import type { IAuthUser } from "../interfaces";
 export interface AuthContextType {
   user: IAuthUser | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
+
   login: (user: IAuthUser, token: string) => void;
   logout: () => void;
   updateUser: (user: IAuthUser) => void;
@@ -18,6 +20,7 @@ export { AuthContext };
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<IAuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Inicializar desde localStorage al montar
   useEffect(() => {
@@ -35,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem("user");
       }
     }
+    setIsLoading(false);
   }, []);
 
   const login = (userData: IAuthUser, token: string) => {
@@ -67,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, login, logout, updateUser }}
+      value={{ user, isAuthenticated, isLoading, login, logout, updateUser }}
     >
       {children}
     </AuthContext.Provider>

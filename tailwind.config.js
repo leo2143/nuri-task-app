@@ -14,7 +14,6 @@ export default {
           DEFAULT: "#F7F6F2",
           dark: "#E3E2DD",
         },
-
         secondary: {
           light: "#003844",
           DEFAULT: "#003844",
@@ -24,6 +23,23 @@ export default {
           light: "#624033",
           DEFAULT: "#3A251D",
           dark: "#311F18",
+        },
+        // Escala de grises personalizada
+        gray: {
+          100: "#F1F3F2", // Paneles muy ligeros / Tarjetas sutiles
+          300: "#D9E0DE", // Bordes suaves / Dividers
+          500: "#9AA4A2", // Iconos inactivos / placeholders
+          700: "#5B6462", // Texto secundario / Labels
+          900: "#2E3432", // Títulos / Headers / Texto principal
+        },
+        greenCheap: {
+          light: "#BEE6DB",
+          dark: "#1D5E52",
+        },
+        yellowCheap: "#F2C879",
+        blueCheap: {
+          light: "#DBEAFE",
+          dark: "#1e40af",
         },
       },
       fontFamily: {

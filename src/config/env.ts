@@ -33,13 +33,3 @@ export function devLog(...args: unknown[]) {
   }
 }
 
-/**
- * Variables de entorno disponibles en Vite:
- *
- * import.meta.env.MODE           - 'development' o 'production'
- * import.meta.env.BASE_URL       - base URL configurada
- * import.meta.env.PROD           - boolean (true en producción)
- * import.meta.env.DEV            - boolean (true en desarrollo)
- * import.meta.env.SSR            - boolean (true en server-side)
- * import.meta.env.VITE_*         - variables personalizadas
- */

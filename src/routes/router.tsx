@@ -12,12 +12,16 @@ import TaskList from "../pages/tasks/TaskList";
 import TaskDetail from "../pages/tasks/TaskDetail";
 import NotFound from "../pages/status/NotFound";
 import TaskForm from "../pages/tasks/taskForm";
+import GoalList from "../pages/goals/GoalList";
+import GoalDetail from "../pages/goals/GoalDetail";
+import GoalForm from "../pages/goals/GoalForm";
 
 export const router = createBrowserRouter([
   {
     element: <PublicLayout />,
     children: [
       {
+        path: "/",
         element: <PublicRoute />,
         children: [
           {
@@ -69,6 +73,22 @@ export const router = createBrowserRouter([
           {
             path: "tasks/:id",
             element: <TaskDetail />,
+          },
+          {
+            path: "goals",
+            element: <GoalList />,
+          },
+          {
+            path: "goals/:id",
+            element: <GoalDetail />,
+          },
+          {
+            path: "goals/new",
+            element: <GoalForm />,
+          },
+          {
+            path: "goals/:id/edit",
+            element: <GoalForm />,
           },
         ],
       },

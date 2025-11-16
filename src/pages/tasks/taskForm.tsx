@@ -2,18 +2,27 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import Button from "../../components/ui/Button";
-import type { ICreateTodo, ITodo, TodoPriority } from "../../interfaces";
+import type {
+  ICreateTodo,
+  IGoalCatalog,
+  ITodo,
+  TodoPriority,
+} from "../../interfaces";
 import { useHttpError } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import { Input } from "../../components/ui";
+import Loading from "../../components/Loading";
+import { goalService } from "../../services/goalService";
 
-export default function TaskForm() {
+export default function GoalForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { errorMessage, handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [task, setTask] = useState<ITodo | null>(null);
+  const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
+
   const isEditMode = !!id; // true si estamos editando
 
   // Textos dinámicos según el modo
@@ -29,11 +38,30 @@ export default function TaskForm() {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TodoPriority>("medium");
   const [dueDate, setDueDate] = useState("");
+  const [goalId, setGoalId] = useState("");
 
   // Estados de validación
   const [titleError, setTitleError] = useState("");
 
   useEffect(() => {
+    const fetchGoalCatalog = async () => {
+      try {
+        setLoading(true);
+        clearError();
+        const data = await goalService.getCatalogGoals();
+
+        // Poblar el formulario con los datos de la tarea
+        if (data) {
+          setGoalCatalogs(data);
+        }
+      } catch (err) {
+        handleError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGoalCatalog();
+
     if (!isEditMode) return;
 
     const fetchTaskDetail = async () => {
@@ -48,6 +76,7 @@ export default function TaskForm() {
           setTitle(data.title);
           setDescription(data.description || "");
           setPriority(data.priority);
+          setGoalId(data.GoalId || "");
 
           // Formatear fecha para input type="date"
           if (data.dueDate) {
@@ -62,6 +91,7 @@ export default function TaskForm() {
         setLoading(false);
       }
     };
+
     fetchTaskDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -95,6 +125,7 @@ export default function TaskForm() {
         description: description.trim(),
         priority,
         dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        GoalId: goalId || undefined,
       };
 
       if (isEditMode) {
@@ -111,6 +142,7 @@ export default function TaskForm() {
         setDescription("");
         setPriority("medium");
         setDueDate("");
+        setGoalId("");
       }
 
       // Redirigir a la lista de tareas después de 1.5 segundos
@@ -124,11 +156,10 @@ export default function TaskForm() {
     }
   };
 
-  // Loading inicial cuando se carga la tarea en modo edición
   if (loading && isEditMode && !task) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="font-body text-tertiary">Cargando tarea...</p>
+        <Loading />
       </div>
     );
   }
@@ -136,9 +167,9 @@ export default function TaskForm() {
   return (
     <article className="max-w-2xl mx-auto">
       <header className="mb-8">
-        <h1 className="text-3xl font-heading font-bold text-tertiary mb-2">
+        <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
           {pageTitle}
-        </h1>
+        </h2>
         <p className="font-body text-tertiary">{pageDescription}</p>
       </header>
 
@@ -212,7 +243,32 @@ export default function TaskForm() {
             <option value="high">Alta</option>
           </select>
         </div>
+        <div className="space-y-2">
+          <label
+            htmlFor="priority"
+            className="block text-sm font-medium text-tertiary"
+          >
+            Meta relacionada (opcional)
+          </label>
+          <select
+            id="goalId"
+            name="goalId"
+            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+            value={goalId}
+            onChange={(e) => setGoalId(e.target.value)}
+            disabled={loading}
+          >
+            {/* Opción vacía por defecto */}
+            <option value="">Sin meta asociada</option>
 
+            {/* Mapeo con key Y value */}
+            {goalCatalogs.map((goal) => (
+              <option key={goal.id} value={goal.id}>
+                {goal.title}
+              </option>
+            ))}
+          </select>
+        </div>
         {/* Fecha límite */}
         <Input
           type="date"
