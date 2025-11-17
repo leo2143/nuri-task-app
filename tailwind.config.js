@@ -24,6 +24,7 @@ export default {
           DEFAULT: "#3A251D",
           dark: "#311F18",
         },
+        brand: "#75BDC9",
         // Escala de grises personalizada
         gray: {
           100: "#F1F3F2", // Paneles muy ligeros / Tarjetas sutiles
@@ -47,6 +48,18 @@ export default {
         heading: ['"Montserrat Alternates"', "sans-serif"],
         //  texto general
         body: ['"Nunito Sans"', "sans-serif"],
+      },
+      padding: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
+      },
+      margin: {
+        "safe-top": "env(safe-area-inset-top)",
+        "safe-bottom": "env(safe-area-inset-bottom)",
+        "safe-left": "env(safe-area-inset-left)",
+        "safe-right": "env(safe-area-inset-right)",
       },
     },
   },

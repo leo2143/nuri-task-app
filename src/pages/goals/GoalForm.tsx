@@ -394,7 +394,7 @@ export default function GoalForm() {
 
           <div className="md:col-span-2 mt-6">
             <h3 className="text-lg font-heading font-semibold text-tertiary mb-2">
-              Criterios SMART (Opcional)
+              Criterios SMART
             </h3>
             <p className="text-sm text-tertiary opacity-75 mb-4">
               Si decides completar los criterios SMART, debes llenar todos los
