@@ -220,7 +220,7 @@ import { gsap } from 'gsap';
 
 function AnimatedComponent() {
   const elementRef = useRef<HTMLDivElement>(null);
-  
+
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       gsap.from(elementRef.current, {
@@ -230,10 +230,10 @@ function AnimatedComponent() {
         ease: 'power3.out'
       });
     });
-    
+
     return () => ctx.revert(); // Cleanup
   }, []);
-  
+
   return <div ref={elementRef}>Animated content</div>;
 }
 ```
@@ -420,6 +420,64 @@ src/
 - Use production builds for deployment
 - Minimize bundle size
 - Code splitting at route level
+
+---
+
+## 🎨 SVG AND ICON MANAGEMENT
+
+### SVG File Organization
+- **NEVER** use inline SVG code directly in components (except for very small, one-time use cases)
+- **ALWAYS** save SVG icons as separate files in `src/assets/svg-icons/`
+- Use descriptive, lowercase names with hyphens: `close.svg`, `menu-hamburger.svg`, `arrow-left.svg`
+
+### SVG Import and Usage
+
+**PREFERRED - Use centralized index:**
+```typescript
+// ✅ BEST - Import from centralized index
+import { close, hamburger, notification } from "../assets/svg-icons";
+
+// Use in component
+<img src={close} alt="close icon" className="w-6 h-6" />
+```
+
+**Alternative - Direct import (when index not available):**
+```typescript
+// ✅ ACCEPTABLE - Direct import
+import closeIcon from "../assets/svg-icons/close.svg";
+
+// Use in component
+<img src={closeIcon} alt="close icon" className="w-6 h-6" />
+```
+
+```typescript
+// ❌ INCORRECT - Don't use inline SVG
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <path d="..." />
+</svg>
+```
+
+### SVG Best Practices
+- Keep SVG files clean and optimized (remove unnecessary attributes)
+- Use `currentColor` for stroke/fill when you need dynamic colors
+- Always provide meaningful `alt` text when using SVGs as `<img>`
+- For decorative SVGs, use empty alt: `alt=""`
+- Use appropriate sizing classes: `w-6 h-6`, `w-8 h-8`, etc.
+
+### Naming Conventions for SVG Imports
+- Import variables should use camelCase: `close`, `menuHamburger`, `arrowLeft`
+- File names should use kebab-case: `close.svg`, `menu-hamburger.svg`, `arrow-left.svg`
+
+### Maintaining the SVG Index
+- **ALWAYS** update `src/assets/svg-icons/index.ts` when adding new SVG files
+- Group related icons together (Navigation, Status, Metrics, etc.)
+- Use consistent camelCase naming for exports
+- Add comments to document icon categories
+
+```typescript
+// Example: Adding a new icon to index.ts
+export { default as newIcon } from "./new-icon.svg";
+```
 
 ---
 

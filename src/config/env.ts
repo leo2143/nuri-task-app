@@ -32,4 +32,3 @@ export function devLog(...args: unknown[]) {
     console.log("[DEV]", ...args);
   }
 }
-
