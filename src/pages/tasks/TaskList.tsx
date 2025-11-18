@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Button from "../../components/ui/Button";
 import type { ITodo, ITodoFilters } from "../../interfaces";
@@ -7,6 +7,7 @@ import { todoservice } from "../../services/todoService";
 import Loading from "../../components/Loading";
 
 export default function TaskList() {
+  const navigate = useNavigate();
   const {
     data: tasks,
     loading,
@@ -83,10 +84,12 @@ export default function TaskList() {
           <ul className="space-y-3">
             {localTasks.map((task) => (
               <li key={task._id}>
-                <div className="block bg-white p-4 rounded-lg shadow border border-neutral hover:shadow-md hover:border-secondary transition-all duration-200">
+                <div
+                  className="block bg-white p-4 rounded-lg shadow border border-neutral hover:shadow-md hover:border-secondary transition-all duration-200 cursor-pointer"
+                  onClick={() => navigate(`/tasks/${task._id}`)}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div></div>
                       <input
                         type="checkbox"
                         id={`task-${task._id}`}
@@ -95,17 +98,15 @@ export default function TaskList() {
                           e.stopPropagation();
                           handleToggleComplete(task._id!, task.completed);
                         }}
-                        className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary cursor-pointer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-5 h-5 text-primary rounded cursor-pointer bg-primary"
                         aria-label={`Marcar tarea "${task.title}" como ${task.completed ? "incompleta" : "completa"}`}
                       />
-                      <Link to={`/tasks/${task._id}`}>
-                        <label
-                          htmlFor={`task-${task._id}`}
-                          className={`w-100 text-lg font-body cursor-pointer ${task.completed ? "line-through text-neutral-dark" : "text-tertiary"}`}
-                        >
-                          {task.title}
-                        </label>
-                      </Link>
+                      <span
+                        className={`flex-1 text-lg font-body ${task.completed ? "line-through text-neutral-dark" : "text-tertiary"}`}
+                      >
+                        {task.title}
+                      </span>
                     </div>
                   </div>
                 </div>

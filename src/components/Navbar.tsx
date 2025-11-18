@@ -24,11 +24,10 @@ import {
 import MenuNavItem from "./MenuNavItem";
 
 export default function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const userName = user?.name || user?.email || "Usuario";
   const location = useLocation();
 
   const handleLogout = () => {
