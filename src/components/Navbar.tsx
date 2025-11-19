@@ -59,7 +59,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="bg-neutral text-neutral w-full fixed top-0">
+      <header className="bg-neutral text-neutral w-full fixed top-0 z-30">
         <h1 className="hidden">Nuri task</h1>
         <nav className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
