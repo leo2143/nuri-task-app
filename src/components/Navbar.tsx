@@ -39,13 +39,27 @@ export default function Navbar() {
     console.log("hamburger");
     setIsMenuOpen(!isMenuOpen);
   };
+  // Cerrar menú cuando cambia la ruta
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  // quitar y poner scroll del body cuando cuando abro el menu
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMenuOpen]);
+
   return (
     <>
-      <header className=" text-neutral shadow-md">
+      <header className="bg-neutral text-neutral w-full fixed top-0 z-30">
         <h1 className="hidden">Nuri task</h1>
         <nav className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -77,8 +91,8 @@ export default function Navbar() {
             aria-hidden="true"
           />
 
-          <aside className="fixed top-0 right-0 h-full w-full bg-neutral shadow-2xl z-50 md:w-80">
-            <div className="py-6 flex flex-col  gap-28 h-full">
+          <aside className="fixed top-0 right-0 h-full w-full bg-neutral shadow-2xl z-50 md:w-80 overflow-y-auto">
+            <div className="py-6 flex flex-col gap-20 min-h-full">
               <div>
                 <div className="flex items-center justify-between mb-6 px-6">
                   <h2 className="text-2xl font-heading text-tertiary">Menú</h2>
