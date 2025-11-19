@@ -92,9 +92,9 @@ export default function Login() {
         {/* Sección del Dibujo - Oculta en móvil */}
         <div className="hidden md:flex relative bg-secondary flex-col items-center justify-center h-full px-8 py-12">
           <div className="text-center flex flex-col justify-center items-center gap-10 z-10">
-            <h2 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
+            <h1 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
               Bienvenido a Nuri Task
-            </h2>
+            </h1>
             <div className="transform hover:scale-105 transition-transform duration-300">
               <img className="w-64" src={Nuri} alt="Nuri mascota" />
             </div>
@@ -112,11 +112,11 @@ export default function Login() {
         </div>
 
         {/* Sección del Formulario - Visible en móvil y desktop */}
-        <div className="bg-secondary md:bg-neutral lg:rounded-r-3xl p-8 lg:p-12          flex flex-col justify-center overflow-y-auto">
+        <div className=" bg-secondary md:bg-neutral lg:rounded-r-3xl p-8 lg:p-12 flex flex-col justify-center">
           <div className="mb-8 text-center">
-            <h1 className="text-4xl font-heading font-bold  md:text-tertiary text-neutral  mb-2">
+            <h2 className="text-4xl font-heading font-bold  md:text-tertiary text-neutral mb-2">
               Iniciar Sesión
-            </h1>
+            </h2>
             <p className=" md:text-tertiary/60 text-neutral/60 font-body">
               Ingresa tus credenciales para acceder a tu cuenta
             </p>
@@ -159,8 +159,8 @@ export default function Login() {
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
-                className="text-sm text-primary hover:text-secondary font-medium 
-                  transition-colors duration-200 focus:outline-none focus:ring-2 
+                className="text-sm text-primary hover:text-secondary font-medium
+                  transition-colors duration-200 focus:outline-none focus:ring-2
                   focus:ring-primary/50 rounded px-1"
               >
                 ¿Olvidaste tu contraseña?
@@ -183,42 +183,41 @@ export default function Login() {
             >
               {loading ? "Iniciando sesión" : "Iniciar Sesión"}
             </Button>
-
-            {/* Sección de Registro */}
-            <div className="text-center pt-4 border-t border-neutral/20">
-              <p className=" md:text-tertiary/70 text-neutral/70 font-body">
-                ¿No tienes una cuenta?{" "}
-                <Link
-                  to="/register"
-                  className="text-primary hover:text-secondary font-semibold 
-                    transition-colors duration-200 focus:outline-none focus:ring-2 
-                    focus:ring-primary/50 rounded px-1"
-                >
-                  Créala aquí
-                </Link>
-              </p>
-            </div>
-
-            {/* Divider */}
-            <div className="flex items-center justify-center gap-2">
-              <div className="bg-primary h-1 w-24 rounded"></div>
-              <p className="md:text-tertiary/70 text-neutral/70 font-body text-sm">
-                O continúa con
-              </p>
-              <div className="bg-primary h-1 w-24 rounded"></div>
-            </div>
-
-            {/* Botón de Google */}
-            <div className="flex items-center justify-center">
-              <div className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer">
-                <img
-                  className="w-7 h-7"
-                  src={GoogleIcon}
-                  alt="Continuar con Google"
-                />
-              </div>
-            </div>
           </form>
+          {/* Sección de Registro */}
+          <div className="text-center pt-4 border-t border-neutral/20">
+            <p className=" md:text-tertiary/70 text-neutral/70 font-body">
+              ¿No tienes una cuenta?{" "}
+              <Link
+                to="/register"
+                className="text-primary hover:text-secondary font-semibold
+                    transition-colors duration-200 focus:outline-none focus:ring-2
+                    focus:ring-primary/50 rounded px-1"
+              >
+                Créala aquí
+              </Link>
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="flex items-center justify-center gap-2 m-2">
+            <div className="bg-primary h-1 w-2/12 sm:w-2/5 rounded"></div>
+            <p className="md:text-tertiary/70 text-neutral/70 font-body text-xs sm:text-sm">
+              O continúa con
+            </p>
+            <div className="bg-primary h-1 w-2/12 sm:w-2/5 rounded"></div>
+          </div>
+
+          {/* Botón de Google */}
+          <div className="mt-4 flex items-center justify-center">
+            <div className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+              <img
+                className="w-7 h-7"
+                src={GoogleIcon}
+                alt="Continuar con Google"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>
