@@ -127,7 +127,7 @@ export interface IAddGoalComment {
  * Interface para agregar un comentario a una meta
  */
 export interface IAddSubGoal {
-  subgoalId?: string;
+  subgoalId: string;
 }
 
 /**
