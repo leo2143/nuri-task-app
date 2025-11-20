@@ -1,9 +1,4 @@
 /**
- * Interface para el modelo de Todo (Tareas)
- * Representa una tarea individual del usuario
- */
-
-/**
  * Niveles de prioridad para las tareas
  */
 export type TodoPriority = "low" | "medium" | "high";
@@ -30,7 +25,6 @@ export interface ITodoUser {
 
 /**
  * Interface para el modelo de Todo
- * NOTA: userId puede venir como string (lista) o como objeto poblado (detalle)
  */
 export interface ITodo {
   _id?: string;

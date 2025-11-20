@@ -15,10 +15,12 @@ import TaskForm from "../pages/tasks/taskForm";
 import GoalList from "../pages/goals/GoalList";
 import GoalDetail from "../pages/goals/GoalDetail";
 import GoalForm from "../pages/goals/GoalForm";
+import GoalSubGoalForm from "../pages/goals/GoalSubGoalForm";
 
 export const router = createBrowserRouter([
   {
     element: <PublicLayout />,
+    errorElement: <NotFound />,
     children: [
       {
         path: "/",
@@ -87,11 +89,21 @@ export const router = createBrowserRouter([
             element: <GoalForm />,
           },
           {
+            path: "goals/:id/new/subgoal",
+            element: <GoalSubGoalForm />,
+          },
+          {
             path: "goals/:id/edit",
             element: <GoalForm />,
           },
         ],
       },
     ],
+  },
+
+  // Ruta catch-all para páginas no encontradas
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);

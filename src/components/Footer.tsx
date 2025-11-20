@@ -26,6 +26,7 @@ export default function Footer() {
           iconHover={homeBrown}
           whitHover={false}
           whitelabel={false}
+          label="Inicio"
         />
 
         <MenuNavItem
@@ -34,6 +35,7 @@ export default function Footer() {
           iconHover={starBrown}
           whitHover={false}
           whitelabel={false}
+          label="Metas"
         />
 
         <MenuNavItem
@@ -42,6 +44,7 @@ export default function Footer() {
           iconHover={metricBrown}
           whitHover={false}
           whitelabel={false}
+          label="Métricas"
         />
 
         <MenuNavItem
@@ -51,6 +54,7 @@ export default function Footer() {
           whitHover={false}
           whitelabel={false}
           iconClass=" w-8 h-8"
+          label="Favoritos"
         />
       </div>
     </footer>

@@ -1,8 +1,3 @@
-/**
- * Barrel file - Exportaciones centralizadas de todas las interfaces
- * Importa desde aquí en lugar de importar de archivos individuales
- */
-
 // User
 export * from "./IUser";
 

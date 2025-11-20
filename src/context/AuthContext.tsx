@@ -12,6 +12,8 @@ export interface AuthContextType {
   updateUser: (user: IAuthUser) => void;
 }
 
+//Todo: Roles de usuarios para cuenta gratuita, cuenta con sucripcion y admin
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Exportar el contexto para que pueda ser usado por el hook

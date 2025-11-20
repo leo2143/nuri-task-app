@@ -7,28 +7,7 @@
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
-// Obtener el entorno actual (development, production)
-export const NODE_ENV = import.meta.env.MODE;
-
-// Verificar si estamos en producción
-export const IS_PRODUCTION = import.meta.env.PROD;
-
-// Verificar si estamos en desarrollo
-export const IS_DEVELOPMENT = import.meta.env.DEV;
-
 // Timeout para las peticiones (en milisegundos)
 export const API_TIMEOUT = parseInt(
   import.meta.env.VITE_API_TIMEOUT || "10000",
 );
-
-// Configuración para logging
-export const ENABLE_LOGGING = IS_DEVELOPMENT;
-
-/**
- * Log en consola solo en desarrollo
- */
-export function devLog(...args: unknown[]) {
-  if (ENABLE_LOGGING) {
-    console.log("[DEV]", ...args);
-  }
-}

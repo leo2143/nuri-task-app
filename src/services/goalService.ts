@@ -6,6 +6,7 @@ import type {
   ICreateGoal,
   IAddGoalComment,
   IGoalCatalog,
+  IAddSubGoal,
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
@@ -149,6 +150,23 @@ export const goalService = {
       return response.data.data!;
     } catch (error) {
       console.error(`Error updating goal ${id}:`, error);
+      throw error;
+    }
+  },
+  /**
+   * Agrega una submeta a una meta padre
+   * patch /api/goals/:id
+   * @requires Bearer Token
+   */
+  addSubgoal: async (id: string, goalData: IAddSubGoal): Promise<IGoal> => {
+    try {
+      const response = await apiClient.patch<ISuccessResponse<IGoal>>(
+        `${API_BASE_URL}/api/goals/${id}/subgoals`,
+        goalData,
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error(`Error añadiendo submeta a la meta ${id}:`, error);
       throw error;
     }
   },
