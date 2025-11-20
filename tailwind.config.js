@@ -4,7 +4,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Paleta principal de la app
         primary: {
           light: "#257D6F",
           DEFAULT: "#2F9685",
@@ -25,10 +24,9 @@ export default {
           dark: "#311F18",
         },
         brand: "#75BDC9",
-        // Escala de grises personalizada
         gray: {
-          100: "#F1F3F2", // Paneles muy ligeros / Tarjetas sutiles
-          300: "#D9E0DE", // Bordes suaves / Dividers
+          100: "#F1F3F2", // Paneles y Tarjetas sutiles
+          300: "#D9E0DE", // Bordes y Dividers
           500: "#9AA4A2", // Iconos inactivos / placeholders
           700: "#5B6462", // Texto secundario / Labels
           900: "#2E3432", // Títulos / Headers / Texto principal

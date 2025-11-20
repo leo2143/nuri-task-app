@@ -172,7 +172,7 @@ export default function Input({
           {helperText}
         </p>
       )}
-
+      {/* {dejo el svg asi, asi puedo variar el color sin repetir el svg} */}
       {error && (
         <p id={`${id}-error`} className={errorStyles} role="alert">
           <svg
