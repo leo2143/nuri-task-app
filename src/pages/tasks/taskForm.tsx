@@ -10,7 +10,7 @@ import type {
 } from "../../interfaces";
 import { useHttpError } from "../../hooks";
 import { todoservice } from "../../services/todoService";
-import { Input } from "../../components/ui";
+import { Input, Select } from "../../components/ui";
 import Loading from "../../components/Loading";
 import { goalService } from "../../services/goalService";
 
@@ -40,7 +40,6 @@ export default function GoalForm() {
   const [dueDate, setDueDate] = useState("");
   const [goalId, setGoalId] = useState("");
 
-  // Estados de validación
   const [titleError, setTitleError] = useState("");
 
   useEffect(() => {
@@ -50,7 +49,6 @@ export default function GoalForm() {
         clearError();
         const data = await goalService.getCatalogGoals();
 
-        // Poblar el formulario con los datos de la tarea
         if (data) {
           setGoalCatalogs(data);
         }
@@ -70,7 +68,6 @@ export default function GoalForm() {
         clearError();
         const data = await todoservice.getTodoById(id!);
 
-        // Poblar el formulario con los datos de la tarea
         if (data) {
           setTask(data);
           setTitle(data.title);
@@ -78,7 +75,6 @@ export default function GoalForm() {
           setPriority(data.priority);
           setGoalId(data.GoalId || "");
 
-          // Formatear fecha para input type="date"
           if (data.dueDate) {
             const date = new Date(data.dueDate);
             const formattedDate = date.toISOString().split("T")[0];
@@ -165,13 +161,13 @@ export default function GoalForm() {
   }
 
   return (
-    <article className="max-w-2xl mx-auto">
-      <header className="mb-8">
+    <section className="max-w-2xl mx-auto">
+      <div className="mb-8">
         <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
           {pageTitle}
         </h2>
         <p className="font-body text-tertiary">{pageDescription}</p>
-      </header>
+      </div>
 
       {errorMessage && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -185,7 +181,12 @@ export default function GoalForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+        method="post"
+        noValidate
+      >
         {/* Título */}
         <Input
           type="text"
@@ -243,32 +244,16 @@ export default function GoalForm() {
             <option value="high">Alta</option>
           </select>
         </div>
-        <div className="space-y-2">
-          <label
-            htmlFor="priority"
-            className="block text-sm font-medium text-tertiary"
-          >
-            Meta relacionada (opcional)
-          </label>
-          <select
-            id="goalId"
-            name="goalId"
-            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            value={goalId}
-            onChange={(e) => setGoalId(e.target.value)}
-            disabled={loading}
-          >
-            {/* Opción vacía por defecto */}
-            <option value="">Sin meta asociada</option>
-
-            {/* Mapeo con key Y value */}
-            {goalCatalogs.map((goal) => (
-              <option key={goal.id} value={goal.id}>
-                {goal.title}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          id="goalId"
+          name="goalId"
+          label="Meta relacionada (opcional)"
+          value={goalId}
+          onChange={(e) => setGoalId(e.target.value)}
+          options={goalCatalogs}
+          placeholder="Sin meta asociada"
+          disabled={loading}
+        />
         {/* Fecha límite */}
         <Input
           type="date"
@@ -304,6 +289,6 @@ export default function GoalForm() {
           </Button>
         </div>
       </form>
-    </article>
+    </section>
   );
 }

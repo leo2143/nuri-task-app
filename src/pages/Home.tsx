@@ -3,15 +3,15 @@ import Button from "../components/ui/Button";
 
 export default function Home() {
   return (
-    <article className="max-w-4xl mx-auto">
-      <header className="text-center mb-8">
+    <section className="max-w-4xl mx-auto">
+      <div className="text-center mb-8">
         <h2 className="text-4xl font-heading font-bold text-tertiary mb-4">
           Bienvenido a Nuri Task App
         </h2>
         <p className="text-xl font-body text-tertiary">
           Gestiona tus tareas de manera eficiente y mantente organizado
         </p>
-      </header>
+      </div>
 
       <section className="grid md:grid-cols-2 gap-6 mt-12">
         <article className="bg-white p-6 rounded-lg shadow-md border border-neutral hover:shadow-lg transition-shadow duration-200">
@@ -120,6 +120,6 @@ export default function Home() {
           </li>
         </ul>
       </section>
-    </article>
+    </section>
   );
 }

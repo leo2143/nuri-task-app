@@ -123,23 +123,27 @@ export default function GoalDetail() {
           </span>
         </div>
 
-        <div className="flex items-center gap-4 text-sm font-body text-tertiary">
+        <div className="flex items-center gap-4 text-sm font-body text-tertiary flex-wrap">
           {createdDate.isValid && (
             <time
               dateTime={createdDate.iso}
-              className="flex items-center gap-1"
+              className="flex flex-wrap items-center gap-1"
             >
-              <span className="font-semibold">Creada:</span>{" "}
-              {createdDate.formatted}
+              <span className="font-semibold">Creada:</span>
+              <span>{createdDate.formatted}</span>
             </time>
           )}
           {dueDate.isValid && (
-            <time dateTime={dueDate.iso} className="flex items-center gap-1">
-              <span className="font-semibold">Vence:</span> {dueDate.formatted}
+            <time
+              dateTime={dueDate.iso}
+              className="flex flex-wrap items-center gap-1"
+            >
+              <span className="font-semibold">Vence:</span>
+              <span>{dueDate.formatted}</span>
             </time>
           )}
           <span
-            className={`px-2 py-1 rounded text-xs font-semibold ${
+            className={`px-2 py-1 rounded text-xs font-semibold text-center ${
               goal.priority === "high"
                 ? "bg-red-100 text-red-800"
                 : goal.priority === "medium"
@@ -273,8 +277,13 @@ export default function GoalDetail() {
       {/* Acciones */}
       <div className="flex flex-wrap gap-4">
         <Link to={`/goals/${goal._id}/edit`}>
-          <Button type="button" variant="primary" size="md">
+          <Button type="button" variant="secondary" size="md">
             Editar Meta
+          </Button>
+        </Link>
+        <Link to={`/goals/${goal._id}/new/subgoal`}>
+          <Button type="button" variant="primary" size="md">
+            Relacionar Meta
           </Button>
         </Link>
 
@@ -286,12 +295,6 @@ export default function GoalDetail() {
         >
           Eliminar Meta
         </Button>
-
-        <Link to="/goals">
-          <Button type="button" variant="secondary" size="md">
-            Volver a la Lista
-          </Button>
-        </Link>
       </div>
     </section>
   );

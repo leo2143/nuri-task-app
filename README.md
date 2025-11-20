@@ -1,8 +1,57 @@
-# Nuri Task App 📝
+# 🌸 Nuri Task App
 
-Una aplicación moderna de gestión de tareas construida con React 19, TypeScript, Vite, React Router DOM y Tailwind CSS.
+## 💚 La Visión
 
-## 🚀 Tech Stack
+**Nuri Task** no es una app más de listas. Es una aplicación creada para ayudarte a construir hábitos y cumplir tus metas de una forma **emocionalmente acompañada, sin presión y sin culpas**.
+
+### ¿Qué hace diferente a Nuri?
+
+Descubrimos que el verdadero problema no es la falta de disciplina, sino la **falta de motivación emocional**. Por eso **Nuri** —tu pequeño compañero— está diseñado para guiarte con calidez en cada paso.
+
+**El propósito de Nuri es:**
+
+🌱 **Acompañarte, no exigirte**
+La idea no es que hagas más cosas, sino que te sientas mejor haciéndolas.
+
+🎯 **Ayudarte a crear hábitos sostenibles**
+Crear metas, dividirlas en pequeñas tareas manejables, marcar tus avances y recibir apoyo emocional.
+
+💚 **Hacer el proceso amable y disfrutable**
+Un espacio donde no te sientes solo, donde no se te juzga por fallar, y donde cada acción tiene un sentido.
+
+✨ **Darte una experiencia más humana**
+Celebramos tus progresos y te acompañamos en el camino, con mensajes cálidos y motivadores.
+
+---
+
+## 📖 Estado Actual del Proyecto
+
+> **Nota:** Este proyecto está en **etapa inicial de desarrollo**. La visión completa de Nuri (con acompañamiento emocional, mensajes motivadores y experiencia personalizada) aún no está completamente implementada. Actualmente cuenta con las funcionalidades base técnicas.
+
+### ¿Qué está implementado ahora?
+
+El proyecto actualmente es una aplicación web fullstack (MERN Stack) con:
+
+- ✅ **Sistema de autenticación** completo con JWT (registro, login, recuperación de contraseña)
+- ✅ **Gestión de tareas (Todos)** - CRUD completo con prioridades, fechas de vencimiento y estados
+- ✅ **Gestión de metas (Goals)** - CRUD completo con seguimiento de progreso y estados
+- ✅ **Jerarquía de metas** - Relación entre metas principales y submetas
+- ✅ **Vinculación tareas-metas** - Conectar acciones diarias con objetivos mayores
+- ✅ **API REST completa** - Backend con validación de datos y endpoints documentados
+
+### 🚀 Hacia dónde vamos
+
+La visión completa de Nuri incluirá:
+
+- Mensajes motivadores y acompañamiento emocional personalizado
+- Sistema de logros que celebra tu progreso
+- Moodboards visuales de inspiración
+- Interfaz diseñada para generar bienestar, no presión
+- Experiencia que prioriza cómo te sientes, no solo qué haces
+
+## 🚀 Tecnologías Utilizadas
+
+### Frontend
 
 - **React 19** - Última versión con mejoras de rendimiento
 - **TypeScript** - Type safety y mejor DX
@@ -12,25 +61,31 @@ Una aplicación moderna de gestión de tareas construida con React 19, TypeScrip
 - **Axios** - Cliente HTTP con interceptores
 - **Context API** - State management global
 
-## 📦 Instalación
+### Backend (API REST)
+
+- **Node.js** - Entorno de ejecución
+- **Express** - Framework web
+- **MongoDB** - Base de datos NoSQL
+- **JWT** - Autenticación basada en tokens
+- **Bcrypt** - Encriptación de contraseñas
+
+## 📋 Requisitos Previos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+- **Node.js** (v18 o superior)
+- **npm** o **yarn**
+- **Backend API** corriendo en `http://localhost:8888` (o configurar otra URL)
+
+## 📦 Instalación y Ejecución
+
+### 1. Instalar dependencias
 
 ```bash
-# Instalar dependencias
 npm install
-
-# Iniciar servidor de desarrollo
-npm run dev
-
-# Build para producción
-npm run build
-
-# Preview del build de producción
-npm run preview
 ```
 
-## 🔧 Configuración
-
-### Variables de Entorno
+### 2. Configurar variables de entorno
 
 Crea un archivo `.env` en la raíz del proyecto:
 
@@ -39,28 +94,42 @@ VITE_API_BASE_URL=
 VITE_API_TIMEOUT=10000
 ```
 
-**Nota:** El `VITE_API_BASE_URL` vacío usa el proxy configurado en `vite.config.ts` para desarrollo local.
+**Nota:** El `VITE_API_BASE_URL` vacío usa el proxy configurado en `vite.config.ts` que apunta a `http://localhost:8888`.
 
-### Backend API
+### 3. Iniciar el servidor de desarrollo
 
-El proyecto está configurado para conectarse a un backend en `http://localhost:8888`. Puedes cambiar esto en:
+```bash
+npm run dev
+```
 
-- `vite.config.ts` (para desarrollo)
-- Variables de entorno en Vercel (para producción)
+La aplicación estará disponible en `http://localhost:5173`
 
-## 🌐 Despliegue en Vercel
+### 4. Comandos adicionales
 
-Este proyecto está optimizado para Vercel. Lee la guía completa: [docs/vercel-deployment.md](./docs/vercel-deployment.md)
+```bash
+# Build para producción
+npm run build
 
-### Quick Start
+# Preview del build de producción
+npm run preview
 
-1. **Conecta tu repositorio a Vercel**
-2. **Configura las variables de entorno:**
-   - `VITE_API_BASE_URL` = URL de tu backend en producción
-   - `VITE_API_TIMEOUT` = `10000`
-3. **Deploy** 🚀
+# Linting
+npm run lint
 
-El archivo `vercel.json` ya está configurado para manejar las rutas de React Router correctamente.
+# Type checking
+npx tsc --noEmit
+```
+
+## 🔧 Configuración del Backend
+
+El frontend está configurado para conectarse a un backend en `http://localhost:8888`.
+
+**Importante:** Asegúrate de que el backend esté corriendo antes de iniciar el frontend.
+
+Para cambiar la URL del backend:
+
+- **Desarrollo:** Modifica `vite.config.ts` (proxy)
+- **Producción:** Configura `VITE_API_BASE_URL` en las variables de entorno
 
 ## 📁 Estructura del Proyecto
 
@@ -89,97 +158,125 @@ src/
 └── main.tsx         # Entry point
 ```
 
-## 🎨 Características
+## 🎨 Funcionalidades Implementadas
 
-- ✅ **Autenticación completa** con JWT
-- ✅ **Gestión de estado global** con Context API
+### Autenticación y Usuarios
+
+- ✅ **Registro de usuarios** con validación de datos
+- ✅ **Login** con JWT y persistencia de sesión
+- ✅ **Recuperación de contraseña** (forgot password con token)
+- ✅ **Reset de contraseña** con validación de token
+- ✅ **Rutas protegidas** con redirección automática
+
+### Gestión de Tareas (Todos)
+
+- ✅ **Crear tareas** con título, descripción, prioridad y fecha de vencimiento
+- ✅ **Listar tareas** del usuario autenticado
+- ✅ **Ver detalles** de cada tarea
+- ✅ **Editar tareas** existentes
+- ✅ **Eliminar tareas**
+- ✅ **Marcar como completada/incompleta** (checkbox interactivo)
+- ✅ **Vincular tareas a metas** (relación opcional)
+
+### Gestión de Metas (Goals)
+
+- ✅ **Crear metas** con objetivos SMART (específicos, medibles, alcanzables)
+- ✅ **Listar metas** con estados (activo, pausado, completado)
+- ✅ **Ver detalles** de cada meta
+- ✅ **Editar metas** existentes
+- ✅ **Eliminar metas**
+- ✅ **Jerarquía de submetas** - Asociar metas como submetas de otras
+- ✅ **Catálogo de metas** para selección en formularios
+
+### Características Técnicas
+
+- ✅ **Arquitectura modular** con separación de concerns
+- ✅ **Validación de datos** en frontend y backend
 - ✅ **Interceptores de Axios** para tokens automáticos
-- ✅ **Rutas protegidas** con redirección
-- ✅ **UI moderna** con Tailwind CSS
-- ✅ **Fully responsive** - Mobile, tablet, desktop
-- ✅ **Accesibilidad** - ARIA labels, keyboard navigation
-- ✅ **Type-safe** - TypeScript en todo el proyecto
-- ✅ **Optimizado para producción** - Code splitting, lazy loading
+- ✅ **Gestión de estado global** con Context API
+- ✅ **Manejo de errores** centralizado
+- ✅ **UI moderna y responsive** con Tailwind CSS
+- ✅ **Accesibilidad** (ARIA labels, keyboard navigation)
+- ✅ **Type-safe** con TypeScript en todo el proyecto
 
-## 🛠️ Desarrollo
+## 🚧 TODO - Próximas Funcionalidades
 
-### Comandos útiles
+### Optimización y Rendimiento
 
-```bash
-# Linting
-npm run lint
+- [ ] **Lazy Loading** - Implementar code splitting con `React.lazy()` y `Suspense`
+- [ ] **Paginación** - Añadir paginación para listas de tareas y metas
 
-# Type checking
-npx tsc --noEmit
+### Nuevas Funcionalidades
 
-# Limpiar cache de Vite
-rm -rf node_modules/.vite
+- [ ] **Logros (Achievements)** - Sistema de logros y recompensas
+- [ ] **Moodboards** - Tableros visuales de inspiración
+- [ ] **Panel de Admin** - Gestión de usuarios y contenido
+- [ ] **Gestión de Usuarios** - Perfil, configuración
+
+### Mejoras de UX/UI
+
+- [ ] **Mejoras en el diseño** - Refinamiento visual y animaciones
+- [ ] **Filtros avanzados** - Búsqueda y filtrado mejorado
+- [ ] **Notificaciones** - Sistema de notificaciones en tiempo real
+- [ ] **Tema oscuro** - Soporte para dark mode
+
+## 🔌 API Endpoints
+
+Endpoints del backend consumidos por las vistas del frontend.
+
+### 👤 Autenticación y Usuarios
+
+| Método | Endpoint                               | Descripción                          | Usado en             |
+| ------ | -------------------------------------- | ------------------------------------ | -------------------- |
+| `POST` | `/api/users/login`                     | Iniciar sesión                       | `Login.tsx`          |
+| `POST` | `/api/users`                           | Registrar nuevo usuario              | `Register.tsx`       |
+| `POST` | `/api/users/forgot-password`           | Solicitar recuperación de contraseña | `ForgotPassword.tsx` |
+| `GET`  | `/api/users/verify-reset-token/:token` | Verificar token de recuperación      | `ResetPassword.tsx`  |
+| `POST` | `/api/users/reset-password`            | Resetear contraseña con token        | `ResetPassword.tsx`  |
+
+---
+
+### ✅ Tareas (Todos)
+
+Requieren autenticación con JWT.
+
+| Método   | Endpoint               | Descripción                   | Usado en                                   |
+| -------- | ---------------------- | ----------------------------- | ------------------------------------------ |
+| `GET`    | `/api/todos`           | Listar tareas del usuario     | `TaskList.tsx`                             |
+| `GET`    | `/api/todos/:id`       | Obtener detalles de una tarea | `TaskDetail.tsx`, `taskForm.tsx` (edición) |
+| `POST`   | `/api/todos`           | Crear nueva tarea             | `taskForm.tsx`                             |
+| `PUT`    | `/api/todos/:id`       | Actualizar tarea              | `taskForm.tsx`                             |
+| `PATCH`  | `/api/todos/:id/state` | Cambiar estado completado     | `TaskList.tsx` (checkbox)                  |
+| `DELETE` | `/api/todos/:id`       | Eliminar tarea                | `TaskDetail.tsx`                           |
+
+---
+
+### 🎯 Metas (Goals)
+
+Requieren autenticación con JWT.
+
+| Método   | Endpoint                  | Descripción                      | Usado en                                   |
+| -------- | ------------------------- | -------------------------------- | ------------------------------------------ |
+| `GET`    | `/api/goals`              | Listar metas del usuario         | `GoalList.tsx`                             |
+| `GET`    | `/api/goals/catalogs`     | Catálogo de metas (id + title)   | `taskForm.tsx`, `GoalSubGoalForm.tsx`      |
+| `GET`    | `/api/goals/:id`          | Obtener detalles de una meta     | `GoalDetail.tsx`, `GoalForm.tsx` (edición) |
+| `POST`   | `/api/goals`              | Crear nueva meta                 | `GoalForm.tsx`                             |
+| `PATCH`  | `/api/goals/:id`          | Actualizar meta                  | `GoalForm.tsx`                             |
+| `PATCH`  | `/api/goals/:id/subgoals` | Asociar submeta a una meta padre | `GoalSubGoalForm.tsx`                      |
+| `DELETE` | `/api/goals/:id`          | Eliminar meta                    | `GoalDetail.tsx`                           |
+
+### 🔐 Autenticación
+
+Los endpoints protegidos requieren un token JWT:
+
+```http
+Authorization: Bearer <token>
 ```
 
-## 📚 Documentación Adicional
+El token se obtiene en el login y se añade automáticamente a las peticiones mediante interceptores de Axios (`src/config/axios.ts`).
 
-- [Color Palette](./docs/color-palette.md)
-- [Environment Variables](./docs/environment-variables.md)
-- [Interfaces Guide](./docs/interfaces-guide.md)
-- [Vercel Deployment](./docs/vercel-deployment.md)
+---
 
-## Expanding the ESLint configuration
+## 👨‍💻 Autor
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+Orellana leonardo y Figueredo Sofia.

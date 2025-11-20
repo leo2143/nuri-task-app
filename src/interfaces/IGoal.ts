@@ -123,6 +123,12 @@ export interface IAddGoalComment {
   text: string;
   author: string;
 }
+/**
+ * Interface para agregar un comentario a una meta
+ */
+export interface IAddSubGoal {
+  subgoalId?: string;
+}
 
 /**
  * Interface para filtros de búsqueda de metas

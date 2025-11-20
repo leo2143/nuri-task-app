@@ -87,9 +87,9 @@ export default function TaskDetail() {
   }
 
   return (
-    <article className="max-w-3xl mx-auto">
-      <header className="mb-8">
-        <nav className="mb-4">
+    <section className="max-w-3xl mx-auto">
+      <div className="mb-8">
+        <div className="mb-4">
           <Button
             type="button"
             onClick={handleGoBack}
@@ -98,30 +98,34 @@ export default function TaskDetail() {
           >
             ← Volver a Tareas
           </Button>
-        </nav>
+        </div>
 
         <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
           {task.title}
         </h2>
 
-        <div className="flex items-center gap-4 text-sm font-body text-tertiary">
+        <div className="flex items-center gap-4 text-sm font-body text-tertiary flex-wrap">
           {createdDate.isValid && (
             <time
               dateTime={createdDate.iso}
-              className="flex items-center gap-1"
+              className="flex flex-wrap items-center gap-1"
             >
-              <span className="font-semibold">Creada:</span>{" "}
-              {createdDate.formatted}
+              <span className="font-semibold">Creada:</span>
+              <span>{createdDate.formatted}</span>
             </time>
           )}
           <Badge variant="priority" priority={task.priority} />
           {dueDate.isValid && (
-            <time dateTime={dueDate.iso} className="flex items-center gap-1">
-              <span className="font-semibold">Vence:</span> {dueDate.formatted}
+            <time
+              dateTime={dueDate.iso}
+              className="flex flex-wrap items-center gap-1"
+            >
+              <span className="font-semibold">Vence:</span>
+              <span>{dueDate.formatted}</span>
             </time>
           )}
         </div>
-      </header>
+      </div>
 
       <section className="bg-white p-6 rounded-lg shadow border border-neutral mb-6">
         <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
@@ -162,7 +166,7 @@ export default function TaskDetail() {
         </div>
       </section>
 
-      <footer className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4">
         <Link to={`/tasks/${task._id}/edit`}>
           <Button type="button" variant="primary" size="md">
             Editar Tarea
@@ -182,7 +186,7 @@ export default function TaskDetail() {
             Volver a la Lista
           </Button>
         </Link>
-      </footer>
-    </article>
+      </div>
+    </section>
   );
 }

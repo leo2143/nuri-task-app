@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosError } from "axios";
-import { API_BASE_URL, API_TIMEOUT, devLog } from "../config/env";
+import { API_BASE_URL, API_TIMEOUT } from "../config/env";
 
 /**
  * Instancia configurada de Axios
@@ -26,11 +26,9 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    devLog("API Request:", config.method?.toUpperCase(), config.url);
     return config;
   },
   (error) => {
-    devLog("API Request Error:", error);
     return Promise.reject(error);
   },
 );
@@ -41,12 +39,9 @@ apiClient.interceptors.request.use(
  */
 apiClient.interceptors.response.use(
   (response) => {
-    devLog("API Response:", response.status, response.config.url);
     return response;
   },
   (error: AxiosError) => {
-    devLog("API Response Error:", error.response?.status, error.config?.url);
-
     // Manejo de errores comunes
     if (error.response?.status === 401) {
       // Token inválido o expirado

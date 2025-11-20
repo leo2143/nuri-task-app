@@ -20,15 +20,15 @@ export default function GoalList() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <header className="mb-8">
+    <section className="max-w-4xl mx-auto">
+      <div className="mb-8">
         <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
           Mis Metas
         </h2>
         <p className="font-body text-tertiary">
           Gestiona tus metas y objetivos para alcanzar el éxito
         </p>
-      </header>
+      </div>
 
       {errorMessage && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -36,13 +36,13 @@ export default function GoalList() {
         </div>
       )}
 
-      <section className="mb-6">
+      <div className="mb-6">
         <Link to="/goals/new">
           <Button type="button" variant="primary" size="md">
             Agregar Nueva Meta
           </Button>
         </Link>
-      </section>
+      </div>
 
       <section>
         <h3 className="text-xl font-heading font-bold text-tertiary mb-4">
@@ -98,6 +98,6 @@ export default function GoalList() {
           </div>
         )}
       </section>
-    </div>
+    </section>
   );
 }

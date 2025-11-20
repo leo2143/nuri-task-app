@@ -319,8 +319,8 @@ export default function Register() {
                 ¿Ya tienes una cuenta?{" "}
                 <Link
                   to="/login"
-                  className="text-primary hover:text-secondary font-semibold 
-                    transition-colors duration-200 focus:outline-none focus:ring-2 
+                  className="text-primary hover:text-secondary font-semibold
+                    transition-colors duration-200 focus:outline-none focus:ring-2
                     focus:ring-primary/50 rounded px-1"
                 >
                   Inicia sesión aquí

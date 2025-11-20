@@ -301,7 +301,12 @@ export default function GoalForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+        method="post"
+        noValidate
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <Input

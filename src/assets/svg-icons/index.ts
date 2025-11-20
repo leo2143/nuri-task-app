@@ -25,3 +25,4 @@ export { default as iconLogoutBrown } from "./logout-brown.svg";
 export { default as profile } from "./profile.svg";
 export { default as profileBrown } from "./profile-brown.svg";
 export { default as navButton } from "./nav-button.svg";
+export { default as arrowsUpDown } from "./arrows-up-down.svg";
