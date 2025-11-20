@@ -49,6 +49,16 @@ La visión completa de Nuri incluirá:
 - Interfaz diseñada para generar bienestar, no presión
 - Experiencia que prioriza cómo te sientes, no solo qué haces
 
+---
+
+## 📱 Enfoque Mobile-First
+
+> **Importante:** Este proyecto está **diseñado principalmente para dispositivos móviles**. La experiencia principal y el flujo de interacción están optimizados para smartphones.
+
+Si bien se ha trabajado para que la interfaz sea **funcional en desktop** para la entrega, el diseño, las interacciones y la experiencia de usuario están pensados específicamente para uso móvil. Algunas características pueden no estar completamente optimizadas para pantallas grandes.
+
+**Recomendación:** Para la mejor experiencia, utiliza el modo de vista móvil en las herramientas de desarrollo del navegador o accede desde un dispositivo móvil.
+
 ## 🚀 Tecnologías Utilizadas
 
 ### Frontend
@@ -188,17 +198,6 @@ src/
 - ✅ **Jerarquía de submetas** - Asociar metas como submetas de otras
 - ✅ **Catálogo de metas** para selección en formularios
 
-### Características Técnicas
-
-- ✅ **Arquitectura modular** con separación de concerns
-- ✅ **Validación de datos** en frontend y backend
-- ✅ **Interceptores de Axios** para tokens automáticos
-- ✅ **Gestión de estado global** con Context API
-- ✅ **Manejo de errores** centralizado
-- ✅ **UI moderna y responsive** con Tailwind CSS
-- ✅ **Accesibilidad** (ARIA labels, keyboard navigation)
-- ✅ **Type-safe** con TypeScript en todo el proyecto
-
 ## 🚧 TODO - Próximas Funcionalidades
 
 ### Optimización y Rendimiento
@@ -276,6 +275,10 @@ Authorization: Bearer <token>
 El token se obtiene en el login y se añade automáticamente a las peticiones mediante interceptores de Axios (`src/config/axios.ts`).
 
 ---
+
+el proyecto tambien se encuentra ya desplegado y funcional en vercel
+https://nuri-task-app.vercel.app/login
+https://nuri-task-api.vercel.app
 
 ## 👨‍💻 Autor
 
