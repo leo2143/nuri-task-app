@@ -35,6 +35,7 @@ export default function ResetPassword() {
 
   // Verificar token al cargar la página
   useEffect(() => {
+    if (success) return;
     const verifyToken = async () => {
       if (!token) {
         handleError(
@@ -245,10 +246,11 @@ export default function ResetPassword() {
                 <h1 className="text-4xl font-heading font-bold text-neutral md:text-tertiary mb-2">
                   Restablecer Contraseña
                 </h1>
-                <p className="text-neutral/60 md:text-tertiary/60 font-body">
+                <p className="text-neutral/60 md:text-neutral/60 font-body">
                   {userEmail && (
                     <>
-                      Cambiando contraseña para: <strong>{userEmail}</strong>
+                      Cambiando contraseña para:{" "}
+                      <strong className="text-neutral">{userEmail}</strong>
                     </>
                   )}
                 </p>
