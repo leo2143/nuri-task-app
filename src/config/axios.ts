@@ -46,6 +46,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token inválido o expirado
       localStorage.removeItem("authToken");
+      localStorage.removeItem("user");
       window.location.href = "/login";
     }
 

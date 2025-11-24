@@ -326,17 +326,17 @@ export default function ResetPassword() {
                 />
               </svg>
 
-              <h2 className="text-3xl font-heading font-bold text-tertiary">
+              <h2 className="text-3xl font-heading font-bold text-neutral">
                 ¡Contraseña Actualizada!
               </h2>
 
-              <p className="text-tertiary/70 font-body text-lg">
+              <p className="text-neutral/70 font-body text-lg">
                 Tu contraseña ha sido cambiada exitosamente. Ahora puedes
                 iniciar sesión con tu nueva contraseña.
               </p>
 
               <div className="bg-secondary/10 border border-secondary p-4 rounded-lg">
-                <p className="font-body text-sm text-tertiary">
+                <p className="font-body text-sm text-neutral">
                   Serás redirigido al login en unos segundos...
                 </p>
               </div>
