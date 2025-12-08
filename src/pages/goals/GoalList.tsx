@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Button, ProgressBar } from "../../components/ui";
+import { ButtonLink, ProgressBar } from "../../components/ui";
 import type { IGoal } from "../../interfaces";
 import { useFetchList } from "../../hooks";
 import { goalService } from "../../services/goalService";
@@ -37,11 +37,9 @@ export default function GoalList() {
       )}
 
       <div className="mb-6">
-        <Link to="/goals/new">
-          <Button type="button" variant="primary" size="md">
-            Agregar Nueva Meta
-          </Button>
-        </Link>
+        <ButtonLink to="/goals/new" variant="primary" size="md">
+          Agregar Nueva Meta
+        </ButtonLink>
       </div>
 
       <section>

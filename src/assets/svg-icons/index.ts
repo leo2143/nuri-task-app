@@ -26,3 +26,5 @@ export { default as profile } from "./profile.svg";
 export { default as profileBrown } from "./profile-brown.svg";
 export { default as navButton } from "./nav-button.svg";
 export { default as arrowsUpDown } from "./arrows-up-down.svg";
+export { default as nenufar } from "./nenufar.svg";
+export { default as flower } from "./flower.svg";

@@ -1,4 +1,6 @@
 export { default as Button } from "./Button";
+export { default as ButtonLink } from "./ButtonLink";
+export { default as AdminCard } from "./AdminCard";
 export { default as Input } from "./Input";
 export { default as Badge } from "./Badge";
 export { default as ProgressBar } from "./ProgressBar";

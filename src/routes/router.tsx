@@ -16,6 +16,11 @@ import GoalList from "../pages/goals/GoalList";
 import GoalDetail from "../pages/goals/GoalDetail";
 import GoalForm from "../pages/goals/GoalForm";
 import GoalSubGoalForm from "../pages/goals/GoalSubGoalForm";
+import AdminRoute from "./AdminRoute";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import Forbidden from "../pages/status/Forbidden";
+import AdminLayout from "../components/AdminLayout";
+import AdminUser from "../pages/admin/user/AdminUser";
 
 export const router = createBrowserRouter([
   {
@@ -101,9 +106,42 @@ export const router = createBrowserRouter([
     ],
   },
 
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    errorElement: <NotFound />,
+    children: [
+      {
+        element: <AdminRoute />,
+        children: [
+          {
+            index: true,
+            element: <AdminDashboard />,
+          },
+
+          {
+            path: "users",
+            element: <AdminUser />,
+          },
+          // {
+          //   path: "users/:id",
+          //   element: <AdminUserDetail />,
+          // },
+          // {
+          //   path: "settings",
+          //   element: <AdminSettings />,
+          // },
+        ],
+      },
+    ],
+  },
   // Ruta catch-all para páginas no encontradas
   {
     path: "*",
     element: <NotFound />,
+  },
+  {
+    path: "/forbidden",
+    element: <Forbidden />,
   },
 ]);

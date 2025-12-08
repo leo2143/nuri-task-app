@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Badge } from "../../components/ui";
+import { useNavigate } from "react-router-dom";
+import { Button, ButtonLink, Badge } from "../../components/ui";
 import { todoservice } from "../../services/todoService";
 import { useFetchById, useFormatDate } from "../../hooks";
 import type { ITodo } from "../../interfaces";
@@ -167,11 +167,9 @@ export default function TaskDetail() {
       </section>
 
       <div className="flex flex-wrap gap-4">
-        <Link to={`/tasks/${task._id}/edit`}>
-          <Button type="button" variant="primary" size="md">
-            Editar Tarea
-          </Button>
-        </Link>
+        <ButtonLink to={`/tasks/${task._id}/edit`} variant="primary" size="md">
+          Editar Tarea
+        </ButtonLink>
 
         <Button
           type="button"
@@ -181,11 +179,9 @@ export default function TaskDetail() {
         >
           Eliminar Tarea
         </Button>
-        <Link to="/tasks">
-          <Button type="button" variant="secondary" size="md">
-            Volver a la Lista
-          </Button>
-        </Link>
+        <ButtonLink to="/tasks" variant="secondary" size="md">
+          Volver a la Lista
+        </ButtonLink>
       </div>
     </section>
   );

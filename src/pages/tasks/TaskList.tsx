@@ -1,6 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Button from "../../components/ui/Button";
+import { ButtonLink } from "../../components/ui";
 import type { ITodo, ITodoFilters } from "../../interfaces";
 import { useFetchList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
@@ -68,11 +68,9 @@ export default function TaskList() {
       )}
 
       <div className="mb-6">
-        <Link to="/tasks/new">
-          <Button type="button" variant="primary" size="md">
-            Agregar Nueva Tarea
-          </Button>
-        </Link>
+        <ButtonLink to="/tasks/new" variant="primary" size="md">
+          Agregar Nueva Tarea
+        </ButtonLink>
       </div>
 
       <section>

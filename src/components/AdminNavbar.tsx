@@ -23,8 +23,8 @@ import {
 } from "../assets/svg-icons";
 import MenuNavItem from "./MenuNavItem";
 
-export default function Navbar() {
-  const { logout, user } = useAuth();
+export default function AdminNavbar() {
+  const { logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -95,7 +95,9 @@ export default function Navbar() {
             <div className="py-6 flex flex-col gap-20 min-h-full">
               <div>
                 <div className="flex items-center justify-between mb-6 px-6">
-                  <h2 className="text-2xl font-heading text-tertiary">Menú</h2>
+                  <h2 className="text-2xl font-heading text-tertiary">
+                    Administrador
+                  </h2>
 
                   <button
                     onClick={() => setIsMenuOpen(false)}
@@ -148,14 +150,6 @@ export default function Navbar() {
                     iconHover={medal}
                     label="Logros"
                   />
-                  {user?.isAdmin && (
-                    <MenuNavItem
-                      to="/admin"
-                      icon={profileBrown}
-                      iconHover={profile}
-                      label="Panel Administracion"
-                    />
-                  )}
                 </div>
               </div>
               <div>

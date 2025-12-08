@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { userService } from "../../services/userService";
 import { useField, useHttpError } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import { Button, ButtonLink, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import {
@@ -189,16 +189,12 @@ export default function ResetPassword() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/forgot-password">
-                <Button variant="primary" size="md">
-                  Solicitar Nuevo Enlace
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button variant="secondary" size="md">
-                  Volver al Login
-                </Button>
-              </Link>
+              <ButtonLink to="/forgot-password" variant="primary" size="md">
+                Solicitar Nuevo Enlace
+              </ButtonLink>
+              <ButtonLink to="/login" variant="secondary" size="md">
+                Volver al Login
+              </ButtonLink>
             </div>
           </div>
         </div>
@@ -343,11 +339,9 @@ export default function ResetPassword() {
                 </p>
               </div>
 
-              <Link to="/login">
-                <Button variant="primary" size="lg" fullWidth>
-                  Ir al Login Ahora
-                </Button>
-              </Link>
+              <ButtonLink to="/login" variant="primary" size="lg" fullWidth>
+                Ir al Login Ahora
+              </ButtonLink>
             </div>
           )}
         </div>

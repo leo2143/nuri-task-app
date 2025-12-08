@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Button, ProgressBar } from "../../components/ui";
+import { useNavigate } from "react-router-dom";
+import { Button, ButtonLink, ProgressBar } from "../../components/ui";
 import type { IGoal } from "../../interfaces";
 import { useFetchById, useFormatDate } from "../../hooks";
 import { goalService } from "../../services/goalService";
@@ -276,16 +276,20 @@ export default function GoalDetail() {
 
       {/* Acciones */}
       <div className="flex flex-wrap gap-4">
-        <Link to={`/goals/${goal._id}/edit`}>
-          <Button type="button" variant="secondary" size="md">
-            Editar Meta
-          </Button>
-        </Link>
-        <Link to={`/goals/${goal._id}/new/subgoal`}>
-          <Button type="button" variant="primary" size="md">
-            Relacionar Meta
-          </Button>
-        </Link>
+        <ButtonLink
+          to={`/goals/${goal._id}/edit`}
+          variant="secondary"
+          size="md"
+        >
+          Editar Meta
+        </ButtonLink>
+        <ButtonLink
+          to={`/goals/${goal._id}/new/subgoal`}
+          variant="primary"
+          size="md"
+        >
+          Relacionar Meta
+        </ButtonLink>
 
         <Button
           type="button"
