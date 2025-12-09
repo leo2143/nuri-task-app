@@ -1,22 +1,100 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, EmptyState, InputFilter } from "../../../components/ui";
+import { add } from "../../../assets/svg-icons/index";
+import { useFetchList } from "../../../hooks";
+import type { IUser } from "../../../interfaces";
+import { userService } from "../../../services/userService";
+import Loading from "../../../components/Loading";
 
 export default function AdminUser() {
-  return (
-    <div className="flex flex-col gap-6 justify-center">
-      <h2>ESTAMOS EN USER</h2>
+  const navigate = useNavigate();
 
-      <div className="flex w-full gap-4 p-5 justify-between items-center rounded-lg bg-white shadow-lg shadow-tertiary-dark/25">
-        <div className="flex gap-5">
-          <div className="bg-primary-light rounded-full w-50">0</div>
-          <div>
-            <p className="text-tertiary-dark/50 text-xl">Peito el mostro</p>
-            <span className="text-tertiary-dark/50 text-sm">Suscripto: No</span>
-          </div>
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  const {
+    data: users,
+    loading,
+    errorMessage,
+    isEmpty,
+  } = useFetchList<IUser>({
+    fetchFn: userService.getAllUsers,
+  });
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  return (
+    <div className="flex flex-col gap-11 justify-center">
+      <div className="flex flex-col gap-6 justify-center">
+        <div className="mb-4">
+          <Button
+            type="button"
+            onClick={handleGoBack}
+            variant="secondary"
+            size="sm"
+          >
+            ← Volver
+          </Button>
         </div>
-        <Link to="user" className="text-primary font-bold">
-          Ver
-        </Link>{" "}
+
+        <h2 className="text-3xl font-heading font-bold text-tertiary">
+          Usuarios Registrados
+        </h2>
+
+        {errorMessage && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="font-body text-red-600">{errorMessage}</p>
+          </div>
+        )}
+
+        <Button
+          type="button"
+          onClick={() => navigate("/admin/users/new")}
+          variant="primary"
+          size="lg"
+          icon={add}
+          iconAlt="agregar usuario"
+        >
+          Crear Usuario
+        </Button>
       </div>
+      {!isEmpty ? (
+        <div className="flex flex-col gap-4">
+          <InputFilter id="filter" name="filtro" />
+          {users.map((user) => (
+            <div
+              key={user._id}
+              className="flex w-full gap-4 p-5 justify-between items-center rounded-lg bg-white  shadow-brand-glow"
+            >
+              <div className="flex gap-5 items-center">
+                <div className="bg-brand rounded-full w-12 h-12 flex items-center justify-center text-white font-bold text-xl">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-tertiary font-semibold text-xl">
+                    {user.name}
+                  </p>
+                  <p className="text-tertiary/70 text-sm">{user.email}</p>
+                  <span className="text-tertiary/50 text-sm">
+                    {user.isAdmin ? "Admin" : "Usuario"} • Suscripto: No
+                  </span>
+                </div>
+              </div>
+              <Link
+                to={`/admin/users/${user._id}`}
+                className="text-primary font-bold hover:text-primary-light transition-colors"
+              >
+                Ver
+              </Link>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyState itemName="Usuarios" />
+      )}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import Loading from "../../components/Loading";
 import { useField, useHttpError, useAuth } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
-import Nuri from "../../assets/illustrations/nuri-completo.svg";
+import Nuri from "../../assets/ilustrations/nuri-completo.svg";
 import GoogleIcon from "../../assets/icons/google.svg";
 import Trama from "../../assets/icons/trama-white.svg";
 

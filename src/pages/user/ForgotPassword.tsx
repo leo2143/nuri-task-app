@@ -6,7 +6,7 @@ import { Button, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { validateEmail } from "../../utils/validations";
-import NuriTriste from "../../assets/illustrations/nuri-triste.svg";
+import NuriTriste from "../../assets/ilustrations/nuri-triste.svg";
 import Trama from "../../assets/icons/trama-white.svg";
 
 export default function ForgotPassword() {

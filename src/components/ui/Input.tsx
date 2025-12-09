@@ -45,21 +45,21 @@ export default function Input({
 
   // Estilos del label
   const labelStyles = responsiveDarkMode
-    ? "block text-sm font-medium text-white md:text-tertiary font-body"
+    ? "block text-sm font-medium text-white md:text-brand font-body"
     : darkMode
       ? "block text-sm font-medium text-white font-body"
       : "block text-sm font-medium text-tertiary font-body";
 
   // Estilos del input - Modo Light
   const lightModeStyles = `
-  w-full px-4 py-3 rounded-lg border-2 border-tertiary/50
-  ${value ? "bg-primary/10 border-primary/50" : "bg-primary/0"}
-  focus:bg-primary/20
+  w-full px-4 py-3 rounded-lg border-2  shadow-brand-glow
+  ${value ? "bg-brand/10 border-brand/50" : "bg-white"}
+  focus:bg-brand/20
   focus:outline-none
   focus:border-transparent
-  disabled:bg-primary/5 disabled:cursor-not-allowed disabled:opacity-60
+  disabled:bg-brand/5 disabled:cursor-not-allowed disabled:opacity-60
   font-body text-tertiary
-  placeholder:text-tertiary/40
+  placeholder:text-brand font-semibold
   [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgba(47,150,133,0.1)]
   [&:-webkit-autofill]:[-webkit-text-fill-color:rgb(58,37,29)]
   [&:-webkit-autofill:focus]:shadow-[inset_0_0_0_1000px_rgba(47,150,133,0.2)]

@@ -17,7 +17,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
-import NuriAlegre from "../../assets/illustrations/nuri-alegre.svg";
+import NuriAlegre from "../../assets/ilustrations/nuri-alegre.svg";
 import Trama from "../../assets/icons/trama-white.svg";
 
 export default function Register() {

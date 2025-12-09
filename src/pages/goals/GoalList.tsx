@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ButtonLink, ProgressBar } from "../../components/ui";
+import { ButtonLink, ProgressBar, EmptyState } from "../../components/ui";
 import type { IGoal } from "../../interfaces";
 import { useFetchList } from "../../hooks";
 import { goalService } from "../../services/goalService";
@@ -89,11 +89,7 @@ export default function GoalList() {
             ))}
           </ul>
         ) : (
-          <div className="text-center py-12 bg-secondary bg-opacity-10 rounded-lg border border-secondary">
-            <p className="font-body text-tertiary text-lg">
-              <em>No hay metas aún. ¡Crea tu primera meta para comenzar!</em>
-            </p>
-          </div>
+          <EmptyState itemName="Metas" />
         )}
       </section>
     </section>

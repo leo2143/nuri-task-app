@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ButtonLink } from "../../components/ui";
+import { ButtonLink, EmptyState } from "../../components/ui";
 import type { ITodo, ITodoFilters } from "../../interfaces";
 import { useFetchList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
@@ -112,11 +112,7 @@ export default function TaskList() {
             ))}
           </ul>
         ) : (
-          <div className="text-center py-12 bg-secondary bg-opacity-10 rounded-lg border border-secondary">
-            <p className="font-body text-tertiary text-lg">
-              <em>No hay tareas aún. ¡Crea tu primera tarea para comenzar!</em>
-            </p>
-          </div>
+          <EmptyState itemName="Tareas" />
         )}
       </section>
     </section>

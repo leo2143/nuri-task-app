@@ -12,6 +12,8 @@ interface ButtonProps {
   children: React.ReactNode;
   className?: string;
   ariaLabel?: string;
+  icon?: string; // Ruta del ícono SVG
+  iconAlt?: string; // Texto alternativo del ícono
 }
 
 export default function Button({
@@ -25,10 +27,12 @@ export default function Button({
   children,
   className = "",
   ariaLabel,
+  icon,
+  iconAlt = "ícono",
 }: ButtonProps) {
   // Estilos base
   const baseStyles = `
-    font-body font-semibold rounded-lg shadow-lg hover:shadow-xl
+    relative font-body font-semibold rounded-lg shadow-lg hover:shadow-xl
     focus:outline-none focus:ring-4
     disabled:opacity-50 disabled:cursor-not-allowed
     transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]
@@ -43,7 +47,7 @@ export default function Button({
       disabled:hover:bg-primary
     `,
     secondary: `
-      bg-secondary hover:bg-secondary-dark hover: text-neutral 
+      bg-secondary hover:bg-secondary-dark hover: text-neutral
       focus:ring-secondary/50
       disabled:hover:bg-secondary
     `,
@@ -111,7 +115,12 @@ export default function Button({
           {typeof children === "string" ? `${children}...` : children}
         </>
       ) : (
-        children
+        <>
+          {icon && (
+            <img src={icon} alt={iconAlt} className="w-5 h-5 absolute left-6" />
+          )}
+          {children}
+        </>
       )}
     </button>
   );

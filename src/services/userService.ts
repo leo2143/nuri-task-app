@@ -168,7 +168,7 @@ export const userService = {
    * GET /api/users
    * @requires validarAdminToken
    */
-  getUsers: async (): Promise<IUser[]> => {
+  getAllUsers: async (): Promise<IUser[]> => {
     try {
       const response = await apiClient.get<ISuccessResponse<IUser[]>>(
         `${API_BASE_URL}/api/users`,
@@ -178,13 +178,6 @@ export const userService = {
       console.error("Error fetching users:", error);
       throw error;
     }
-  },
-
-  /**
-   * Alias para getUsers
-   */
-  getAllUsers: async (): Promise<IUser[]> => {
-    return userService.getUsers();
   },
 
   /**

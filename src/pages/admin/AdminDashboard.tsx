@@ -58,6 +58,19 @@ export default function AdminDashboard() {
       >
         Usuarios Suscriptos: 21
       </AdminCard>
+
+      <AdminCard
+        bgColor="bg-brand"
+        padding="p-14"
+        hasHover={false}
+        icon={{
+          src: nenufar,
+          alt: "nenúfar decorativo",
+          className: "absolute -left-3 -top-2 w-[50px]",
+        }}
+      >
+        Logros totales: 2
+      </AdminCard>
     </div>
   );
 }

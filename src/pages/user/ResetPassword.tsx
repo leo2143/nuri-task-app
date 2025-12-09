@@ -9,7 +9,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
-import NuriCorazon from "../../assets/illustrations/nuri-corazon.svg";
+import NuriCorazon from "../../assets/ilustrations/nuri-corazon.svg";
 import Trama from "../../assets/icons/trama-white.svg";
 
 export default function ResetPassword() {
