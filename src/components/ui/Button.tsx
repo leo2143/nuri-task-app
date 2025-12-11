@@ -1,19 +1,29 @@
 import React from "react";
 import { useClassNames } from "../../hooks";
+import { add, lapiz, trash, filter } from "../../assets/svg-icons/index";
+
+// Mapa de íconos disponibles - agregar nuevos íconos aquí
+const iconMap = {
+  add,
+  lapiz,
+  trash,
+  filter,
+} as const;
+
+type IconName = keyof typeof iconMap;
 
 interface ButtonProps {
   type?: "button" | "submit" | "reset";
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: "primary" | "secondary" | "danger" | "success";
-  size?: "sm" | "md" | "lg";
+  variant?: "primary" | "secondary" | "danger" | "success" | "brand";
+  size?: "sm" | "md" | "lg" | "ro";
   fullWidth?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
   ariaLabel?: string;
-  icon?: string; // Ruta del ícono SVG
-  iconAlt?: string; // Texto alternativo del ícono
+  icon?: IconName;
 }
 
 export default function Button({
@@ -28,11 +38,10 @@ export default function Button({
   className = "",
   ariaLabel,
   icon,
-  iconAlt = "ícono",
 }: ButtonProps) {
   // Estilos base
   const baseStyles = `
-    relative font-body font-semibold rounded-lg shadow-lg hover:shadow-xl
+    relative font-body font-semibold shadow-lg hover:shadow-xl
     focus:outline-none focus:ring-4
     disabled:opacity-50 disabled:cursor-not-allowed
     transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]
@@ -61,16 +70,23 @@ export default function Button({
       focus:ring-green-500/50
       disabled:hover:bg-green-600
     `,
+    brand: `
+      bg-brand hover:bg-brand/80 text-white
+      focus:ring-brand/50
+      disabled:hover:bg-brand
+    `,
   };
 
   //tamaños
   const sizeStyles = {
-    sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3 text-base",
-    lg: "px-8 py-4 text-lg",
+    sm: "px-4 py-2 text-sm rounded-lg",
+    md: "px-6 py-3 text-base rounded-lg",
+    lg: "px-8 py-4 text-lg rounded-lg",
+    ro: "rounded-full p-3",
   };
 
   const widthStyle = fullWidth ? "w-full" : "";
+  const widthImageStyle = fullWidth ? "absolute left-6" : "";
 
   const buttonClasses = useClassNames(
     baseStyles,
@@ -79,6 +95,7 @@ export default function Button({
     widthStyle,
     className,
   );
+  const linkImageClasses = `w-5 h-5 ${widthImageStyle}`;
 
   return (
     <button
@@ -117,7 +134,7 @@ export default function Button({
       ) : (
         <>
           {icon && (
-            <img src={icon} alt={iconAlt} className="w-5 h-5 absolute left-6" />
+            <img src={iconMap[icon]} alt={icon} className={linkImageClasses} />
           )}
           {children}
         </>

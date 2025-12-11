@@ -1,5 +1,6 @@
 import React from "react";
-import { filter, search } from "../../assets/svg-icons/index";
+import { search } from "../../assets/svg-icons/index";
+import { Button } from ".";
 
 interface InputFilterProps {
   id: string;
@@ -88,7 +89,7 @@ export default function InputFilter({
         />
       </div>
 
-      <img src={filter} alt="icono de filtro" className="cursor-pointer" />
+      <Button variant="brand" icon="filter" size="ro"></Button>
     </div>
   );
 }

@@ -1,6 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Button, EmptyState, InputFilter } from "../../../components/ui";
-import { add } from "../../../assets/svg-icons/index";
+import {
+  Avatar,
+  Button,
+  ButtonLink,
+  EmptyState,
+  InputFilter,
+} from "../../../components/ui";
 import { useFetchList } from "../../../hooks";
 import type { IUser } from "../../../interfaces";
 import { userService } from "../../../services/userService";
@@ -50,16 +55,14 @@ export default function AdminUser() {
           </div>
         )}
 
-        <Button
-          type="button"
-          onClick={() => navigate("/admin/users/new")}
+        <ButtonLink
+          to="/admin/users/new"
           variant="primary"
-          size="lg"
-          icon={add}
-          iconAlt="agregar usuario"
+          fullWidth
+          icon="add"
         >
           Crear Usuario
-        </Button>
+        </ButtonLink>
       </div>
       {!isEmpty ? (
         <div className="flex flex-col gap-4">
@@ -70,9 +73,8 @@ export default function AdminUser() {
               className="flex w-full gap-4 p-5 justify-between items-center rounded-lg bg-white  shadow-brand-glow"
             >
               <div className="flex gap-5 items-center">
-                <div className="bg-brand rounded-full w-12 h-12 flex items-center justify-center text-white font-bold text-xl">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
+                <Avatar imageUrl={user?.imageUrl} name={user?.name} size="sm" />
+
                 <div>
                   <p className="text-tertiary font-semibold text-xl">
                     {user.name}

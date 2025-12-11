@@ -29,3 +29,5 @@ export { default as arrowsUpDown } from "./arrows-up-down.svg";
 export { default as nenufar } from "./nenufar.svg";
 export { default as flower } from "./flower.svg";
 export { default as add } from "./add.svg";
+export { default as lapiz } from "./lapiz.svg";
+export { default as trash } from "./trash.svg";

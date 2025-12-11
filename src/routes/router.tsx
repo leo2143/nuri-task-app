@@ -21,6 +21,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import Forbidden from "../pages/status/Forbidden";
 import AdminLayout from "../components/AdminLayout";
 import AdminUser from "../pages/admin/user/AdminUser";
+import AdminUserDetail from "../pages/admin/user/AdminUserDetail";
 
 export const router = createBrowserRouter([
   {
@@ -123,10 +124,10 @@ export const router = createBrowserRouter([
             path: "users",
             element: <AdminUser />,
           },
-          // {
-          //   path: "users/:id",
-          //   element: <AdminUserDetail />,
-          // },
+          {
+            path: "users/:id",
+            element: <AdminUserDetail />,
+          },
           // {
           //   path: "settings",
           //   element: <AdminSettings />,

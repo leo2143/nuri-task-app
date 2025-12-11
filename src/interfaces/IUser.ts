@@ -7,12 +7,20 @@
  * Interface para el modelo de Usuario
  * Sincronizada con el esquema de Mongoose
  */
+export interface ISubscription {
+  isActive: boolean;
+  startDate: Date;
+  endDate: Date;
+}
+
 export interface IUser {
   _id?: string;
   name: string;
   email: string;
+  suscription?: ISubscription;
   password: string;
   isAdmin: boolean;
+  imageUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -89,7 +97,3 @@ export interface IChangePassword {
 export interface IResetPassword {
   newPassword: string;
 }
-/**
- * @deprecated Use IUser instead
- * Mantenido por compatibilidad con código existente
- */
