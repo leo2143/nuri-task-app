@@ -1,21 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks";
 import {
-  nuriFire,
   hamburger,
-  notification,
   close,
-  starBrown,
-  star,
   home,
   homeBrown,
-  metrics,
   medalBrown,
   medal,
-  metricBrown,
-  checkBrown,
-  checkBlue,
   iconLogout,
   iconLogoutBrown,
   profile,

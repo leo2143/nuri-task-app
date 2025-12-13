@@ -19,8 +19,5 @@ export * from "./IAchievement";
 // UserAchievement
 export * from "./IUserAchievement";
 
-// Admin Dashboard
-export * from "./IAdminDashboard";
-
 // API Responses
 export * from "./IApiResponse";
