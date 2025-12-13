@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useHttpError } from "./useHttpError";
+import { useHttpError, isNotFoundError } from "./useHttpError";
 
-// Hook para traer un recurso por ID (lee el ID de la URL automáticamente)
+// Hook para traer un recurso por ID
 export interface UseFetchByIdOptions<T> {
   fetchFn: (id: string) => Promise<T | null>;
   id?: string;
@@ -17,7 +17,7 @@ export interface UseFetchByIdResult<T> {
   clearError: () => void;
 }
 
-// Hook para traer listas con filtros opcionales
+// Hook para traer listas con filtros
 export interface UseFetchListOptions<T, F = void> {
   fetchFn: (filters?: F) => Promise<T[]>;
   filters?: F;
@@ -33,7 +33,7 @@ export interface UseFetchListResult<T> {
   clearError: () => void;
   isEmpty: boolean;
 }
-// Trae un solo elemento por ID (ej: una tarea, una meta)
+// Trae un solo elemento por ID
 export function useFetchById<T>({
   fetchFn,
   id: providedId,
@@ -80,7 +80,7 @@ export function useFetchById<T>({
   };
 }
 
-// Trae una lista de elementos (ej: todas las tareas, todas las metas)
+// Trae una lista de elementos
 export function useFetchList<T, F = void>({
   fetchFn,
   filters,
@@ -98,8 +98,12 @@ export function useFetchList<T, F = void>({
       const result = await fetchFn(filters);
       setData(result);
     } catch (err) {
-      handleError(err);
-      setData([]);
+      if (isNotFoundError(err)) {
+        setData([]);
+      } else {
+        handleError(err);
+        setData([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -121,7 +125,7 @@ export function useFetchList<T, F = void>({
   };
 }
 
-// Hook para traer un solo objeto de datos (no requiere ID)
+// Hook para traer un solo objeto de datos
 export interface UseFetchDataOptions<T> {
   fetchFn: () => Promise<T>;
   autoFetch?: boolean;
