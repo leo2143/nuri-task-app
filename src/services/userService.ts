@@ -8,6 +8,9 @@ import type {
   ISuccessResponse,
   IChangePassword,
   IResetPassword,
+  CreateAdminUserDto,
+  UpdateAdminUserDto,
+  UserFilters,
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
@@ -56,13 +59,6 @@ export const userService = {
       console.error("Error creating user:", error);
       throw error;
     }
-  },
-
-  /**
-   * Alias para registro de usuario
-   */
-  register: async (userData: ICreateUser): Promise<IUser> => {
-    return userService.createUser(userData);
   },
 
   // ==========================================
@@ -168,23 +164,42 @@ export const userService = {
    * GET /api/users
    * @requires validarAdminToken
    */
-  getUsers: async (): Promise<IUser[]> => {
+  getAllUsers: async (filters?: UserFilters): Promise<IUser[]> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<IUser[]>>(
-        `${API_BASE_URL}/api/users`,
-      );
+      // Construir query params
+      const params = new URLSearchParams();
+
+      if (filters?.search) {
+        params.append("search", filters.search);
+      }
+      if (filters?.isAdmin !== undefined) {
+        params.append("isAdmin", String(filters.isAdmin));
+      }
+      if (filters?.isSubscribed !== undefined) {
+        params.append("isSubscribed", String(filters.isSubscribed));
+      }
+      if (filters?.createdFrom) {
+        params.append("createdFrom", filters.createdFrom);
+      }
+      if (filters?.createdTo) {
+        params.append("createdTo", filters.createdTo);
+      }
+      if (filters?.sortBy) {
+        params.append("sortBy", filters.sortBy);
+      }
+      if (filters?.sortOrder) {
+        params.append("sortOrder", filters.sortOrder);
+      }
+
+      const queryString = params.toString();
+      const url = `${API_BASE_URL}/api/users${queryString ? `?${queryString}` : ""}`;
+
+      const response = await apiClient.get<ISuccessResponse<IUser[]>>(url);
       return response.data.data || [];
     } catch (error) {
       console.error("Error fetching users:", error);
       throw error;
     }
-  },
-
-  /**
-   * Alias para getUsers
-   */
-  getAllUsers: async (): Promise<IUser[]> => {
-    return userService.getUsers();
   },
 
   /**
@@ -222,6 +237,44 @@ export const userService = {
     }
   },
 
+  /**
+   * Actualizar un usuario existente desde el admin
+   * PUT /api/users/:id
+   * @requires validarAdminToken
+   */
+  adminUpdateUser: async (
+    id: string,
+    userData: UpdateAdminUserDto,
+  ): Promise<IUser> => {
+    try {
+      const response = await apiClient.put<ISuccessResponse<IUser>>(
+        `${API_BASE_URL}/api/admin/users/${id}`,
+        userData,
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error(`Error updating user ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Crear un nuevo usuario desde el admin
+   * POST /api/users
+   * @public
+   */
+  adminCreateUser: async (userData: CreateAdminUserDto): Promise<IUser> => {
+    try {
+      const response = await apiClient.post<ISuccessResponse<IUser>>(
+        `${API_BASE_URL}/api/admin/users`,
+        userData,
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw error;
+    }
+  },
   /**
    * Eliminar un usuario
    * DELETE /api/users/:id

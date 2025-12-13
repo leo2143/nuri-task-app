@@ -7,14 +7,39 @@
  * Interface para el modelo de Usuario
  * Sincronizada con el esquema de Mongoose
  */
+export interface ISubscription {
+  isActive: boolean;
+  startDate: Date;
+  endDate: Date;
+}
+
 export interface IUser {
   _id?: string;
   name: string;
   email: string;
+  subscription?: ISubscription;
   password: string;
   isAdmin: boolean;
+  profileImageUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+export interface CreateAdminUserDto {
+  name: string;
+  email: string;
+  password: string;
+  isAdmin?: boolean;
+  isSubscribed?: boolean;
+  profileImageUrl?: string | null;
+}
+
+export interface UpdateAdminUserDto {
+  name?: string;
+  email?: string;
+  password?: string;
+  isAdmin?: boolean;
+  isSubscribed?: boolean;
+  profileImageUrl?: string | null;
 }
 
 /**
@@ -24,7 +49,6 @@ export interface ICreateUser {
   name: string;
   email: string;
   password: string;
-  isAdmin?: boolean;
 }
 
 /**
@@ -34,7 +58,6 @@ export interface IUpdateUser {
   name?: string;
   email?: string;
   password?: string;
-  isAdmin?: boolean;
 }
 
 /**
@@ -89,7 +112,17 @@ export interface IChangePassword {
 export interface IResetPassword {
   newPassword: string;
 }
+
 /**
- * @deprecated Use IUser instead
- * Mantenido por compatibilidad con código existente
+ * Interface para filtros de usuarios
+ * Usada en GET /api/users con query params
  */
+export interface UserFilters {
+  search?: string;
+  isAdmin?: boolean;
+  isSubscribed?: boolean;
+  createdFrom?: string;
+  createdTo?: string;
+  sortBy?: "name" | "email" | "createdAt";
+  sortOrder?: "asc" | "desc";
+}

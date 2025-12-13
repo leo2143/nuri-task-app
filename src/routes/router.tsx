@@ -16,6 +16,16 @@ import GoalList from "../pages/goals/GoalList";
 import GoalDetail from "../pages/goals/GoalDetail";
 import GoalForm from "../pages/goals/GoalForm";
 import GoalSubGoalForm from "../pages/goals/GoalSubGoalForm";
+import AdminRoute from "./AdminRoute";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import Forbidden from "../pages/status/Forbidden";
+import AdminLayout from "../components/AdminLayout";
+import AdminUser from "../pages/admin/user/AdminUser";
+import AdminUserDetail from "../pages/admin/user/AdminUserDetail";
+import AdminUserForm from "../pages/admin/user/AdminUserForm";
+import AdminAchievement from "../pages/admin/achievement/AdminAchievement";
+import AdminAchievementForm from "../pages/admin/achievement/AdminAchievementForm";
+import AdminAchievementDetail from "../pages/admin/achievement/AdminAchievementDetail";
 
 export const router = createBrowserRouter([
   {
@@ -101,9 +111,63 @@ export const router = createBrowserRouter([
     ],
   },
 
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    errorElement: <NotFound />,
+    children: [
+      {
+        element: <AdminRoute />,
+        children: [
+          {
+            index: true,
+            element: <AdminDashboard />,
+          },
+
+          {
+            path: "users",
+            element: <AdminUser />,
+          },
+          {
+            path: "users/:id",
+            element: <AdminUserDetail />,
+          },
+          {
+            path: "users/new",
+            element: <AdminUserForm />,
+          },
+          {
+            path: "users/:id/edit",
+            element: <AdminUserForm />,
+          },
+
+          {
+            path: "achievements",
+            element: <AdminAchievement />,
+          },
+          {
+            path: "achievements/:id",
+            element: <AdminAchievementDetail />,
+          },
+          {
+            path: "achievements/new",
+            element: <AdminAchievementForm />,
+          },
+          {
+            path: "achievements/:id/edit",
+            element: <AdminAchievementForm />,
+          },
+        ],
+      },
+    ],
+  },
   // Ruta catch-all para páginas no encontradas
   {
     path: "*",
     element: <NotFound />,
+  },
+  {
+    path: "/forbidden",
+    element: <Forbidden />,
   },
 ]);

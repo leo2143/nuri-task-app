@@ -6,7 +6,7 @@
 /**
  * Tipos de logros disponibles
  */
-export type AchievementType = "task" | "goal" | "metric" | "streak" | "comment";
+export type AchievementType = "task" | "goal" | "metric" | "streak";
 
 /**
  * Interface para el modelo de Achievement (Plantilla Global)
@@ -16,11 +16,26 @@ export interface IAchievement {
   title: string;
   description: string;
   targetCount: number;
-  reward: string;
   type: AchievementType;
   isActive: boolean;
+  imageUrl: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+/**
+ * Interface para estadísticas de logros
+ */
+export interface IAchievementStats {
+  total: number;
+  byType: {
+    task: number;
+    goal: number;
+    metric: number;
+    streak: number;
+  };
+  active: number;
+  inactive: number;
 }
 
 /**
@@ -30,9 +45,9 @@ export interface ICreateAchievement {
   title: string;
   description: string;
   targetCount: number;
-  reward?: string;
   type: AchievementType;
   isActive?: boolean;
+  imageUrl: string;
 }
 
 /**
@@ -42,7 +57,15 @@ export interface IUpdateAchievement {
   title?: string;
   description?: string;
   targetCount?: number;
-  reward?: string;
   type?: AchievementType;
   isActive?: boolean;
+  imageUrl?: string;
+}
+
+export interface AchievementFilters {
+  search?: string;
+  type?: AchievementType;
+  isActive?: boolean;
+  sortBy?: "title" | "type" | "targetCount" | "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
 }

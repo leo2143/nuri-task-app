@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { userService } from "../../services/userService";
 import { useField, useHttpError } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import { Button, ButtonLink, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
-import NuriCorazon from "../../assets/illustrations/nuri-corazon.svg";
+import NuriCorazon from "../../assets/ilustrations/nuri-corazon.svg";
 import Trama from "../../assets/icons/trama-white.svg";
 
 export default function ResetPassword() {
@@ -35,6 +35,7 @@ export default function ResetPassword() {
 
   // Verificar token al cargar la página
   useEffect(() => {
+    if (success) return;
     const verifyToken = async () => {
       if (!token) {
         handleError(
@@ -188,16 +189,12 @@ export default function ResetPassword() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/forgot-password">
-                <Button variant="primary" size="md">
-                  Solicitar Nuevo Enlace
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button variant="secondary" size="md">
-                  Volver al Login
-                </Button>
-              </Link>
+              <ButtonLink to="/forgot-password" variant="primary" size="md">
+                Solicitar Nuevo Enlace
+              </ButtonLink>
+              <ButtonLink to="/login" variant="secondary" size="md">
+                Volver al Login
+              </ButtonLink>
             </div>
           </div>
         </div>
@@ -245,10 +242,11 @@ export default function ResetPassword() {
                 <h1 className="text-4xl font-heading font-bold text-neutral md:text-tertiary mb-2">
                   Restablecer Contraseña
                 </h1>
-                <p className="text-neutral/60 md:text-tertiary/60 font-body">
+                <p className="text-neutral/60 md:text-neutral/60 font-body">
                   {userEmail && (
                     <>
-                      Cambiando contraseña para: <strong>{userEmail}</strong>
+                      Cambiando contraseña para:{" "}
+                      <strong className="text-neutral">{userEmail}</strong>
                     </>
                   )}
                 </p>
@@ -326,26 +324,24 @@ export default function ResetPassword() {
                 />
               </svg>
 
-              <h2 className="text-3xl font-heading font-bold text-tertiary">
+              <h2 className="text-3xl font-heading font-bold text-neutral">
                 ¡Contraseña Actualizada!
               </h2>
 
-              <p className="text-tertiary/70 font-body text-lg">
+              <p className="text-neutral/70 font-body text-lg">
                 Tu contraseña ha sido cambiada exitosamente. Ahora puedes
                 iniciar sesión con tu nueva contraseña.
               </p>
 
               <div className="bg-secondary/10 border border-secondary p-4 rounded-lg">
-                <p className="font-body text-sm text-tertiary">
+                <p className="font-body text-sm text-neutral">
                   Serás redirigido al login en unos segundos...
                 </p>
               </div>
 
-              <Link to="/login">
-                <Button variant="primary" size="lg" fullWidth>
-                  Ir al Login Ahora
-                </Button>
-              </Link>
+              <ButtonLink to="/login" variant="primary" size="lg" fullWidth>
+                Ir al Login Ahora
+              </ButtonLink>
             </div>
           )}
         </div>

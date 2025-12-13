@@ -6,7 +6,7 @@ import { Button, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { validateEmail } from "../../utils/validations";
-import NuriTriste from "../../assets/illustrations/nuri-triste.svg";
+import NuriTriste from "../../assets/ilustrations/nuri-triste.svg";
 import Trama from "../../assets/icons/trama-white.svg";
 
 export default function ForgotPassword() {
@@ -166,8 +166,8 @@ export default function ForgotPassword() {
                   ¿Recordaste tu contraseña?{" "}
                   <Link
                     to="/login"
-                    className="text-primary hover:text-secondary font-semibold 
-                      transition-colors duration-200 focus:outline-none focus:ring-2 
+                    className="text-primary hover:text-secondary font-semibold
+                      transition-colors duration-200 focus:outline-none focus:ring-2
                       focus:ring-primary/50 rounded px-1"
                   >
                     Inicia sesión aquí
@@ -202,10 +202,10 @@ export default function ForgotPassword() {
               </div>
 
               <div className="bg-secondary/10 border border-secondary p-4 rounded-lg">
-                <h4 className="font-heading font-semibold text-tertiary mb-2">
+                <h4 className="font-heading font-semibold text-neutral mb-2">
                   📬 Revisa tu bandeja de entrada
                 </h4>
-                <ul className="font-body text-sm text-tertiary space-y-1 list-disc list-inside">
+                <ul className="font-body text-sm text-neutral space-y-1 list-disc list-inside">
                   <li>El email puede tardar unos minutos en llegar</li>
                   <li>Revisa tu carpeta de spam o correo no deseado</li>
                   <li>El enlace es válido por 1 hora</li>
@@ -215,7 +215,7 @@ export default function ForgotPassword() {
               <Button
                 type="button"
                 onClick={() => setSuccess(false)}
-                variant="secondary"
+                variant="primary"
                 size="md"
                 fullWidth
               >
@@ -225,8 +225,8 @@ export default function ForgotPassword() {
               <div className="text-center pt-4 border-t border-neutral/20">
                 <Link
                   to="/login"
-                  className="text-primary hover:text-secondary font-semibold font-body
-                    transition-colors duration-200 focus:outline-none focus:ring-2 
+                  className="text-neutral hover:text-primary font-semibold font-body
+                    transition-colors duration-200 focus:outline-none focus:ring-2
                     focus:ring-primary/50 rounded px-1"
                 >
                   ← Volver al Login

@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import Button from "../components/ui/Button";
+import { ButtonLink } from "../components/ui";
 
 export default function Home() {
   return (
@@ -22,11 +21,9 @@ export default function Home() {
             Crea y organiza fácilmente tus tareas diarias con nuestra interfaz
             intuitiva.
           </p>
-          <Link to="/tasks">
-            <Button type="button" variant="primary" size="sm">
-              Ver Tareas
-            </Button>
-          </Link>
+          <ButtonLink to="/tasks" variant="primary" size="sm">
+            Ver Tareas
+          </ButtonLink>
         </article>
 
         <article className="bg-white p-6 rounded-lg shadow-md border border-neutral hover:shadow-lg transition-shadow duration-200">
@@ -37,11 +34,9 @@ export default function Home() {
             Monitorea tu progreso y mantente al tanto de tus objetivos con un
             seguimiento detallado.
           </p>
-          <Link to="/goals">
-            <Button type="button" variant="secondary" size="sm">
-              Comenzar
-            </Button>
-          </Link>
+          <ButtonLink to="/goals" variant="secondary" size="sm">
+            Comenzar
+          </ButtonLink>
         </article>
       </section>
 

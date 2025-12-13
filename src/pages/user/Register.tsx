@@ -17,7 +17,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
-import NuriAlegre from "../../assets/illustrations/nuri-alegre.svg";
+import NuriAlegre from "../../assets/ilustrations/nuri-alegre.svg";
 import Trama from "../../assets/icons/trama-white.svg";
 
 export default function Register() {
@@ -122,7 +122,7 @@ export default function Register() {
       };
 
       // 4. LLAMAR al servicio de registro
-      const newUser = await userService.register(userData);
+      const newUser = await userService.createUser(userData);
 
       // 5. Registro exitoso
       console.log("Usuario creado exitosamente:", newUser);

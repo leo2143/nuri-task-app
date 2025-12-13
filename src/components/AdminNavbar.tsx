@@ -1,30 +1,23 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks";
 import {
-  nuriFire,
   hamburger,
-  notification,
   close,
-  starBrown,
-  star,
   home,
   homeBrown,
-  metrics,
   medalBrown,
   medal,
-  metricBrown,
-  checkBrown,
-  checkBlue,
   iconLogout,
   iconLogoutBrown,
   profile,
   profileBrown,
 } from "../assets/svg-icons";
+import { nuriConNenu } from "../assets/ilustrations";
 import MenuNavItem from "./MenuNavItem";
 
-export default function Navbar() {
-  const { logout, user } = useAuth();
+export default function AdminNavbar() {
+  const { logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -60,21 +53,20 @@ export default function Navbar() {
   return (
     <>
       <header className="bg-neutral text-neutral w-full fixed top-0 z-30">
-        <h1 className="sr-only">Nuri task</h1>
+        <h1 className="sr-only">Nuri task Admin</h1>
         <nav className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src={nuriFire} alt="ícono de fuego de Nuri" />
-              <span className="font-heading text-tertiary text-4xl font-bold">
-                3
+              <img
+                className="h-10 w-10"
+                src={nuriConNenu}
+                alt="ícono de nuri"
+              />
+              <span className="font-heading text-tertiary text-xl font-bold">
+                Panel de Administración
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <Link to="/notifications">
-                <div className="p-4">
-                  <img src={notification} alt="ícono de notificaciones" />
-                </div>
-              </Link>
               <button className="p-4" onClick={handleHamburger}>
                 <img src={hamburger} alt="ícono de menú" />
               </button>
@@ -95,7 +87,9 @@ export default function Navbar() {
             <div className="py-6 flex flex-col gap-20 min-h-full">
               <div>
                 <div className="flex items-center justify-between mb-6 px-6">
-                  <h2 className="text-2xl font-heading text-tertiary">Menú</h2>
+                  <h2 className="text-2xl font-heading text-tertiary">
+                    Administrador
+                  </h2>
 
                   <button
                     onClick={() => setIsMenuOpen(false)}
@@ -112,50 +106,23 @@ export default function Navbar() {
                 </div>
                 <div className="flex flex-col gap-2 ">
                   <MenuNavItem
-                    to="/"
-                    icon={homeBrown}
-                    iconHover={home}
-                    label="Inicio"
-                  />
-                  <MenuNavItem
-                    to="/"
+                    to="/admin/users"
                     icon={profileBrown}
                     iconHover={profile}
                     label="Perfil"
                   />
                   <MenuNavItem
-                    to="/tasks"
-                    icon={checkBrown}
-                    iconHover={checkBlue}
-                    label="Tareas"
-                  />
-
-                  <MenuNavItem
-                    to="/goals"
-                    icon={starBrown}
-                    iconHover={star}
-                    label="Metas"
-                  />
-                  <MenuNavItem
-                    to="/"
-                    icon={metricBrown}
-                    iconHover={metrics}
-                    label="Métricas"
-                  />
-                  <MenuNavItem
-                    to="/"
+                    to="/admin/achievements"
                     icon={medalBrown}
                     iconHover={medal}
                     label="Logros"
                   />
-                  {user?.isAdmin && (
-                    <MenuNavItem
-                      to="/admin"
-                      icon={profileBrown}
-                      iconHover={profile}
-                      label="Panel Administracion"
-                    />
-                  )}
+                  <MenuNavItem
+                    to="/"
+                    icon={homeBrown}
+                    iconHover={home}
+                    label="Volver al Inicio"
+                  />
                 </div>
               </div>
               <div>

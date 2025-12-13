@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Button, ProgressBar } from "../../components/ui";
+import { ButtonLink, ProgressBar } from "../../components/ui";
 import type { IGoal } from "../../interfaces";
 import { useFetchList } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import Loading from "../../components/Loading";
+import StateMessage from "../../components/StateMessage";
 
 export default function GoalList() {
   const {
@@ -30,18 +31,10 @@ export default function GoalList() {
         </p>
       </div>
 
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
-      )}
-
       <div className="mb-6">
-        <Link to="/goals/new">
-          <Button type="button" variant="primary" size="md">
-            Agregar Nueva Meta
-          </Button>
-        </Link>
+        <ButtonLink to="/goals/new" variant="primary" size="md">
+          Agregar Nueva Meta
+        </ButtonLink>
       </div>
 
       <section>
@@ -49,7 +42,9 @@ export default function GoalList() {
           Lista de Metas
         </h3>
 
-        {!isEmpty ? (
+        {errorMessage ? (
+          <StateMessage itemName="las metas" variant="error" />
+        ) : !isEmpty ? (
           <ul className="space-y-3">
             {goals.map((goal) => (
               <li key={goal._id}>
@@ -91,11 +86,7 @@ export default function GoalList() {
             ))}
           </ul>
         ) : (
-          <div className="text-center py-12 bg-secondary bg-opacity-10 rounded-lg border border-secondary">
-            <p className="font-body text-tertiary text-lg">
-              <em>No hay metas aún. ¡Crea tu primera meta para comenzar!</em>
-            </p>
-          </div>
+          <StateMessage itemName="Metas" variant="notFoundList" />
         )}
       </section>
     </section>

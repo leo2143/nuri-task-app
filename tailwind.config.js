@@ -41,6 +41,9 @@ export default {
           dark: "#1e40af",
         },
       },
+      boxShadow: {
+        "brand-glow": "0 0 5px 0 #75BDC9",
+      },
       fontFamily: {
         // títulos
         heading: ['"Montserrat Alternates"', "sans-serif"],

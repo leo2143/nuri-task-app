@@ -1,5 +1,5 @@
 import type { AxiosError } from "axios";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 /**
  * Hook para manejar errores HTTP de forma centralizada
@@ -16,7 +16,7 @@ export function useHttpError() {
    * @param err - Error capturado en try/catch
    * @returns Mensaje de error formateado
    */
-  const handleError = (err: unknown): string => {
+  const handleError = useCallback((err: unknown): string => {
     let message = "Error inesperado";
 
     // Verificar si es un error de Axios (petición HTTP)
@@ -37,15 +37,15 @@ export function useHttpError() {
     setError(true);
     setErrorMessage(message);
     return message;
-  };
+  }, []);
 
   /**
    * Limpia el estado de error
    */
-  const clearError = () => {
+  const clearError = useCallback(() => {
     setError(false);
     setErrorMessage("");
-  };
+  }, []);
 
   return {
     error,

@@ -69,19 +69,6 @@
     @apply text-base;
   }
 
-  /* Links con colores de la paleta */
-  a {
-    @apply text-primary font-medium no-underline transition-colors duration-300;
-  }
-
-  a:hover {
-    @apply text-secondary;
-  }
-
-  a:focus-visible {
-    @apply outline-2 outline-primary outline-offset-2 rounded;
-  }
-
   strong {
     @apply font-bold text-tertiary;
   }

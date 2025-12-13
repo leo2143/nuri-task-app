@@ -1,10 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import Button from "../../components/ui/Button";
+import { ButtonLink } from "../../components/ui";
 import type { ITodo, ITodoFilters } from "../../interfaces";
 import { useFetchList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import Loading from "../../components/Loading";
+import StateMessage from "../../components/StateMessage";
 
 export default function TaskList() {
   const navigate = useNavigate();
@@ -61,18 +62,10 @@ export default function TaskList() {
         </p>
       </div>
 
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
-      )}
-
       <div className="mb-6">
-        <Link to="/tasks/new">
-          <Button type="button" variant="primary" size="md">
-            Agregar Nueva Tarea
-          </Button>
-        </Link>
+        <ButtonLink to="/tasks/new" variant="primary" size="md">
+          Agregar Nueva Tarea
+        </ButtonLink>
       </div>
 
       <section>
@@ -80,7 +73,9 @@ export default function TaskList() {
           Lista de Tareas
         </h3>
 
-        {localTasks.length > 0 ? (
+        {errorMessage ? (
+          <StateMessage itemName="las tareas" variant="error" />
+        ) : localTasks.length > 0 ? (
           <ul className="space-y-3">
             {localTasks.map((task) => (
               <li key={task._id}>
@@ -114,11 +109,7 @@ export default function TaskList() {
             ))}
           </ul>
         ) : (
-          <div className="text-center py-12 bg-secondary bg-opacity-10 rounded-lg border border-secondary">
-            <p className="font-body text-tertiary text-lg">
-              <em>No hay tareas aún. ¡Crea tu primera tarea para comenzar!</em>
-            </p>
-          </div>
+          <StateMessage itemName="Tareas" variant="notFoundList" />
         )}
       </section>
     </section>
