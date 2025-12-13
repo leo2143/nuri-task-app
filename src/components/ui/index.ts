@@ -8,6 +8,6 @@ export { default as ProgressBar } from "./ProgressBar";
 export { default as IconWrapper } from "./IconWrapper";
 export { default as Select } from "./Select";
 export { default as CustomCheckbox } from "./CustomCheckbox";
-export { default as EmptyState } from "../EmptyState";
+export { default as ConfirmModal } from "./ConfirmModal";
 export { InfoCard } from "./InfoCard";
 export { Avatar } from "./Avatar";

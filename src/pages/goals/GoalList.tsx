@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { ButtonLink, ProgressBar, EmptyState } from "../../components/ui";
+import { ButtonLink, ProgressBar } from "../../components/ui";
 import type { IGoal } from "../../interfaces";
 import { useFetchList } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import Loading from "../../components/Loading";
+import StateMessage from "../../components/StateMessage";
 
 export default function GoalList() {
   const {
@@ -30,12 +31,6 @@ export default function GoalList() {
         </p>
       </div>
 
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
-      )}
-
       <div className="mb-6">
         <ButtonLink to="/goals/new" variant="primary" size="md">
           Agregar Nueva Meta
@@ -47,7 +42,9 @@ export default function GoalList() {
           Lista de Metas
         </h3>
 
-        {!isEmpty ? (
+        {errorMessage ? (
+          <StateMessage itemName="las metas" variant="error" />
+        ) : !isEmpty ? (
           <ul className="space-y-3">
             {goals.map((goal) => (
               <li key={goal._id}>
@@ -89,7 +86,7 @@ export default function GoalList() {
             ))}
           </ul>
         ) : (
-          <EmptyState itemName="Metas" />
+          <StateMessage itemName="Metas" variant="notFoundList" />
         )}
       </section>
     </section>

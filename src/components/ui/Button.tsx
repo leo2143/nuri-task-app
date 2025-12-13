@@ -17,7 +17,7 @@ interface ButtonProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: "primary" | "secondary" | "danger" | "success" | "brand";
+  variant?: "primary" | "secondary" | "danger" | "success" | "brand" | "ghost";
   size?: "sm" | "md" | "lg" | "ro";
   fullWidth?: boolean;
   children?: React.ReactNode;
@@ -41,9 +41,7 @@ export default function Button({
 }: ButtonProps) {
   // Estilos base
   const baseStyles = `
-    relative font-body font-semibold shadow-lg hover:shadow-xl
-    focus:outline-none focus:ring-4
-    disabled:opacity-50 disabled:cursor-not-allowed
+    relative font-body font-semibold
     transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]
     inline-flex items-center justify-center gap-2
   `;
@@ -51,30 +49,46 @@ export default function Button({
   // Estilos por variante
   const variantStyles = {
     primary: `
-      bg-primary hover:bg-primary-light text-white
+      bg-primary hover:bg-primary-light text-white shadow-lg hover:shadow-xl
+      focus:outline-none focus:ring-4
+      disabled:opacity-50 disabled:cursor-not-allowed
       focus:ring-primary/50
       disabled:hover:bg-primary
     `,
     secondary: `
-      bg-secondary hover:bg-secondary-dark hover: text-neutral
+      bg-secondary hover:bg-secondary-dark hover: text-neutral shadow-lg hover:shadow-xl
+      focus:outline-none focus:ring-4
+      disabled:opacity-50 disabled:cursor-not-allowed
       focus:ring-secondary/50
       disabled:hover:bg-secondary
     `,
     danger: `
-      bg-red-600 hover:bg-red-700 text-white
+      bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-xl
+      focus:outline-none focus:ring-4
+      disabled:opacity-50 disabled:cursor-not-allowed
+
       focus:ring-red-500/50
       disabled:hover:bg-red-600
     `,
     success: `
-      bg-green-600 hover:bg-green-700 text-white
+      bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl
+      focus:outline-none focus:ring-4
+      disabled:opacity-50 disabled:cursor-not-allowed
+
       focus:ring-green-500/50
       disabled:hover:bg-green-600
     `,
     brand: `
-      bg-brand hover:bg-brand/80 text-white
+      bg-brand hover:bg-brand/80 text-white shadow-lg hover:shadow-xl
+      focus:outline-none focus:ring-4
+      disabled:opacity-50 disabled:cursor-not-allowed
+
       focus:ring-brand/50
       disabled:hover:bg-brand
     `,
+    ghost: `
+      bg-none text-gray-500 hover:text-gray-700
+     `,
   };
 
   //tamaños

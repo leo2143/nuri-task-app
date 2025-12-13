@@ -1,13 +1,11 @@
 import {
   navButton,
-  star,
-  starBrown,
   home,
   homeBrown,
-  heart,
-  heartBlue,
-  metricBrown,
-  metrics,
+  profile,
+  profileBrown,
+  medalBrown,
+  medal,
 } from "../assets/svg-icons";
 import MenuNavItem from "./MenuNavItem";
 
@@ -21,40 +19,28 @@ export default function AdminFooter() {
           alt="ícono de botón de navegación"
         />
         <MenuNavItem
-          to="/"
+          to="/admin"
           icon={home}
           iconHover={homeBrown}
           whitHover={false}
           whitelabel={false}
           label="Inicio"
         />
-
         <MenuNavItem
-          to="/goals"
-          icon={star}
-          iconHover={starBrown}
+          to="/admin/users"
+          icon={profile}
+          iconHover={profileBrown}
           whitHover={false}
           whitelabel={false}
-          label="Metas"
+          label="Perfil"
         />
-
         <MenuNavItem
-          to="/"
-          icon={metrics}
-          iconHover={metricBrown}
+          to="/admin/achievements"
+          icon={medal}
+          iconHover={medalBrown}
           whitHover={false}
           whitelabel={false}
-          label="Métricas"
-        />
-
-        <MenuNavItem
-          to="/"
-          icon={heart}
-          iconHover={heartBlue}
-          whitHover={false}
-          whitelabel={false}
-          iconClass=" w-8 h-8"
-          label="Favoritos"
+          label="Logros"
         />
       </div>
     </footer>

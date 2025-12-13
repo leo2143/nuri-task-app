@@ -17,12 +17,29 @@ export interface IUser {
   _id?: string;
   name: string;
   email: string;
-  suscription?: ISubscription;
+  subscription?: ISubscription;
   password: string;
   isAdmin: boolean;
-  imageUrl?: string;
+  profileImageUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
+}
+export interface CreateAdminUserDto {
+  name: string;
+  email: string;
+  password: string;
+  isAdmin?: boolean;
+  isSubscribed?: boolean;
+  profileImageUrl?: string | null;
+}
+
+export interface UpdateAdminUserDto {
+  name?: string;
+  email?: string;
+  password?: string;
+  isAdmin?: boolean;
+  isSubscribed?: boolean;
+  profileImageUrl?: string | null;
 }
 
 /**
@@ -32,7 +49,6 @@ export interface ICreateUser {
   name: string;
   email: string;
   password: string;
-  isAdmin?: boolean;
 }
 
 /**
@@ -42,7 +58,6 @@ export interface IUpdateUser {
   name?: string;
   email?: string;
   password?: string;
-  isAdmin?: boolean;
 }
 
 /**
@@ -96,4 +111,18 @@ export interface IChangePassword {
  */
 export interface IResetPassword {
   newPassword: string;
+}
+
+/**
+ * Interface para filtros de usuarios
+ * Usada en GET /api/users con query params
+ */
+export interface UserFilters {
+  search?: string;
+  isAdmin?: boolean;
+  isSubscribed?: boolean;
+  createdFrom?: string;
+  createdTo?: string;
+  sortBy?: "name" | "email" | "createdAt";
+  sortOrder?: "asc" | "desc";
 }

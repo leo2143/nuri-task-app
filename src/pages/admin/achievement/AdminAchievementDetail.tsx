@@ -8,12 +8,12 @@ import {
   InfoCard,
 } from "../../../components/ui";
 import { useFetchById, useFormatDate } from "../../../hooks";
-import type { IUser } from "../../../interfaces";
-import { userService } from "../../../services/userService";
+import type { IAchievement } from "../../../interfaces";
+import { achievementService } from "../../../services/achievementService";
 import Loading from "../../../components/Loading";
 import StateMessage from "../../../components/StateMessage";
 
-export default function AdminUserDetail() {
+export default function AdminAchievementDetail() {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -23,35 +23,34 @@ export default function AdminUserDetail() {
   };
 
   const {
-    data: user,
+    data: achievement,
     loading,
     errorMessage,
-  } = useFetchById<IUser>({
-    fetchFn: userService.getUserById,
+  } = useFetchById<IAchievement>({
+    fetchFn: achievementService.getAchievementById,
   });
-  console.log(user);
-  const createdDate = useFormatDate(user?.createdAt);
-  const subscriptionEndDate = useFormatDate(user?.subscription?.endDate);
-  const subscriptionDueDate = useFormatDate(user?.subscription?.startDate);
 
-  const handleDeleteUser = async () => {
-    if (!user?._id) {
+  const createdDate = useFormatDate(achievement?.createdAt);
+  const updatedDate = useFormatDate(achievement?.updatedAt);
+
+  const handleDeleteAchievement = async () => {
+    if (!achievement?._id) {
       return;
     }
 
     setIsDeleting(true);
 
     try {
-      await userService.deleteUser(user._id);
+      await achievementService.deleteAchievement(achievement._id);
 
       // Redirigir a la lista después de eliminar
-      navigate("/admin/users", {
+      navigate("/admin/achievements", {
         replace: true,
-        state: { message: "Usuario eliminado exitosamente" },
+        state: { message: "Logro eliminado exitosamente" },
       });
     } catch (err) {
-      console.error("Error al eliminar usuario:", err);
-      alert("Error al eliminar el usuario. Por favor, intenta de nuevo.");
+      console.error("Error al eliminar logro:", err);
+      alert("Error al eliminar el logro. Por favor, intenta de nuevo.");
     } finally {
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
@@ -61,7 +60,7 @@ export default function AdminUserDetail() {
     return <Loading />;
   }
   if (errorMessage) {
-    return <StateMessage itemName="usuario" variant="notFound" />;
+    return <StateMessage itemName="logro" variant="notFound" />;
   }
 
   return (
@@ -77,14 +76,14 @@ export default function AdminUserDetail() {
         </Button>
       </div>
       <div className="flex gap-5 items-center justify-between">
-        <h2 className="text-2xl">Datos del usuario</h2>
+        <h2 className="text-2xl">Datos del logro</h2>
         <div className="flex gap-2">
           <ButtonLink
             variant="secondary"
             icon="lapiz"
-            to={`/admin/users/${user?._id}/edit`}
+            to={`/admin/achievements/${achievement?._id}/edit`}
             size="ro"
-            ariaLabel="Editar usuario"
+            ariaLabel="Editar logro"
           >
             {""}
           </ButtonLink>
@@ -99,18 +98,24 @@ export default function AdminUserDetail() {
       </div>
 
       <div className="flex flex-col items-center gap-5">
-        <Avatar imageUrl={user?.profileImageUrl} name={user?.name} size="lg" />
+        <Avatar
+          imageUrl={achievement?.imageUrl || ""}
+          name={achievement?.title || "Logro"}
+          size="lg"
+        />
+
         <InfoCard
           items={[
+            { label: "Título", value: achievement?.title },
+            { label: "Descripción", value: achievement?.description },
+            { label: "Tipo", value: achievement?.type },
             {
-              label: "Fecha de ingreso",
-              value: createdDate.formatted || "22/02/2025",
+              label: "Meta/Objetivo",
+              value: achievement?.targetCount.toString(),
             },
-            { label: "Nombre", value: user?.name },
-            { label: "Correo electrónico", value: user?.email },
             {
-              label: "Rol",
-              value: user?.isAdmin ? "Administrador" : "Usuario",
+              label: "Estado",
+              value: achievement?.isActive ? "Activo" : "Inactivo",
             },
           ]}
         />
@@ -118,23 +123,13 @@ export default function AdminUserDetail() {
         <InfoCard
           items={[
             {
-              label: "Estado de suscripción",
-              value: user?.subscription?.isActive
-                ? "Suscripción activa"
-                : "Sin suscripción",
+              label: "Fecha de creación",
+              value: createdDate.formatted || "N/A",
             },
-            ...(user?.subscription?.isActive
-              ? [
-                  {
-                    label: "Fecha de inicio",
-                    value: subscriptionDueDate.formatted,
-                  },
-                  {
-                    label: "Fecha de vencimiento",
-                    value: subscriptionEndDate.formatted,
-                  },
-                ]
-              : []),
+            {
+              label: "Última actualización",
+              value: updatedDate.formatted || "N/A",
+            },
           ]}
         />
       </div>
@@ -143,9 +138,9 @@ export default function AdminUserDetail() {
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteUser}
+        onConfirm={handleDeleteAchievement}
         title="Cuidado"
-        message="¿Estás seguro de que quieres eliminar el usuario?"
+        message="¿Estás seguro de que quieres eliminar este logro?"
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="warning"

@@ -22,6 +22,10 @@ import Forbidden from "../pages/status/Forbidden";
 import AdminLayout from "../components/AdminLayout";
 import AdminUser from "../pages/admin/user/AdminUser";
 import AdminUserDetail from "../pages/admin/user/AdminUserDetail";
+import AdminUserForm from "../pages/admin/user/AdminUserForm";
+import AdminAchievement from "../pages/admin/achievement/AdminAchievement";
+import AdminAchievementForm from "../pages/admin/achievement/AdminAchievementForm";
+import AdminAchievementDetail from "../pages/admin/achievement/AdminAchievementDetail";
 
 export const router = createBrowserRouter([
   {
@@ -128,10 +132,31 @@ export const router = createBrowserRouter([
             path: "users/:id",
             element: <AdminUserDetail />,
           },
-          // {
-          //   path: "settings",
-          //   element: <AdminSettings />,
-          // },
+          {
+            path: "users/new",
+            element: <AdminUserForm />,
+          },
+          {
+            path: "users/:id/edit",
+            element: <AdminUserForm />,
+          },
+
+          {
+            path: "achievements",
+            element: <AdminAchievement />,
+          },
+          {
+            path: "achievements/:id",
+            element: <AdminAchievementDetail />,
+          },
+          {
+            path: "achievements/new",
+            element: <AdminAchievementForm />,
+          },
+          {
+            path: "achievements/:id/edit",
+            element: <AdminAchievementForm />,
+          },
         ],
       },
     ],

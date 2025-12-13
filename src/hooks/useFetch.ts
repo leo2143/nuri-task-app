@@ -120,3 +120,56 @@ export function useFetchList<T, F = void>({
     isEmpty: data.length === 0 && !loading,
   };
 }
+
+// Hook para traer un solo objeto de datos (no requiere ID)
+export interface UseFetchDataOptions<T> {
+  fetchFn: () => Promise<T>;
+  autoFetch?: boolean;
+  dependencies?: unknown[];
+}
+
+export interface UseFetchDataResult<T> {
+  data: T | null;
+  loading: boolean;
+  errorMessage: string;
+  refetch: () => Promise<void>;
+  clearError: () => void;
+}
+
+export function useFetchData<T>({
+  fetchFn,
+  autoFetch = true,
+  dependencies = [],
+}: UseFetchDataOptions<T>): UseFetchDataResult<T> {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { errorMessage, handleError, clearError } = useHttpError();
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      clearError();
+      const result = await fetchFn();
+      setData(result);
+    } catch (err) {
+      handleError(err);
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchData();
+    }
+  }, [autoFetch, ...dependencies]);
+
+  return {
+    data,
+    loading,
+    errorMessage,
+    refetch: fetchData,
+    clearError,
+  };
+}

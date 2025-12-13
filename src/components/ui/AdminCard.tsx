@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 interface AdminCardProps {
   to?: string;
+  shadow?: string;
   bgColor: "bg-secondary" | "bg-brand";
   textColor?: "text-neutral" | "text-tertiary";
   padding: "p-10" | "p-14";
@@ -10,7 +11,7 @@ interface AdminCardProps {
   icon?: {
     src: string;
     alt: string;
-    className: string; // Posición exacta del ícono
+    className: string;
   };
   hasHover?: boolean;
 }
@@ -18,6 +19,7 @@ interface AdminCardProps {
 export default function AdminCard({
   to,
   bgColor,
+  shadow,
   textColor = "text-tertiary",
   padding,
   children,
@@ -25,7 +27,7 @@ export default function AdminCard({
   hasHover = true,
 }: AdminCardProps) {
   const cardClasses = `
-    relative overflow-hidden w-full ${bgColor} ${padding} rounded-lg text-center ${textColor}
+    relative overflow-hidden w-full ${bgColor} ${padding} ${shadow} rounded-lg text-center ${textColor}
     shadow-lg shadow-tertiary-dark/25
     ${hasHover ? "hover:scale-110 transition-all ease-linear" : ""}
   `.trim();

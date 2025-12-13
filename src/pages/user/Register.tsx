@@ -122,7 +122,7 @@ export default function Register() {
       };
 
       // 4. LLAMAR al servicio de registro
-      const newUser = await userService.register(userData);
+      const newUser = await userService.createUser(userData);
 
       // 5. Registro exitoso
       console.log("Usuario creado exitosamente:", newUser);
