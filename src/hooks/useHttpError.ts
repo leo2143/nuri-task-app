@@ -2,8 +2,18 @@ import type { AxiosError } from "axios";
 import { useState, useCallback } from "react";
 
 /**
+ * Verifica si un error es un 404 (recurso no encontrado)
+ */
+export function isNotFoundError(err: unknown): boolean {
+  if (err && typeof err === "object" && "response" in err) {
+    const axiosError = err as AxiosError;
+    return axiosError.response?.status === 404;
+  }
+  return false;
+}
+
+/**
  * Hook para manejar errores HTTP de forma centralizada
- * Prioriza mensajes del backend sobre mensajes genéricos
  */
 export function useHttpError() {
   // Estado para indicar si hay error activo
