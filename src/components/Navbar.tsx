@@ -118,7 +118,7 @@ export default function Navbar() {
                     label="Inicio"
                   />
                   <MenuNavItem
-                    to="/"
+                    to="/profile"
                     icon={profileBrown}
                     iconHover={profile}
                     label="Perfil"
@@ -143,7 +143,7 @@ export default function Navbar() {
                     label="Métricas"
                   />
                   <MenuNavItem
-                    to="/"
+                    to="/achievements"
                     icon={medalBrown}
                     iconHover={medal}
                     label="Logros"

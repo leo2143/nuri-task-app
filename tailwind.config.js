@@ -43,6 +43,7 @@ export default {
       },
       boxShadow: {
         "brand-glow": "0 0 5px 0 #75BDC9",
+        "brand-achievement": "0 4px 15px 0 #75BDC9",
       },
       fontFamily: {
         // títulos

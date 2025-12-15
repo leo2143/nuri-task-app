@@ -23,14 +23,16 @@ export default function AdminUser() {
   const renderUserItem = (user: IUser) => (
     <div
       key={user._id}
-      className="flex w-full gap-4 p-5 justify-between items-center rounded-lg bg-white shadow-brand-glow"
+      className="flex w-full flex-wrap gap-4 p-5 justify-between items-center rounded-lg bg-white shadow-brand-glow"
     >
       <div className="flex gap-5 items-center">
-        <Avatar imageUrl={user?.profileImageUrl} name={user?.name} size="md" />
+        <Avatar imageUrl={user?.profileImageUrl} name={user?.name} size="sm" />
 
         <div>
-          <p className="text-tertiary font-semibold text-xl">{user.name}</p>
-          <p className="text-tertiary/70 text-sm">{user.email}</p>
+          <p className="flex text-tertiary font-semibold text-base">
+            {user.name}
+          </p>
+          <p className="flex text-tertiary/70 text-sm">{user.email}</p>
           <span className="text-tertiary/50 text-sm">
             {user.isAdmin ? "Admin" : "Usuario"} • Suscripto:{" "}
             {user.subscription?.isActive ? "Si" : "No"}
