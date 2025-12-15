@@ -26,6 +26,8 @@ import AdminUserForm from "../pages/admin/user/AdminUserForm";
 import AdminAchievement from "../pages/admin/achievement/AdminAchievement";
 import AdminAchievementForm from "../pages/admin/achievement/AdminAchievementForm";
 import AdminAchievementDetail from "../pages/admin/achievement/AdminAchievementDetail";
+import AchievementList from "../pages/achievements/Achievements";
+import UserProfile from "../pages/user/UserProfile";
 
 export const router = createBrowserRouter([
   {
@@ -105,6 +107,14 @@ export const router = createBrowserRouter([
           {
             path: "goals/:id/edit",
             element: <GoalForm />,
+          },
+          {
+            path: "achievements",
+            element: <AchievementList />,
+          },
+          {
+            path: "profile",
+            element: <UserProfile />,
           },
         ],
       },

@@ -29,11 +29,11 @@ export default function AdminAchievement() {
         <Avatar
           imageUrl={achievement.imageUrl}
           name={achievement.title}
-          size="md"
+          size="sm"
         />
 
         <div>
-          <p className="text-tertiary font-semibold text-xl">
+          <p className="text-tertiary font-semibold text-base">
             {achievement.title}
           </p>
           <p className="text-tertiary/70 text-sm line-clamp-1">
