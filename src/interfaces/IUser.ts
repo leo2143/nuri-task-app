@@ -78,6 +78,21 @@ export interface IRegisterUser {
 }
 
 /**
+ * Interface para el perfil del usuario autenticado
+ * GET /api/user/profile
+ */
+export interface IUserProfile {
+  name: string;
+  email: string;
+  subscription: {
+    isActive: boolean;
+    startDate: string | null;
+    endDate: string | null;
+  };
+  profileImageUrl: string | null;
+}
+
+/**
  * Interface para usuario autenticado (sin password)
  * Usado después del login para no exponer la contraseña
  */
