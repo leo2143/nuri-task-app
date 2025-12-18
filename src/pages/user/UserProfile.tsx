@@ -1,21 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { Avatar, Button, ButtonLink, InfoCard } from "../../components/ui";
-import { useAuth, useFetchById, useFormatDate } from "../../hooks";
+import { useAuth, useFetchData, useFormatDate } from "../../hooks";
 import { userService } from "../../services/userService";
-import type { IUser } from "../../interfaces";
+import type { IUserProfile } from "../../interfaces";
 import Loading from "../../components/Loading";
 
 export default function UserProfile() {
   const navigate = useNavigate();
-  const { user: authUser, logout } = useAuth();
+  const { logout } = useAuth();
 
-  // Obtener datos completos del usuario (con suscripción)
-  const { data: user, loading } = useFetchById<IUser>({
-    fetchFn: userService.getUserById,
-    id: authUser?._id,
+  // Obtener perfil del usuario autenticado
+  const { data: user, loading } = useFetchData<IUserProfile>({
+    fetchFn: userService.getProfile,
   });
 
-  const createdDate = useFormatDate(user?.createdAt);
   const subscriptionStartDate = useFormatDate(user?.subscription?.startDate);
   const subscriptionEndDate = useFormatDate(user?.subscription?.endDate);
 
@@ -56,14 +54,14 @@ export default function UserProfile() {
         </div>
 
         <div className="flex flex-col items-center gap-5">
-          <Avatar imageUrl={user.profileImageUrl} name={user.name} size="lg" />
+          <Avatar
+            imageUrl={user.profileImageUrl ?? undefined}
+            name={user.name}
+            size="lg"
+          />
 
           <InfoCard
             items={[
-              {
-                label: "Fecha de ingreso",
-                value: createdDate.formatted || "—",
-              },
               { label: "Nombre", value: user.name },
               { label: "Correo electrónico", value: user.email },
             ]}

@@ -1,6 +1,7 @@
 import apiClient from "../config/axios";
 import type {
   IUser,
+  IUserProfile,
   ICreateUser,
   IUpdateUser,
   ILoginUser,
@@ -126,6 +127,23 @@ export const userService = {
   // ==========================================
   // RUTAS PROTEGIDAS (Requieren token válido)
   // ==========================================
+
+  /**
+   * Obtener perfil del usuario autenticado
+   * GET /api/user/profile
+   * @requires validarToken
+   */
+  getProfile: async (): Promise<IUserProfile> => {
+    try {
+      const response = await apiClient.get<ISuccessResponse<IUserProfile>>(
+        `${API_BASE_URL}/api/user/profile`,
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    }
+  },
 
   /**
    * Cambiar contraseña del usuario actual

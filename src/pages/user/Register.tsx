@@ -271,7 +271,7 @@ export default function Register() {
               disabled={loading}
               error={passwordError}
               onBlur={handlePasswordBlur}
-              helperText="Mínimo 4 caracteres"
+              helperText="Mínimo 6 caracteres."
               responsiveDarkMode
             />
 
