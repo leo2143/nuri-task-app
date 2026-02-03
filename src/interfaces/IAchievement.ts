@@ -68,4 +68,6 @@ export interface AchievementFilters {
   isActive?: boolean;
   sortBy?: "title" | "type" | "targetCount" | "createdAt" | "updatedAt";
   sortOrder?: "asc" | "desc";
+  limit?: number;
+  cursor?: string;
 }

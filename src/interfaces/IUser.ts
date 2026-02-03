@@ -140,4 +140,6 @@ export interface UserFilters {
   createdTo?: string;
   sortBy?: "name" | "email" | "createdAt";
   sortOrder?: "asc" | "desc";
+  limit?: number;
+  cursor?: string;
 }

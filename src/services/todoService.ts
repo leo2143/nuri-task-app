@@ -34,11 +34,13 @@ export const todoservice = {
   },
 
   /**
-   * Obtener todas las tareas con filtros opcionales
-   * GET /api/todos?search=&completed=&priority=&sortBy=&sortOrder=
+   * Obtener todas las tareas con filtros opcionales y paginación
+   * GET /api/todos?search=&completed=&priority=&sortBy=&sortOrder=&limit=&cursor=
    * @requires Bearer Token
    */
-  gettodos: async (filters?: ITodoFilters): Promise<ITodo[]> => {
+  gettodos: async (
+    filters?: ITodoFilters,
+  ): Promise<ISuccessResponse<ITodo[]>> => {
     try {
       const params = new URLSearchParams();
       if (filters?.search) params.append("search", filters.search);
@@ -47,6 +49,8 @@ export const todoservice = {
       if (filters?.priority) params.append("priority", filters.priority);
       if (filters?.sortBy) params.append("sortBy", filters.sortBy);
       if (filters?.sortOrder) params.append("sortOrder", filters.sortOrder);
+      if (filters?.limit) params.append("limit", String(filters.limit));
+      if (filters?.cursor) params.append("cursor", filters.cursor);
 
       const queryString = params.toString();
       const url = queryString
@@ -54,7 +58,7 @@ export const todoservice = {
         : `${API_BASE_URL}/api/todos`;
 
       const response = await apiClient.get<ISuccessResponse<ITodo[]>>(url);
-      return response.data.data || [];
+      return response.data;
     } catch (error) {
       console.error("Error fetching todos:", error);
       throw error;
@@ -64,7 +68,9 @@ export const todoservice = {
   /**
    * Alias para gettodos
    */
-  getAlltodos: async (filters?: ITodoFilters): Promise<ITodo[]> => {
+  getAlltodos: async (
+    filters?: ITodoFilters,
+  ): Promise<ISuccessResponse<ITodo[]>> => {
     return todoservice.gettodos(filters);
   },
 

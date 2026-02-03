@@ -139,4 +139,6 @@ export interface IGoalFilters {
   priority?: GoalPriority;
   sortBy?: "createdAt" | "dueDate" | "priority" | "progress";
   sortOrder?: "asc" | "desc";
+  limit?: number;
+  cursor?: string;
 }

@@ -16,13 +16,23 @@ export interface IBaseResponse {
 }
 
 /**
+ * Interface para metadata de paginación basada en cursor
+ */
+export interface IPaginationMeta {
+  count: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+  limit: number;
+}
+
+/**
  * Interface para respuestas exitosas con datos
  * @property {T | null} data - Datos de la respuesta
  * @property {Object | null} meta - Metadatos adicionales (count, pagination, etc.)
  */
 export interface ISuccessResponse<T = unknown> extends IBaseResponse {
   data: T | null;
-  meta: { count: number } | null;
+  meta: IPaginationMeta | null;
   success: true;
   status: 200;
 }

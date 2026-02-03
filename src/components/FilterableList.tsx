@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { InputFilter } from "./ui";
 import Loading from "./Loading";
 import StateMessage from "./StateMessage";
+import LoadMoreButton from "./LoadMoreButton";
 
 interface FilterableListProps<T> {
   data: T[];
@@ -15,6 +16,12 @@ interface FilterableListProps<T> {
   emptyStateName: string;
   isFirstLoad: boolean;
   extraFilters?: ReactNode;
+  // Pagination props
+  loadMore?: () => void;
+  loadingMore?: boolean;
+  hasMore?: boolean;
+  loadMoreText?: string;
+  loadingMoreText?: string;
 }
 
 export default function FilterableList<T extends { _id?: string }>({
@@ -29,6 +36,11 @@ export default function FilterableList<T extends { _id?: string }>({
   emptyStateName,
   isFirstLoad,
   extraFilters,
+  loadMore,
+  loadingMore = false,
+  hasMore = false,
+  loadMoreText = "Cargar más",
+  loadingMoreText = "Cargando más...",
 }: FilterableListProps<T>) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
@@ -77,7 +89,19 @@ export default function FilterableList<T extends { _id?: string }>({
             {isEmpty ? (
               <StateMessage itemName={emptyStateName} variant="notFoundList" />
             ) : (
-              data.map((item: T) => renderItem(item))
+              <>
+                {data.map((item: T) => renderItem(item))}
+
+                {loadMore && (
+                  <LoadMoreButton
+                    isLoading={loadingMore}
+                    hasMore={hasMore}
+                    onLoadMore={loadMore}
+                    buttonText={loadMoreText}
+                    loadingMessage={loadingMoreText}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>

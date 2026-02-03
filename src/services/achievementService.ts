@@ -21,7 +21,7 @@ export const achievementService = {
    */
   getAllAchievements: async (
     filters?: AchievementFilters,
-  ): Promise<IAchievement[]> => {
+  ): Promise<ISuccessResponse<IAchievement[]>> => {
     try {
       const params = new URLSearchParams();
 
@@ -40,13 +40,19 @@ export const achievementService = {
       if (filters?.sortOrder) {
         params.append("sortOrder", filters.sortOrder);
       }
+      if (filters?.limit) {
+        params.append("limit", String(filters.limit));
+      }
+      if (filters?.cursor) {
+        params.append("cursor", filters.cursor);
+      }
 
       const queryString = params.toString();
       const url = `${API_BASE_URL}/api/achievements${queryString ? `?${queryString}` : ""}`;
 
       const response =
         await apiClient.get<ISuccessResponse<IAchievement[]>>(url);
-      return response.data.data || [];
+      return response.data;
     } catch (error) {
       console.error("Error fetching achievements:", error);
       throw error;

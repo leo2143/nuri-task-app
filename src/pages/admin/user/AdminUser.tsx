@@ -14,10 +14,12 @@ export default function AdminUser() {
 
   const filterableList = useFilterableList<IUser, UserFilters>({
     fetchFn: userService.getAllUsers,
-    buildFilters: (searchTerm) =>
-      searchTerm
-        ? { search: searchTerm, sortBy: "name", sortOrder: "asc" }
-        : undefined,
+    buildFilters: (searchTerm, pagination) => ({
+      search: searchTerm || undefined,
+      limit: pagination?.limit,
+      cursor: pagination?.cursor,
+    }),
+    pagination: { enabled: true, limit: 5 },
   });
 
   const renderUserItem = (user: IUser) => (

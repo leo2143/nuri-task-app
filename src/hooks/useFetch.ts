@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useHttpError, isNotFoundError } from "./useHttpError";
+import type { ISuccessResponse } from "../interfaces";
 
 // Hook para traer un recurso por ID
 export interface UseFetchByIdOptions<T> {
@@ -19,20 +20,21 @@ export interface UseFetchByIdResult<T> {
 
 // Hook para traer listas con filtros
 export interface UseFetchListOptions<T, F = void> {
-  fetchFn: (filters?: F) => Promise<T[]>;
+  fetchFn: (filters?: F) => Promise<ISuccessResponse<T[]>>;
   filters?: F;
   autoFetch?: boolean;
   dependencies?: unknown[];
 }
 
 export interface UseFetchListResult<T> {
-  data: T[];
+  response: ISuccessResponse<T[]> | null;
   loading: boolean;
   errorMessage: string;
   refetch: () => Promise<void>;
   clearError: () => void;
   isEmpty: boolean;
 }
+
 // Trae un solo elemento por ID
 export function useFetchById<T>({
   fetchFn,
@@ -87,7 +89,7 @@ export function useFetchList<T, F = void>({
   autoFetch = true,
   dependencies = [],
 }: UseFetchListOptions<T, F>): UseFetchListResult<T> {
-  const [data, setData] = useState<T[]>([]);
+  const [response, setResponse] = useState<ISuccessResponse<T[]> | null>(null);
   const [loading, setLoading] = useState(true);
   const { errorMessage, handleError, clearError } = useHttpError();
 
@@ -96,13 +98,13 @@ export function useFetchList<T, F = void>({
       setLoading(true);
       clearError();
       const result = await fetchFn(filters);
-      setData(result);
+      setResponse(result);
     } catch (err) {
       if (isNotFoundError(err)) {
-        setData([]);
+        setResponse(null);
       } else {
         handleError(err);
-        setData([]);
+        setResponse(null);
       }
     } finally {
       setLoading(false);
@@ -116,12 +118,12 @@ export function useFetchList<T, F = void>({
   }, [autoFetch, ...dependencies]);
 
   return {
-    data,
+    response,
     loading,
     errorMessage,
     refetch: fetchData,
     clearError,
-    isEmpty: data.length === 0 && !loading,
+    isEmpty: (response?.data?.length ?? 0) === 0 && !loading,
   };
 }
 
