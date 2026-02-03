@@ -19,4 +19,5 @@ export { useFilterableList } from "./useFilterableList";
 export type {
   UseFilterableListOptions,
   UseFilterableListResult,
+  PaginationOptions,
 } from "./useFilterableList";

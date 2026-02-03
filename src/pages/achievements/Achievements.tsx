@@ -5,16 +5,12 @@ import type { IUserAchievement } from "../../interfaces";
 import { userAchievementService } from "../../services/userAchievementService";
 
 export default function AchievementList() {
-  const {
-    data: achievements,
-    loading,
-    errorMessage,
-    isEmpty,
-  } = useFetchList<IUserAchievement>({
-    fetchFn: userAchievementService.getAllAchievements,
-  });
+  const { response, loading, errorMessage, isEmpty } =
+    useFetchList<IUserAchievement>({
+      fetchFn: userAchievementService.getAllAchievements,
+    });
 
-  console.log(achievements);
+  const achievements = response?.data || [];
 
   if (loading) {
     return <Loading />;

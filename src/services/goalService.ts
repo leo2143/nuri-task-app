@@ -7,6 +7,7 @@ import type {
   IAddGoalComment,
   IGoalCatalog,
   IAddSubGoal,
+  IGoalFilters,
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
@@ -34,16 +35,30 @@ export const goalService = {
   },
 
   /**
-   * Obtener todas las metas del usuario
-   * GET /api/goals
+   * Obtener todas las metas del usuario con filtros y paginación
+   * GET /api/goals?search=&status=&priority=&sortBy=&sortOrder=&limit=&cursor=
    * @requires Bearer Token
    */
-  getAllGoals: async (): Promise<IGoal[]> => {
+  getAllGoals: async (
+    filters?: IGoalFilters,
+  ): Promise<ISuccessResponse<IGoal[]>> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<IGoal[]>>(
-        `${API_BASE_URL}/api/goals`,
-      );
-      return response.data.data || [];
+      const params = new URLSearchParams();
+      if (filters?.search) params.append("search", filters.search);
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.priority) params.append("priority", filters.priority);
+      if (filters?.sortBy) params.append("sortBy", filters.sortBy);
+      if (filters?.sortOrder) params.append("sortOrder", filters.sortOrder);
+      if (filters?.limit) params.append("limit", String(filters.limit));
+      if (filters?.cursor) params.append("cursor", filters.cursor);
+
+      const queryString = params.toString();
+      const url = queryString
+        ? `${API_BASE_URL}/api/goals?${queryString}`
+        : `${API_BASE_URL}/api/goals`;
+
+      const response = await apiClient.get<ISuccessResponse<IGoal[]>>(url);
+      return response.data;
     } catch (error) {
       console.error("Error fetching goals:", error);
       throw error;

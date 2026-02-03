@@ -80,6 +80,8 @@ export interface ITodoFilters {
   priority?: TodoPriority;
   sortBy?: "createdAt" | "dueDate" | "priority";
   sortOrder?: "asc" | "desc";
+  limit?: number;
+  cursor?: string;
 }
 
 /**

@@ -14,10 +14,14 @@ export default function AdminAchievement() {
 
   const filterableList = useFilterableList<IAchievement, AchievementFilters>({
     fetchFn: achievementService.getAllAchievements,
-    buildFilters: (searchTerm) =>
-      searchTerm
-        ? { search: searchTerm, sortBy: "title", sortOrder: "asc" }
-        : { sortBy: "title", sortOrder: "asc" },
+    buildFilters: (searchTerm, pagination) => ({
+      search: searchTerm || undefined,
+      sortBy: "title",
+      sortOrder: "asc",
+      limit: pagination?.limit,
+      cursor: pagination?.cursor,
+    }),
+    pagination: { enabled: true, limit: 5 },
   });
 
   const renderAchievementItem = (achievement: IAchievement) => (

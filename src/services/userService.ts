@@ -182,7 +182,7 @@ export const userService = {
    * GET /api/users
    * @requires validarAdminToken
    */
-  getAllUsers: async (filters?: UserFilters): Promise<IUser[]> => {
+  getAllUsers: async (filters?: UserFilters): Promise<ISuccessResponse<IUser[]>> => {
     try {
       // Construir query params
       const params = new URLSearchParams();
@@ -208,12 +208,18 @@ export const userService = {
       if (filters?.sortOrder) {
         params.append("sortOrder", filters.sortOrder);
       }
+      if (filters?.limit) {
+        params.append("limit", String(filters.limit));
+      }
+      if (filters?.cursor) {
+        params.append("cursor", filters.cursor);
+      }
 
       const queryString = params.toString();
       const url = `${API_BASE_URL}/api/users${queryString ? `?${queryString}` : ""}`;
 
       const response = await apiClient.get<ISuccessResponse<IUser[]>>(url);
-      return response.data.data || [];
+      return response.data;
     } catch (error) {
       console.error("Error fetching users:", error);
       throw error;

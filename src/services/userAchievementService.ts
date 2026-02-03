@@ -8,17 +8,16 @@ import { API_BASE_URL } from "../config/env";
  */
 export const userAchievementService = {
   /**
-   * Obtiene todos los logros
-   * GET /api/achievements
-   * @requires validarAdminToken
+   * Obtiene todos los logros del usuario
+   * GET /api/user/achievements
    */
-  getAllAchievements: async (): Promise<IUserAchievement[]> => {
+  getAllAchievements: async (): Promise<ISuccessResponse<IUserAchievement[]>> => {
     try {
       const url = `${API_BASE_URL}/api/user/achievements`;
 
       const response =
         await apiClient.get<ISuccessResponse<IUserAchievement[]>>(url);
-      return response.data.data || [];
+      return response.data;
     } catch (error) {
       console.error("Error fetching achievements:", error);
       throw error;
