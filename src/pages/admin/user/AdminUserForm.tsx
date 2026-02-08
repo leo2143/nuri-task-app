@@ -222,7 +222,7 @@ export default function AdminUserForm() {
   return (
     <section className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
+        <h2 className="font-heading font-bold text-tertiary mb-2">
           {pageTitle}
         </h2>
         <p className="font-body text-tertiary">{pageDescription}</p>

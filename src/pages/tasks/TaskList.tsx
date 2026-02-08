@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { Button, ButtonLink } from "../../components/ui";
+import { ButtonLink } from "../../components/ui";
 import type { ITodo, ITodoFilters } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
@@ -10,10 +10,6 @@ const ITEMS_PER_PAGE = 5;
 
 export default function TaskList() {
   const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const filterableList = useFilterableList<ITodo, ITodoFilters>({
     fetchFn: todoservice.gettodos,
@@ -98,18 +94,7 @@ export default function TaskList() {
   return (
     <div className="flex flex-col gap-11 justify-center">
       <div className="flex flex-col gap-6 justify-center">
-        <div className="mb-4">
-          <Button
-            type="button"
-            onClick={handleGoBack}
-            variant="secondary"
-            size="sm"
-          >
-            ← Volver
-          </Button>
-        </div>
-
-        <h2 className="text-3xl font-heading font-bold text-tertiary">
+        <h2 className="font-heading font-bold text-tertiary">
           Mis Tareas
         </h2>
 

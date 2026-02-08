@@ -18,10 +18,6 @@ export default function AdminUserDetail() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const {
     data: user,
     loading,
@@ -66,18 +62,8 @@ export default function AdminUserDetail() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="mb-4">
-        <Button
-          type="button"
-          onClick={handleGoBack}
-          variant="secondary"
-          size="sm"
-        >
-          ← Volver
-        </Button>
-      </div>
       <div className="flex gap-5 items-center justify-between">
-        <h2 className="text-2xl">Datos del usuario</h2>
+        <h2>Datos del usuario</h2>
         <div className="flex gap-2">
           <ButtonLink
             variant="secondary"

@@ -7,7 +7,7 @@ export default function ProtectedLayout() {
     <div className="min-h-screen flex flex-col bg-neutral">
       <Navbar />
 
-      <main className="flex-1 container mx-auto px-4 py-8 mt-28 pb-28">
+      <main className="flex-1 container mx-auto px-4 mt-28 pb-28">
         <Outlet />
       </main>
 

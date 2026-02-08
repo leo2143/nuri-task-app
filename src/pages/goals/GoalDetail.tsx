@@ -19,10 +19,6 @@ export default function GoalDetail() {
   const createdDate = useFormatDate(goal?.createdAt);
   const dueDate = useFormatDate(goal?.dueDate);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const handleDeleteGoal = async () => {
     if (!goal?._id) {
       return;
@@ -55,17 +51,9 @@ export default function GoalDetail() {
   if (!goal) {
     return (
       <div className="max-w-3xl mx-auto text-center py-12">
-        <h2 className="text-2xl font-heading font-bold text-tertiary mb-4">
+        <h2 className="font-heading font-bold text-tertiary mb-4">
           Meta no encontrada
         </h2>
-        <Button
-          type="button"
-          onClick={handleGoBack}
-          variant="secondary"
-          size="md"
-        >
-          ← Volver a Metas
-        </Button>
       </div>
     );
   }
@@ -76,14 +64,6 @@ export default function GoalDetail() {
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="font-body text-red-600">{errorMessage}</p>
         </div>
-        <Button
-          type="button"
-          onClick={handleGoBack}
-          variant="secondary"
-          size="md"
-        >
-          ← Volver a Metas
-        </Button>
       </div>
     );
   }
@@ -91,19 +71,8 @@ export default function GoalDetail() {
   return (
     <section className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <div className="mb-4">
-          <Button
-            type="button"
-            onClick={handleGoBack}
-            variant="secondary"
-            size="sm"
-          >
-            ← Volver a Metas
-          </Button>
-        </div>
-
         <div className="flex items-start justify-between mb-4">
-          <h2 className="text-3xl font-heading font-bold text-tertiary">
+          <h2 className="font-heading font-bold text-tertiary">
             {goal.title}
           </h2>
           <span

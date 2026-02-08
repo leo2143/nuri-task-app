@@ -1,5 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Button, ButtonLink, ProgressBar } from "../../components/ui";
+import { Link } from "react-router-dom";
+import { ButtonLink, ProgressBar } from "../../components/ui";
 import type { IGoal, IGoalFilters } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { goalService } from "../../services/goalService";
@@ -8,12 +8,6 @@ import FilterableList from "../../components/FilterableList";
 const ITEMS_PER_PAGE = 5;
 
 export default function GoalList() {
-  const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const filterableList = useFilterableList<IGoal, IGoalFilters>({
     fetchFn: goalService.getAllGoals,
     buildFilters: (searchTerm, pagination) => ({
@@ -60,18 +54,7 @@ export default function GoalList() {
   return (
     <div className="flex flex-col gap-11 justify-center">
       <div className="flex flex-col gap-6 justify-center">
-        <div className="mb-4">
-          <Button
-            type="button"
-            onClick={handleGoBack}
-            variant="secondary"
-            size="sm"
-          >
-            ← Volver
-          </Button>
-        </div>
-
-        <h2 className="text-3xl font-heading font-bold text-tertiary">
+        <h2 className="font-heading font-bold text-tertiary">
           Mis Metas
         </h2>
 

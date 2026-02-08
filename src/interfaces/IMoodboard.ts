@@ -7,6 +7,7 @@
  * Interface para una imagen en el moodboard
  */
 export interface IMoodboardImage {
+  _id?: string;
   imageUrl: string;
   imageAlt: string;
   imagePositionNumber: number;
