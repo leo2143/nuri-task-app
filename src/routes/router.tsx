@@ -28,8 +28,8 @@ import AdminAchievementForm from "../pages/admin/achievement/AdminAchievementFor
 import AdminAchievementDetail from "../pages/admin/achievement/AdminAchievementDetail";
 import AchievementList from "../pages/achievements/Achievements";
 import UserProfile from "../pages/user/UserProfile";
-import TestUpload from "../pages/moodboards/TestUpload";
 import Moodboard from "../pages/moodboards/Moodboard";
+import Metrics from "../pages/metrics/Metrics";
 
 export const router = createBrowserRouter([
   {
@@ -118,13 +118,14 @@ export const router = createBrowserRouter([
             path: "profile",
             element: <UserProfile />,
           },
-          {
-            path: "test-upload",
-            element: <TestUpload />,
-          },
+
           {
             path: "moodboard",
             element: <Moodboard />,
+          },
+                    {
+            path: "metrics",
+            element: <Metrics />,
           },
         ],
       },

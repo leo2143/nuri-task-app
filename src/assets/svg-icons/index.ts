@@ -17,7 +17,7 @@ export { default as medal } from "./medal.svg";
 export { default as medalBrown } from "./medal-brown.svg";
 export { default as metricBlue } from "./metric-blue.svg";
 export { default as metricBrown } from "./metric-brown.svg";
-export { default as metricGreen } from "./metic-green.svg";
+export { default as metricGreen } from "./metric-green.svg";
 export { default as metrics } from "./metrcis.svg";
 export { default as nuriFire } from "./nuri-fire.svg";
 export { default as iconLogout } from "./logout.svg";

@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 interface AdminCardProps {
   to?: string;
   shadow?: string;
-  bgColor: "bg-secondary" | "bg-brand";
+  bgColor: "bg-white" | "bg-secondary" | "bg-brand";
   textColor?: "text-neutral" | "text-tertiary";
-  padding: "p-10" | "p-14";
+  padding: string
   children: React.ReactNode;
   icon?: {
     src: string;

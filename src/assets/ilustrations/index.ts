@@ -12,3 +12,6 @@ export { default as nuriManitoJuntas } from "./nuri-manito-juntas.svg";
 export { default as nuriAlegre } from "./nuri-alegre.svg";
 export { default as nuriError } from "./nuri-error.svg";
 export { default as nuriWarning } from "./nuri-warning.svg";
+export { default as nuriFireCut } from "./nuri-fire-cut.svg";
+export { default as nuriAlegreCut } from "./nuri-alegre-cut.svg";
+

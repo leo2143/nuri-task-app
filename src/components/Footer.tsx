@@ -39,7 +39,7 @@ export default function Footer() {
         />
 
         <MenuNavItem
-          to="/"
+          to="/metrics"
           icon={metrics}
           iconHover={metricBrown}
           whitHover={false}

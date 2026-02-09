@@ -151,7 +151,7 @@ export default function Navbar() {
                     label="Metas"
                   />
                   <MenuNavItem
-                    to="/"
+                    to="/metrics"
                     icon={metricBrown}
                     iconHover={metrics}
                     label="Métricas"
