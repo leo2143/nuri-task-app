@@ -50,16 +50,18 @@ export default function Navbar() {
   }, [location.pathname]);
 
   useEffect(() => {
-    const loadStreak = async () => {
-      try {
-        const data = await metricsService.getUserStreak();
-        setCurrentStreak(data.currentStreak);
-      } catch (error) {
-        console.error("Error loading streak:", error);
-      }
-    };
-    loadStreak();
-  }, []);
+    if (location.pathname === '/') {
+      const loadStreak = async () => {
+        try {
+          const data = await metricsService.getUserStreak();
+          setCurrentStreak(data.currentStreak);
+        } catch (error) {
+          console.error("Error loading streak:", error);
+        }
+      };
+      loadStreak();
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     if (isMenuOpen) {

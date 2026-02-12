@@ -13,3 +13,4 @@ export { InfoCard } from "./InfoCard";
 export { Avatar } from "./Avatar";
 export { MetricCard } from "./MetricCard";
 export { StreakCard } from "./StreakCard";
+export { StatusBadge } from "./StatusBadge";

@@ -1,6 +1,6 @@
 import { nuriAlegreCut, nuriFireCut } from "../../assets/ilustrations/index";
 import { metricGreen, checkBlue, metricBlue } from "../../assets/svg-icons/index";
-import { MetricCard, StreakCard } from "../../components/ui";
+import { MetricCard, StreakCard, ProgressBar } from "../../components/ui";
 import { useFetchData } from "../../hooks";
 import type { IUserMetrics } from "../../interfaces";
 import { metricsService } from "../../services/metricsService";
@@ -48,16 +48,15 @@ export default function Metrics() {
 
 
       <div className="bg-white rounded-lg p-6 shadow-lg shadow-tertiary-dark/25">
-        <div className="flex justify-between items-center mb-4">
-          <span className="font-bold text-base">Progreso Semanal</span>
-          <span className="font-semibold">{stats?.achievementsProgress?.percentage || 0}%</span>
-        </div>
-        <div className="flex-1 bg-[#EDCBB1] rounded-full h-5 overflow-hidden">
-          <div
-            className="bg-tertiary h-full transition-all duration-300"
-            style={{ width: `${stats?.achievementsProgress?.percentage || 0}%` }}
-          />
-        </div>
+        <ProgressBar
+          progress={stats?.achievementsProgress?.percentage || 0}
+          label="Progreso Semanal"
+          height="xl"
+          bgColor="bg-[#EDCBB1]"
+          color="bg-tertiary"
+          labelClassName="font-bold text-base"
+          percentageClassName="font-semibold"
+        />
       </div>
 
       <MetricCard

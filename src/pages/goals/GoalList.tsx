@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ButtonLink, ProgressBar } from "../../components/ui";
+import { ButtonLink, ProgressBar, StatusBadge } from "../../components/ui";
 import type { IGoal, IGoalFilters } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { goalService } from "../../services/goalService";
@@ -22,31 +22,23 @@ export default function GoalList() {
     <Link key={goal._id} to={`/goals/${goal._id}`}>
       <div className="block bg-white p-5 rounded-lg shadow-brand-glow">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-lg font-body font-semibold text-tertiary">
+          <h4 className="text-base font-body font-bold text-tertiary">
             {goal.title}
           </h4>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              goal.status === "active"
-                ? "bg-greenCheap-light text-greenCheap-dark"
-                : goal.status === "paused"
-                  ? "bg-yellowCheap text-yellow-800"
-                  : "bg-blue-100 text-blue-800"
-            }`}
-          >
-            {goal.status === "active"
-              ? "Activa"
-              : goal.status === "paused"
-                ? "Pausada"
-                : "Completada"}
-          </span>
+          <StatusBadge status={goal.status} />
         </div>
         {goal.description && (
           <p className="mb-3 text-sm text-tertiary opacity-75">
             {goal.description}
           </p>
         )}
-        <ProgressBar progress={goal.progress} label="" height="sm" />
+        <ProgressBar
+          progress={goal.progress}
+          variant="inline"
+          height="lg"
+          color="bg-brand"
+          bgColor="bg-gray-300"
+        />
       </div>
     </Link>
   );
