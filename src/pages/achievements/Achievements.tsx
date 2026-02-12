@@ -23,11 +23,11 @@ export default function AchievementList() {
       {errorMessage ? (
         <StateMessage itemName="los logros" variant="error" />
       ) : !isEmpty ? (
-        <div className="flex gap-7 justify-center">
+        <div className="grid grid-cols-2 gap-4">
           {achievements.map((achievement) => (
             <article
               key={achievement._id}
-              className={`${achievement.userProgress.status !== "completed" ? "saturate-0" : ""} flex flex-col gap-3 items-center shadow-brand-achievement pt-5 pb-8 px-2 bg-white w-full max-w-[200px] rounded-xl`}
+              className={`${achievement.userProgress.status !== "completed" ? "saturate-0" : ""} flex flex-col gap-3 items-center shadow-brand-achievement pt-5 pb-8 px-2 bg-white rounded-xl`}
             >
               <div className="flex flex-col gap-1 items-center">
                 <img
