@@ -11,3 +11,5 @@ export { default as CustomCheckbox } from "./CustomCheckbox";
 export { default as ConfirmModal } from "./ConfirmModal";
 export { InfoCard } from "./InfoCard";
 export { Avatar } from "./Avatar";
+export { MetricCard } from "./MetricCard";
+export { StreakCard } from "./StreakCard";

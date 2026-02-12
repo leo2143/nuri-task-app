@@ -50,7 +50,7 @@
   }
 
   h2 {
-    @apply text-3xl;
+    @apply text-xl;
   }
 
   h3 {

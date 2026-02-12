@@ -39,7 +39,7 @@ export default function Footer() {
         />
 
         <MenuNavItem
-          to="/"
+          to="/metrics"
           icon={metrics}
           iconHover={metricBrown}
           whitHover={false}
@@ -48,7 +48,7 @@ export default function Footer() {
         />
 
         <MenuNavItem
-          to="/"
+          to="/moodboard"
           icon={heart}
           iconHover={heartBlue}
           whitHover={false}

@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Button, Select } from "../../components/ui";
+import { Select, Button } from "../../components/ui";
 import type { IGoalCatalog, IAddSubGoal } from "../../interfaces";
 import { useHttpError } from "../../hooks";
 import { goalService } from "../../services/goalService";
@@ -72,25 +72,11 @@ export default function GoalSubGoalForm() {
       setLoading(false);
     }
   };
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   return (
     <section className="max-w-3xl mx-auto">
-      <div className="max-w-3xl mx-auto py-12">
-        <Button
-          type="button"
-          onClick={handleGoBack}
-          variant="secondary"
-          size="md"
-        >
-          ← Volver a Metas
-        </Button>
-      </div>
-
       <div className="mb-8">
-        <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
+        <h2 className="font-heading font-bold text-tertiary mb-2">
           {pageTitle}
         </h2>
 

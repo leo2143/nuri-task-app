@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Button, ButtonLink, Badge } from "../../components/ui";
+import { ButtonLink, Badge } from "../../components/ui";
 import { todoservice } from "../../services/todoService";
 import { useFetchById, useFormatDate } from "../../hooks";
 import type { ITodo } from "../../interfaces";
@@ -18,10 +18,6 @@ export default function TaskDetail() {
 
   const createdDate = useFormatDate(task?.createdAt);
   const dueDate = useFormatDate(task?.dueDate);
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
 
   const handleDeleteTask = async () => {
     if (!task?._id) {
@@ -54,17 +50,9 @@ export default function TaskDetail() {
   if (!task) {
     return (
       <div className="max-w-3xl mx-auto text-center py-12">
-        <h2 className="text-2xl font-heading font-bold text-tertiary mb-4">
+        <h2 className="font-heading font-bold text-tertiary mb-4">
           Tarea no encontrada
         </h2>
-        <Button
-          type="button"
-          onClick={handleGoBack}
-          variant="secondary"
-          size="md"
-        >
-          ← Volver a Tareas
-        </Button>
       </div>
     );
   }
@@ -74,14 +62,6 @@ export default function TaskDetail() {
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="font-body text-red-600">{errorMessage}</p>
         </div>
-        <Button
-          type="button"
-          onClick={handleGoBack}
-          variant="secondary"
-          size="md"
-        >
-          ← Volver a Tareas
-        </Button>
       </div>
     );
   }
@@ -89,18 +69,7 @@ export default function TaskDetail() {
   return (
     <section className="max-w-3xl mx-auto">
       <div className="mb-8">
-        <div className="mb-4">
-          <Button
-            type="button"
-            onClick={handleGoBack}
-            variant="secondary"
-            size="sm"
-          >
-            ← Volver a Tareas
-          </Button>
-        </div>
-
-        <h2 className="text-3xl font-heading font-bold text-tertiary mb-2">
+        <h2 className="font-heading font-bold text-tertiary mb-2">
           {task.title}
         </h2>
 

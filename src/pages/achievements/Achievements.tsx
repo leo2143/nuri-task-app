@@ -18,7 +18,7 @@ export default function AchievementList() {
   return (
     <div className="flex flex-col gap-8">
       <header>
-        <h2 className="text-2xl font-heading">Logros</h2>
+        <h2 className="font-heading">Logros</h2>
       </header>
       {errorMessage ? (
         <StateMessage itemName="los logros" variant="error" />

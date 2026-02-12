@@ -15,6 +15,7 @@ import {
 } from "../assets/svg-icons";
 import { nuriConNenu } from "../assets/ilustrations";
 import MenuNavItem from "./MenuNavItem";
+import BackButton from "./BackButton";
 
 export default function AdminNavbar() {
   const { logout } = useAuth();
@@ -32,6 +33,9 @@ export default function AdminNavbar() {
     console.log("hamburger");
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const isAdminHome = location.pathname === '/admin';
+
   // Cerrar menú cuando cambia la ruta
   useEffect(() => {
     setIsMenuOpen(false);
@@ -56,21 +60,30 @@ export default function AdminNavbar() {
         <h1 className="sr-only">Nuri task Admin</h1>
         <nav className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img
-                className="h-10 w-10"
-                src={nuriConNenu}
-                alt="ícono de nuri"
-              />
-              <span className="font-heading text-tertiary text-xl font-bold">
-                Panel de Administración
-              </span>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="p-4" onClick={handleHamburger}>
-                <img src={hamburger} alt="ícono de menú" />
-              </button>
-            </div>
+            {isAdminHome ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <img
+                    className="h-10 w-10"
+                    src={nuriConNenu}
+                    alt="ícono de nuri"
+                  />
+                  <span className="font-heading text-tertiary text-xl font-bold">
+                    Panel de Administración
+                  </span>
+                </div>
+                <button className="p-4" onClick={handleHamburger}>
+                  <img src={hamburger} alt="ícono de menú" />
+                </button>
+              </>
+            ) : (
+              <>
+                <BackButton to="/admin" />
+                <button className="p-4" onClick={handleHamburger}>
+                  <img src={hamburger} alt="ícono de menú" />
+                </button>
+              </>
+            )}
           </div>
         </nav>
       </header>
@@ -87,7 +100,7 @@ export default function AdminNavbar() {
             <div className="py-6 flex flex-col gap-20 min-h-full">
               <div>
                 <div className="flex items-center justify-between mb-6 px-6">
-                  <h2 className="text-2xl font-heading text-tertiary">
+                  <h2 className="font-heading text-tertiary">
                     Administrador
                   </h2>
 

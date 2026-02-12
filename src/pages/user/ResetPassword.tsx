@@ -324,7 +324,7 @@ export default function ResetPassword() {
                 />
               </svg>
 
-              <h2 className="text-3xl font-heading font-bold text-neutral">
+              <h2 className="font-heading font-bold text-neutral">
                 ¡Contraseña Actualizada!
               </h2>
 

@@ -17,10 +17,6 @@ export default function UserProfile() {
   const subscriptionStartDate = useFormatDate(user?.subscription?.startDate);
   const subscriptionEndDate = useFormatDate(user?.subscription?.endDate);
 
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -38,19 +34,9 @@ export default function UserProfile() {
 
   return (
     <section className="flex flex-col gap-5">
-      <div className="mb-4">
-        <Button
-          type="button"
-          onClick={handleGoBack}
-          variant="secondary"
-          size="sm"
-        >
-          ← Volver
-        </Button>
-      </div>
       <div className="flex flex-col gap-8">
         <div className="flex gap-5 items-center justify-between">
-          <h2 className="text-2xl font-heading">Tus Datos</h2>
+          <h2 className="font-heading">Tus Datos</h2>
         </div>
 
         <div className="flex flex-col items-center gap-5">

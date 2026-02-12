@@ -22,10 +22,13 @@ import {
   profileBrown,
 } from "../assets/svg-icons";
 import MenuNavItem from "./MenuNavItem";
+import BackButton from "./BackButton";
+import { metricsService } from "../services/metricsService";
 
 export default function Navbar() {
   const { logout, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -39,12 +42,25 @@ export default function Navbar() {
     console.log("hamburger");
     setIsMenuOpen(!isMenuOpen);
   };
-  // Cerrar menú cuando cambia la ruta
+  const isHome = location.pathname === '/';
+
+
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  // quitar y poner scroll del body cuando cuando abro el menu
+  useEffect(() => {
+    const loadStreak = async () => {
+      try {
+        const data = await metricsService.getUserStreak();
+        setCurrentStreak(data.currentStreak);
+      } catch (error) {
+        console.error("Error loading streak:", error);
+      }
+    };
+    loadStreak();
+  }, []);
+
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -59,26 +75,38 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="bg-neutral text-neutral w-full fixed top-0 z-30">
+      <header className="bg-neutral text-neutral w-full fixed top-0 z-30 py-8 mb-16">
         <h1 className="sr-only">Nuri task</h1>
-        <nav className="container mx-auto px-4 py-4">
+        <nav className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <img src={nuriFire} alt="ícono de fuego de Nuri" />
-              <span className="font-heading text-tertiary text-4xl font-bold">
-                3
-              </span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link to="/notifications">
-                <div className="p-4">
-                  <img src={notification} alt="ícono de notificaciones" />
+            {isHome ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <img src={nuriFire} alt="ícono de fuego de Nuri" />
+                  <span className="font-heading text-tertiary text-4xl font-bold">
+                    {currentStreak}
+                  </span>
                 </div>
-              </Link>
-              <button className="p-4" onClick={handleHamburger}>
-                <img src={hamburger} alt="ícono de menú" />
-              </button>
-            </div>
+
+                <div className="flex items-center gap-4">
+                  <Link to="/notifications">
+                    <div className="p-4">
+                      <img src={notification} alt="ícono de notificaciones" />
+                    </div>
+                  </Link>
+                  <button className="p-4" onClick={handleHamburger}>
+                    <img src={hamburger} alt="ícono de menú" />
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <BackButton />
+                <button className="p-4" onClick={handleHamburger}>
+                  <img src={hamburger} alt="ícono de menú" />
+                </button>
+              </>
+            )}
           </div>
         </nav>
       </header>
@@ -95,7 +123,7 @@ export default function Navbar() {
             <div className="py-6 flex flex-col gap-20 min-h-full">
               <div>
                 <div className="flex items-center justify-between mb-6 px-6">
-                  <h2 className="text-2xl font-heading text-tertiary">Menú</h2>
+                  <h2 className="font-heading text-tertiary">Menú</h2>
 
                   <button
                     onClick={() => setIsMenuOpen(false)}
@@ -137,7 +165,7 @@ export default function Navbar() {
                     label="Metas"
                   />
                   <MenuNavItem
-                    to="/"
+                    to="/metrics"
                     icon={metricBrown}
                     iconHover={metrics}
                     label="Métricas"

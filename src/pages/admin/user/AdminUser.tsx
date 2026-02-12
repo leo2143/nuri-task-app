@@ -1,17 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Avatar, Button, ButtonLink } from "../../../components/ui";
+import { Link } from "react-router-dom";
+import { Avatar, ButtonLink } from "../../../components/ui";
 import { useFilterableList } from "../../../hooks";
 import type { IUser, UserFilters } from "../../../interfaces";
 import { userService } from "../../../services/userService";
 import FilterableList from "../../../components/FilterableList";
 
 export default function AdminUser() {
-  const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const filterableList = useFilterableList<IUser, UserFilters>({
     fetchFn: userService.getAllUsers,
     buildFilters: (searchTerm, pagination) => ({
@@ -53,18 +47,7 @@ export default function AdminUser() {
   return (
     <div className="flex flex-col gap-11 justify-center">
       <div className="flex flex-col gap-6 justify-center">
-        <div className="mb-4">
-          <Button
-            type="button"
-            onClick={handleGoBack}
-            variant="secondary"
-            size="sm"
-          >
-            ← Volver
-          </Button>
-        </div>
-
-        <h2 className="text-3xl font-heading font-bold text-tertiary">
+        <h2 className="font-heading font-bold text-tertiary">
           Usuarios Registrados
         </h2>
 

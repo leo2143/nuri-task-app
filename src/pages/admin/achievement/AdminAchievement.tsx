@@ -1,17 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Avatar, Button, ButtonLink } from "../../../components/ui";
+import { Link } from "react-router-dom";
+import { Avatar, ButtonLink } from "../../../components/ui";
 import { useFilterableList } from "../../../hooks";
 import type { IAchievement, AchievementFilters } from "../../../interfaces";
 import { achievementService } from "../../../services/achievementService";
 import FilterableList from "../../../components/FilterableList";
 
 export default function AdminAchievement() {
-  const navigate = useNavigate();
-
-  const handleGoBack = () => {
-    navigate(-1);
-  };
-
   const filterableList = useFilterableList<IAchievement, AchievementFilters>({
     fetchFn: achievementService.getAllAchievements,
     buildFilters: (searchTerm, pagination) => ({
@@ -61,18 +55,7 @@ export default function AdminAchievement() {
   return (
     <div className="flex flex-col gap-11 justify-center">
       <div className="flex flex-col gap-6 justify-center">
-        <div className="mb-4">
-          <Button
-            type="button"
-            onClick={handleGoBack}
-            variant="secondary"
-            size="sm"
-          >
-            ← Volver
-          </Button>
-        </div>
-
-        <h2 className="text-3xl font-heading font-bold text-tertiary">
+        <h2 className="font-heading font-bold text-tertiary">
           Logros del Sistema
         </h2>
 
