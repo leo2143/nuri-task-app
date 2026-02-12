@@ -1,40 +1,61 @@
 import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
+
+// Layouts y Route Guards - NO usar lazy (siempre necesarios)
 import ProtectedLayout from "../components/ProtectedLayout";
 import PublicLayout from "../components/PublicLayout";
+import AdminLayout from "../components/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
-import Login from "../pages/user/Login";
-import Register from "../pages/user/Register";
-import ForgotPassword from "../pages/user/ForgotPassword";
-import ResetPassword from "../pages/user/ResetPassword";
-import Home from "../pages/Home";
-import TaskList from "../pages/tasks/TaskList";
-import TaskDetail from "../pages/tasks/TaskDetail";
-import NotFound from "../pages/status/NotFound";
-import TaskForm from "../pages/tasks/taskForm";
-import GoalList from "../pages/goals/GoalList";
-import GoalDetail from "../pages/goals/GoalDetail";
-import GoalForm from "../pages/goals/GoalForm";
-import GoalSubGoalForm from "../pages/goals/GoalSubGoalForm";
 import AdminRoute from "./AdminRoute";
-import AdminDashboard from "../pages/admin/AdminDashboard";
-import Forbidden from "../pages/status/Forbidden";
-import AdminLayout from "../components/AdminLayout";
-import AdminUser from "../pages/admin/user/AdminUser";
-import AdminUserDetail from "../pages/admin/user/AdminUserDetail";
-import AdminUserForm from "../pages/admin/user/AdminUserForm";
-import AdminAchievement from "../pages/admin/achievement/AdminAchievement";
-import AdminAchievementForm from "../pages/admin/achievement/AdminAchievementForm";
-import AdminAchievementDetail from "../pages/admin/achievement/AdminAchievementDetail";
-import AchievementList from "../pages/achievements/Achievements";
-import UserProfile from "../pages/user/UserProfile";
-import Moodboard from "../pages/moodboards/Moodboard";
-import Metrics from "../pages/metrics/Metrics";
+
+// Loading component para Suspense fallback
+import Loading from "../components/Loading";
+
+// Páginas públicas - lazy loading
+const Login = lazy(() => import("../pages/user/Login"));
+const Register = lazy(() => import("../pages/user/Register"));
+const ForgotPassword = lazy(() => import("../pages/user/ForgotPassword"));
+const ResetPassword = lazy(() => import("../pages/user/ResetPassword"));
+
+// Páginas protegidas - lazy loading
+const Home = lazy(() => import("../pages/Home"));
+const TaskList = lazy(() => import("../pages/tasks/TaskList"));
+const TaskDetail = lazy(() => import("../pages/tasks/TaskDetail"));
+const TaskForm = lazy(() => import("../pages/tasks/taskForm"));
+const GoalList = lazy(() => import("../pages/goals/GoalList"));
+const GoalDetail = lazy(() => import("../pages/goals/GoalDetail"));
+const GoalForm = lazy(() => import("../pages/goals/GoalForm"));
+const GoalSubGoalForm = lazy(() => import("../pages/goals/GoalSubGoalForm"));
+const AchievementList = lazy(() => import("../pages/achievements/Achievements"));
+const UserProfile = lazy(() => import("../pages/user/UserProfile"));
+const Moodboard = lazy(() => import("../pages/moodboards/Moodboard"));
+const Metrics = lazy(() => import("../pages/metrics/Metrics"));
+
+// Páginas admin - lazy loading
+const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
+const AdminUser = lazy(() => import("../pages/admin/user/AdminUser"));
+const AdminUserDetail = lazy(() => import("../pages/admin/user/AdminUserDetail"));
+const AdminUserForm = lazy(() => import("../pages/admin/user/AdminUserForm"));
+const AdminAchievement = lazy(() => import("../pages/admin/achievement/AdminAchievement"));
+const AdminAchievementForm = lazy(() => import("../pages/admin/achievement/AdminAchievementForm"));
+const AdminAchievementDetail = lazy(() => import("../pages/admin/achievement/AdminAchievementDetail"));
+
+// Páginas de status - lazy loading
+const NotFound = lazy(() => import("../pages/status/NotFound"));
+const Forbidden = lazy(() => import("../pages/status/Forbidden"));
+
+// Helper para envolver componentes en Suspense
+const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>) => (
+  <Suspense fallback={<Loading />}>
+    <Component />
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   {
     element: <PublicLayout />,
-    errorElement: <NotFound />,
+    errorElement: withSuspense(NotFound),
     children: [
       {
         path: "/",
@@ -42,19 +63,19 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "login",
-            element: <Login />,
+            element: withSuspense(Login),
           },
           {
             path: "register",
-            element: <Register />,
+            element: withSuspense(Register),
           },
           {
             path: "forgot-password",
-            element: <ForgotPassword />,
+            element: withSuspense(ForgotPassword),
           },
           {
             path: "reset-password",
-            element: <ResetPassword />,
+            element: withSuspense(ResetPassword),
           },
         ],
       },
@@ -64,68 +85,66 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <ProtectedLayout />,
-    errorElement: <NotFound />,
+    errorElement: withSuspense(NotFound),
     children: [
       {
         element: <ProtectedRoute />,
         children: [
           {
             index: true,
-            element: <Home />,
+            element: withSuspense(Home),
           },
           {
             path: "tasks",
-            element: <TaskList />,
+            element: withSuspense(TaskList),
           },
           {
             path: "tasks/new",
-            element: <TaskForm />,
+            element: withSuspense(TaskForm),
           },
           {
             path: "tasks/:id/edit",
-            element: <TaskForm />,
+            element: withSuspense(TaskForm),
           },
-
           {
             path: "tasks/:id",
-            element: <TaskDetail />,
+            element: withSuspense(TaskDetail),
           },
           {
             path: "goals",
-            element: <GoalList />,
+            element: withSuspense(GoalList),
           },
           {
             path: "goals/:id",
-            element: <GoalDetail />,
+            element: withSuspense(GoalDetail),
           },
           {
             path: "goals/new",
-            element: <GoalForm />,
+            element: withSuspense(GoalForm),
           },
           {
             path: "goals/:id/new/subgoal",
-            element: <GoalSubGoalForm />,
+            element: withSuspense(GoalSubGoalForm),
           },
           {
             path: "goals/:id/edit",
-            element: <GoalForm />,
+            element: withSuspense(GoalForm),
           },
           {
             path: "achievements",
-            element: <AchievementList />,
+            element: withSuspense(AchievementList),
           },
           {
             path: "profile",
-            element: <UserProfile />,
+            element: withSuspense(UserProfile),
           },
-
           {
             path: "moodboard",
-            element: <Moodboard />,
+            element: withSuspense(Moodboard),
           },
-                    {
+          {
             path: "metrics",
-            element: <Metrics />,
+            element: withSuspense(Metrics),
           },
         ],
       },
@@ -135,60 +154,57 @@ export const router = createBrowserRouter([
   {
     path: "/admin",
     element: <AdminLayout />,
-    errorElement: <NotFound />,
+    errorElement: withSuspense(NotFound),
     children: [
       {
         element: <AdminRoute />,
         children: [
           {
             index: true,
-            element: <AdminDashboard />,
+            element: withSuspense(AdminDashboard),
           },
-
           {
             path: "users",
-            element: <AdminUser />,
+            element: withSuspense(AdminUser),
           },
           {
             path: "users/:id",
-            element: <AdminUserDetail />,
+            element: withSuspense(AdminUserDetail),
           },
           {
             path: "users/new",
-            element: <AdminUserForm />,
+            element: withSuspense(AdminUserForm),
           },
           {
             path: "users/:id/edit",
-            element: <AdminUserForm />,
+            element: withSuspense(AdminUserForm),
           },
-
           {
             path: "achievements",
-            element: <AdminAchievement />,
+            element: withSuspense(AdminAchievement),
           },
           {
             path: "achievements/:id",
-            element: <AdminAchievementDetail />,
+            element: withSuspense(AdminAchievementDetail),
           },
           {
             path: "achievements/new",
-            element: <AdminAchievementForm />,
+            element: withSuspense(AdminAchievementForm),
           },
           {
             path: "achievements/:id/edit",
-            element: <AdminAchievementForm />,
+            element: withSuspense(AdminAchievementForm),
           },
         ],
       },
     ],
   },
-  // Ruta catch-all para páginas no encontradas
   {
     path: "*",
-    element: <NotFound />,
+    element: withSuspense(NotFound),
   },
   {
     path: "/forbidden",
-    element: <Forbidden />,
+    element: withSuspense(Forbidden),
   },
 ]);

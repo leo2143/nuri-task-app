@@ -202,7 +202,7 @@ src/
 
 ### Optimización y Rendimiento
 
-- [ ] **Lazy Loading** - Implementar code splitting con `React.lazy()` y `Suspense`
+- [x] **Lazy Loading** - Code splitting implementado con `React.lazy()` y `Suspense`
 - [ ] **Paginación** - Añadir paginación para listas de tareas y metas
 
 ### Nuevas Funcionalidades
@@ -279,6 +279,17 @@ El token se obtiene en el login y se añade automáticamente a las peticiones me
 el proyecto tambien se encuentra ya desplegado y funcional en vercel
 https://nuri-task-app.vercel.app/login
 https://nuri-task-api.vercel.app
+
+---
+
+## 📚 Referencias y Documentación
+
+Recursos utilizados durante el desarrollo del proyecto:
+
+### Optimización y Rendimiento
+
+- **React Lazy Loading** - [https://react.dev/reference/react/lazy](https://react.dev/reference/react/lazy)
+  - Documentación oficial de React para implementar code splitting con `lazy()` y `Suspense`
 
 ## 👨‍💻 Autor
 
