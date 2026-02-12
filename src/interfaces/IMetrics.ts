@@ -6,6 +6,10 @@ export interface IAdminDashboardStats {
   totalAchievementsCompleted: number;
 }
 
+export interface IUserCurrentStreak{
+  currentStreak: number;
+}
+
 export interface IUserMetrics {
   _id: string;
   userId: {

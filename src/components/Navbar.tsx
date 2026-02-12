@@ -23,10 +23,12 @@ import {
 } from "../assets/svg-icons";
 import MenuNavItem from "./MenuNavItem";
 import BackButton from "./BackButton";
+import { metricsService } from "../services/metricsService";
 
 export default function Navbar() {
   const { logout, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState<number>(0);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -40,12 +42,24 @@ export default function Navbar() {
     console.log("hamburger");
     setIsMenuOpen(!isMenuOpen);
   };
-    const isHome = location.pathname === '/';
+  const isHome = location.pathname === '/';
 
 
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const loadStreak = async () => {
+      try {
+        const data = await metricsService.getUserStreak();
+        setCurrentStreak(data.currentStreak);
+      } catch (error) {
+        console.error("Error loading streak:", error);
+      }
+    };
+    loadStreak();
+  }, []);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -70,7 +84,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-2">
                   <img src={nuriFire} alt="ícono de fuego de Nuri" />
                   <span className="font-heading text-tertiary text-4xl font-bold">
-                    3
+                    {currentStreak}
                   </span>
                 </div>
 

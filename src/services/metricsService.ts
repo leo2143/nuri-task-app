@@ -1,5 +1,5 @@
 import apiClient from "../config/axios";
-import type { IAdminDashboardStats, IUserMetrics, ISuccessResponse } from "../interfaces";
+import type { IAdminDashboardStats, IUserMetrics, ISuccessResponse, IUserCurrentStreak } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
 /**
@@ -39,4 +39,20 @@ export const metricsService = {
       throw error;
     }
   },
+    /**
+   * Obtiene racha actual del usuario autenticado
+   * GET /api/metrics
+   * @requires validarToken
+   */
+    getUserStreak: async (): Promise<IUserCurrentStreak> => {
+      try {
+        const response = await apiClient.get<
+          ISuccessResponse<IUserCurrentStreak>
+        >(`${API_BASE_URL}/api/metrics/current-streak`);
+        return response.data.data!;
+      } catch (error) {
+        console.error("Error fetching user metrics:", error);
+        throw error;
+      }
+    },
 };
