@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { FormEvent, ChangeEvent } from "react";
-import { Button, Input } from "../../components/ui";
+import { Button, Input, ConfirmModal } from "../../components/ui";
 import type {
   ICreateGoal,
   IGoal,
@@ -9,7 +9,7 @@ import type {
   GoalPriority,
   ISmartCriteria,
 } from "../../interfaces";
-import { useHttpError, useField } from "../../hooks";
+import { useHttpError, useField, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { validateField } from "../../utils/validations";
 
@@ -41,6 +41,45 @@ export default function GoalForm() {
   const smartRelevant = useField("text");
   const smartTimeBound = useField("text");
 
+  // Valores iniciales para detectar cambios
+  const [initialValues, setInitialValues] = useState({
+    title: "",
+    description: "",
+    status: "active" as GoalStatus,
+    priority: "medium" as GoalPriority,
+    dueDate: "",
+    smartSpecific: "",
+    smartMeasurable: "",
+    smartAchievable: "",
+    smartRelevant: "",
+    smartTimeBound: "",
+  });
+
+  // Valores actuales del formulario
+  const currentValues = useMemo(() => ({
+    title,
+    description,
+    status,
+    priority,
+    dueDate,
+    smartSpecific: smartSpecific.value,
+    smartMeasurable: smartMeasurable.value,
+    smartAchievable: smartAchievable.value,
+    smartRelevant: smartRelevant.value,
+    smartTimeBound: smartTimeBound.value,
+  }), [title, description, status, priority, dueDate, smartSpecific.value, smartMeasurable.value, smartAchievable.value, smartRelevant.value, smartTimeBound.value]);
+
+  // Hook para detectar cambios sin guardar
+  const {
+    isBlocked,
+    handleConfirmNavigation,
+    handleCancelNavigation,
+    markAsSaved,
+  } = useUnsavedChanges({
+    initialValues,
+    currentValues,
+  });
+
   const [titleError, setTitleError] = useState("");
   const [smartSpecificError, setSmartSpecificError] = useState("");
   const [smartMeasurableError, setSmartMeasurableError] = useState("");
@@ -65,29 +104,49 @@ export default function GoalForm() {
           setStatus(data.status);
           setPriority(data.priority);
 
+          let formattedDate = "";
           if (data.dueDate) {
             const date = new Date(data.dueDate);
-            const formattedDate = date.toISOString().split("T")[0];
+            formattedDate = date.toISOString().split("T")[0];
             setDueDate(formattedDate);
           }
 
+          const specificValue = data.smart?.specific || "";
+          const measurableValue = data.smart?.measurable || "";
+          const achievableValue = data.smart?.achievable || "";
+          const relevantValue = data.smart?.relevant || "";
+          const timeBoundValue = data.smart?.timeBound || "";
+
           if (data.smart) {
             smartSpecific.onChange({
-              target: { value: data.smart.specific || "" },
+              target: { value: specificValue },
             } as ChangeEvent<HTMLInputElement>);
             smartMeasurable.onChange({
-              target: { value: data.smart.measurable || "" },
+              target: { value: measurableValue },
             } as ChangeEvent<HTMLInputElement>);
             smartAchievable.onChange({
-              target: { value: data.smart.achievable || "" },
+              target: { value: achievableValue },
             } as ChangeEvent<HTMLInputElement>);
             smartRelevant.onChange({
-              target: { value: data.smart.relevant || "" },
+              target: { value: relevantValue },
             } as ChangeEvent<HTMLInputElement>);
             smartTimeBound.onChange({
-              target: { value: data.smart.timeBound || "" },
+              target: { value: timeBoundValue },
             } as ChangeEvent<HTMLInputElement>);
           }
+
+          setInitialValues({
+            title: data.title,
+            description: data.description || "",
+            status: data.status,
+            priority: data.priority,
+            dueDate: formattedDate,
+            smartSpecific: specificValue,
+            smartMeasurable: measurableValue,
+            smartAchievable: achievableValue,
+            smartRelevant: relevantValue,
+            smartTimeBound: timeBoundValue,
+          });
         }
       } catch (err) {
         handleError(err);
@@ -255,6 +314,8 @@ export default function GoalForm() {
           target: { value: "" },
         } as ChangeEvent<HTMLInputElement>);
       }
+
+      markAsSaved();
 
       setTimeout(() => {
         navigate("/goals");
@@ -487,6 +548,19 @@ export default function GoalForm() {
           </Button>
         </div>
       </form>
+
+      {/* Modal de confirmación de navegación (cambios sin guardar) */}
+      <ConfirmModal
+        isOpen={isBlocked}
+        onClose={handleCancelNavigation}
+        onConfirm={handleConfirmNavigation}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        confirmText="Salir"
+        cancelText="Quedarse"
+        variant="warning"
+        loading={false}
+      />
     </section>
   );
 }

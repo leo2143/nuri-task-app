@@ -1,15 +1,16 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import Button from "../../../components/ui/Button";
 import { ConfirmModal } from "../../../components/ui";
+import { ImageUploadSlot } from "../../../components/ImageUploadSlot";
 import type {
   ICreateAchievement,
   IUpdateAchievement,
   IAchievement,
   AchievementType,
 } from "../../../interfaces";
-import { useHttpError } from "../../../hooks";
+import { useHttpError, useCloudinaryUpload, useUnsavedChanges } from "../../../hooks";
 import { achievementService } from "../../../services/achievementService";
 import { Input } from "../../../components/ui";
 import Loading from "../../../components/Loading";
@@ -19,6 +20,7 @@ export default function AdminAchievementForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { errorMessage, handleError, clearError } = useHttpError();
+  const { upload, isUploading: isImageUploading } = useCloudinaryUpload();
   const [loading, setLoading] = useState(false);
   const [achievement, setAchievement] = useState<IAchievement | null>(null);
 
@@ -44,6 +46,43 @@ export default function AdminAchievementForm() {
   const [isActive, setIsActive] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
 
+  // Valores iniciales para detectar cambios
+  const [initialValues, setInitialValues] = useState({
+    title: "",
+    description: "",
+    targetCount: "",
+    type: "task" as AchievementType,
+    isActive: true,
+    imageUrl: "",
+  });
+
+  // Valores actuales del formulario
+  const currentValues = useMemo(() => ({
+    title,
+    description,
+    targetCount,
+    type,
+    isActive,
+    imageUrl,
+  }), [title, description, targetCount, type, isActive, imageUrl]);
+
+  // URL de imagen pendiente (nueva imagen que no existía originalmente)
+  const pendingImageUrl = imageUrl && imageUrl !== initialValues.imageUrl
+    ? imageUrl
+    : undefined;
+
+  // Hook para detectar cambios sin guardar
+  const {
+    isBlocked,
+    handleConfirmNavigation,
+    handleCancelNavigation,
+    markAsSaved,
+  } = useUnsavedChanges({
+    initialValues,
+    currentValues,
+    pendingImageUrl,
+  });
+
   // Estados de error
   const [titleError, setTitleError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
@@ -67,6 +106,15 @@ export default function AdminAchievementForm() {
           setType(data.type);
           setIsActive(data.isActive);
           setImageUrl(data.imageUrl);
+
+          setInitialValues({
+            title: data.title,
+            description: data.description,
+            targetCount: data.targetCount.toString(),
+            type: data.type,
+            isActive: data.isActive,
+            imageUrl: data.imageUrl,
+          });
         }
       } catch (err) {
         handleError(err);
@@ -155,6 +203,7 @@ export default function AdminAchievementForm() {
         };
 
         await achievementService.updateAchievement(id!, updateData);
+        markAsSaved();
         setModalMessage("El logro ha sido actualizado exitosamente");
         setIsSuccessModalOpen(true);
       } else {
@@ -168,6 +217,7 @@ export default function AdminAchievementForm() {
         };
 
         await achievementService.createAchievement(achievementData);
+        markAsSaved();
         setModalMessage("El logro ha sido creado exitosamente");
         setIsSuccessModalOpen(true);
 
@@ -182,7 +232,7 @@ export default function AdminAchievementForm() {
       handleError(err);
       setModalMessage(
         errorMessage ||
-          "Hubo un error al procesar la solicitud. Por favor, intenta de nuevo.",
+        "Hubo un error al procesar la solicitud. Por favor, intenta de nuevo.",
       );
       setIsErrorModalOpen(true);
     } finally {
@@ -199,6 +249,22 @@ export default function AdminAchievementForm() {
   // Manejador para cerrar modal de error
   const handleErrorModalClose = () => {
     setIsErrorModalOpen(false);
+  };
+
+  // Manejadores de imagen del logro
+  const handleImageUpload = async (file: File) => {
+    try {
+      const result = await upload(file);
+      if (result?.secure_url) {
+        setImageUrl(result.secure_url);
+      }
+    } catch (error) {
+      console.error("Error uploading achievement image:", error);
+    }
+  };
+
+  const handleImageRemove = () => {
+    setImageUrl("");
   };
 
   if (loading && isEditMode && !achievement) {
@@ -311,18 +377,24 @@ export default function AdminAchievementForm() {
           </select>
         </div>
 
-        {/* Image URL */}
-        <Input
-          type="url"
-          id="imageUrl"
-          name="imageUrl"
-          label="URL de Icono/Imagen"
-          placeholder="https://ejemplo.com/icono.png"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          disabled={loading}
-          helperText="URL de la imagen o emoji que representa el logro"
-        />
+        {/* Achievement Image */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-tertiary">
+            Icono/Imagen del Logro
+          </label>
+          <ImageUploadSlot
+            imageUrl={imageUrl || undefined}
+            imageAlt="Imagen del logro"
+            onImageSelect={handleImageUpload}
+            onImageEdit={handleImageUpload}
+            onImageRemove={handleImageRemove}
+            isUploading={isImageUploading}
+            className="w-24 h-24 rounded-full mx-auto"
+          />
+          <p className="text-xs text-gray-500 text-center">
+            Imagen o icono que representa el logro
+          </p>
+        </div>
 
         {/* IsActive - Checkbox */}
         <div className="flex items-center gap-3">
@@ -366,6 +438,19 @@ export default function AdminAchievementForm() {
           </Button>
         </div>
       </form>
+
+      {/* Modal de confirmación de navegación (cambios sin guardar) */}
+      <ConfirmModal
+        isOpen={isBlocked}
+        onClose={handleCancelNavigation}
+        onConfirm={handleConfirmNavigation}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        confirmText="Salir"
+        cancelText="Quedarse"
+        variant="warning"
+        loading={false}
+      />
 
       {/* Modal de éxito */}
       <ConfirmModal

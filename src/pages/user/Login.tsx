@@ -7,15 +7,14 @@ import Loading from "../../components/Loading";
 import { useField, useHttpError, useAuth } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
-import Nuri from "../../assets/ilustrations/nuri-completo.svg";
 import GoogleIcon from "../../assets/icons/google.svg";
-import Trama from "../../assets/icons/trama-white.svg";
+import TramaBlue from "../../assets/icons/trama-blue.svg";
+import { nuriConNenu } from "../../assets/ilustrations/index";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // Hook para manejar errores HTTP
   const { error, errorMessage, handleError, clearError } = useHttpError();
 
   const [loading, setLoading] = useState(false);
@@ -49,7 +48,6 @@ export default function Login() {
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // validar formulario
     const errorValidacion = validar();
     if (errorValidacion) {
       setEmailError(errorValidacion.email || "");
@@ -57,12 +55,10 @@ export default function Login() {
       return;
     }
 
-    // Limpiar errores si la validación pasa
     setEmailError("");
     setPasswordError("");
     clearError();
 
-    // activo loading
     setLoading(true);
 
     try {
@@ -74,7 +70,6 @@ export default function Login() {
 
       login(authResponse.user, authResponse.token);
 
-      // 6. Redirigir al home o dashboard
       navigate("/");
     } catch (error: unknown) {
       console.error("Error en login:", error);
@@ -85,138 +80,121 @@ export default function Login() {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center lg:px-4 lg:py-12">
+    <section className="min-h-screen flex flex-col bg-background">
       {loading && <Loading />}
 
-      <div className="w-full md:max-w-6xl grid md:grid-cols-2 gap-0 items-stretch overflow-hidden md:rounded-3xl md:shadow-2xl h-screen md:h-auto">
-        {/* Sección del Dibujo - Oculta en móvil */}
-        <div className="hidden md:flex relative bg-secondary flex-col items-center justify-center h-full px-8 py-12">
-          <div className="text-center flex flex-col justify-center items-center gap-10 z-10">
-            <h1 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
-              Bienvenido a Nuri Task
-            </h1>
-            <div className="transform hover:scale-105 transition-transform duration-300">
-              <img className="w-64" src={Nuri} alt="Nuri mascota" />
-            </div>
-          </div>
+      <div className="relative flex items-center justify-center pt-40 overflow-x-hidden overflow-x-visible">
+        <img
+          src={TramaBlue}
+          alt=""
+          aria-hidden="true"
+          className="absolute left-0 top-1/2 -translate-y-1/2 max-w-none  z-10"
+        />
 
-          {/* Textura decorativa */}
-          <div className="absolute bottom-0 left-0 right-0 opacity-20">
-            <img
-              className="w-full h-auto"
-              src={Trama}
-              alt="trama de la marca"
-              aria-hidden="true"
-            />
-          </div>
+        <img
+          src={nuriConNenu}
+          alt="Nuri mascota"
+          className="absolute w-52 h-auto z-10 top-5  mx-auto"
+        />
+      </div>
+
+      <div className="relative flex-1 bg-secondary rounded-t-[2.5rem] px-8 pt-20 pb-10 flex flex-col">
+
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-heading font-bold text-neutral mb-2">
+            Iniciar Sesión
+          </h1>
+          <p className="text-neutral font-bold text-sm">
+            Ingresa tus credenciales para acceder a tu cuenta
+          </p>
         </div>
 
-        {/* Sección del Formulario - Visible en móvil y desktop */}
-        <div className=" bg-secondary md:bg-neutral lg:rounded-r-3xl p-8 lg:p-12 flex flex-col justify-center">
-          <div className="mb-8 text-center">
-            <h2 className="text-4xl font-heading font-bold  md:text-tertiary text-neutral mb-2">
-              Iniciar Sesión
-            </h2>
-            <p className=" md:text-tertiary/60 text-neutral/60 font-body">
-              Ingresa tus credenciales para acceder a tu cuenta
-            </p>
-          </div>
+        <form
+          onSubmit={onSubmit}
+          className="space-y-5 w-full"
+          method="post"
+          noValidate
+        >
+          <Input
+            {...email}
+            id="email"
+            name="email"
+            label="Correo electrónico"
+            placeholder="tuemail@email.com"
+            required
+            autoComplete="email"
+            disabled={loading}
+            error={emailError}
+            onBlur={handleEmailBlur}
+            darkMode
+          />
 
-          <form
-            onSubmit={onSubmit}
-            className="space-y-6 w-full"
-            method="post"
-            noValidate
-          >
-            <Input
-              {...email}
-              id="email"
-              name="email"
-              label="Correo Electrónico"
-              placeholder="tu.correo@ejemplo.com"
-              required
-              autoComplete="email"
-              disabled={loading}
-              error={emailError}
-              onBlur={handleEmailBlur}
-              responsiveDarkMode
-            />
+          <Input
+            {...password}
+            id="password"
+            name="password"
+            label="Contraseña"
+            placeholder="**********"
+            required
+            autoComplete="current-password"
+            disabled={loading}
+            error={passwordError}
+            onBlur={handlePasswordBlur}
+            darkMode
+          />
 
-            <Input
-              {...password}
-              id="password"
-              name="password"
-              label="Contraseña"
-              placeholder="Ingresa tu contraseña"
-              required
-              autoComplete="current-password"
-              disabled={loading}
-              error={passwordError}
-              onBlur={handlePasswordBlur}
-              responsiveDarkMode
-            />
-
-            <div className="flex justify-end">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-primary hover:text-secondary font-medium
-                  transition-colors duration-200 focus:outline-none focus:ring-2
-                  focus:ring-primary/50 rounded px-1"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-
-            {error && !emailError && !passwordError && (
-              <div className="animate-shake">
-                <Alert msg={errorMessage} />
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              loading={loading}
-              disabled={loading}
-              variant="primary"
-              size="lg"
-              fullWidth
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-primary font-bold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
             >
-              {loading ? "Iniciando sesión" : "Iniciar Sesión"}
-            </Button>
-          </form>
-          {/* Sección de Registro */}
-          <div className="text-center pt-4 border-t border-neutral/20">
-            <p className=" md:text-tertiary/70 text-neutral/70 font-body">
-              ¿No tienes una cuenta?{" "}
-              <Link
-                to="/register"
-                className="text-primary hover:text-secondary font-semibold
-                    transition-colors duration-200 focus:outline-none focus:ring-2
-                    focus:ring-primary/50 rounded px-1"
-              >
-                Créala aquí
-              </Link>
-            </p>
+              ¿Olvidaste tu contraseña?
+            </Link>
           </div>
 
-          {/* Divider */}
-          <div className="flex items-center justify-center gap-2 m-2">
-            <div className="bg-primary h-1 w-2/12 sm:w-2/5 rounded"></div>
-            <p className="md:text-tertiary/70 text-neutral/70 font-body text-xs sm:text-sm">
-              O continúa con
-            </p>
-            <div className="bg-primary h-1 w-2/12 sm:w-2/5 rounded"></div>
-          </div>
-
-          {/* Botón de Google */}
-          <div className="mt-4 flex items-center justify-center">
-            <div className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer">
-              <img
-                className="w-7 h-7"
-                src={GoogleIcon}
-                alt="Continuar con Google"
-              />
+          {error && !emailError && !passwordError && (
+            <div className="animate-shake">
+              <Alert msg={errorMessage} />
             </div>
+          )}
+
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={loading}
+            variant="primary"
+            size="md"
+            fullWidth
+          >
+            {loading ? "Iniciando sesión" : "Iniciar Sesión"}
+          </Button>
+        </form>
+
+        <div className="text-center mt-6">
+          <p className="text-neutral font-bold text-sm">
+            ¿No tienes una cuenta?{" "}
+            <Link
+              to="/register"
+              className="text-primary text-sm font-bold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+            >
+              Créala aquí
+            </Link>
+          </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-3 my-4">
+          <div className="bg-primary h-1 flex-1 rounded"></div>
+          <p className="text-neutral font-bold font-body text-sm">O continúa con</p>
+          <div className="bg-primary h-1 flex-1 rounded"></div>
+        </div>
+
+        <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+            <img
+              className="w-7 h-7"
+              src={GoogleIcon}
+              alt="Continuar con Google"
+            />
           </div>
         </div>
       </div>

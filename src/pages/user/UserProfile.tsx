@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Avatar, Button, ButtonLink, InfoCard } from "../../components/ui";
-import { useAuth, useFetchData, useFormatDate } from "../../hooks";
+import { Button, ButtonLink, InfoCard } from "../../components/ui";
+import { ImageUploadSlot } from "../../components/ImageUploadSlot";
+import { useAuth, useFetchData, useFormatDate, useCloudinaryUpload } from "../../hooks";
 import { userService } from "../../services/userService";
 import type { IUserProfile } from "../../interfaces";
 import Loading from "../../components/Loading";
@@ -8,9 +10,10 @@ import Loading from "../../components/Loading";
 export default function UserProfile() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { upload, isUploading } = useCloudinaryUpload();
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // Obtener perfil del usuario autenticado
-  const { data: user, loading } = useFetchData<IUserProfile>({
+  const { data: user, loading, refetch } = useFetchData<IUserProfile>({
     fetchFn: userService.getProfile,
   });
 
@@ -20,6 +23,33 @@ export default function UserProfile() {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      setIsUpdating(true);
+      const result = await upload(file);
+      if (result?.secure_url) {
+        await userService.updateProfileImage(result.secure_url);
+        await refetch();
+      }
+    } catch (error) {
+      console.error("Error uploading profile image:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleImageRemove = async () => {
+    try {
+      setIsUpdating(true);
+      await userService.updateProfileImage("");
+      await refetch();
+    } catch (error) {
+      console.error("Error removing profile image:", error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   if (loading) {
@@ -40,10 +70,14 @@ export default function UserProfile() {
         </div>
 
         <div className="flex flex-col items-center gap-5">
-          <Avatar
+          <ImageUploadSlot
             imageUrl={user.profileImageUrl ?? undefined}
-            name={user.name}
-            size="lg"
+            imageAlt={`Foto de perfil de ${user.name}`}
+            onImageSelect={handleImageUpload}
+            onImageEdit={handleImageUpload}
+            onImageRemove={handleImageRemove}
+            isUploading={isUploading || isUpdating}
+            className="w-24 h-24 rounded-full"
           />
 
           <InfoCard

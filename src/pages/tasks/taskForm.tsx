@@ -1,20 +1,21 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import Button from "../../components/ui/Button";
+import { ConfirmModal } from "../../components/ui";
 import type {
   ICreateTodo,
   IGoalCatalog,
   ITodo,
   TodoPriority,
 } from "../../interfaces";
-import { useHttpError } from "../../hooks";
+import { useHttpError, useUnsavedChanges } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import { Input, Select } from "../../components/ui";
 import Loading from "../../components/Loading";
 import { goalService } from "../../services/goalService";
 
-export default function GoalForm() {
+export default function TaskForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { errorMessage, handleError, clearError } = useHttpError();
@@ -23,9 +24,8 @@ export default function GoalForm() {
   const [task, setTask] = useState<ITodo | null>(null);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
 
-  const isEditMode = !!id; // true si estamos editando
+  const isEditMode = !!id;
 
-  // Textos dinámicos según el modo
   const pageTitle = isEditMode ? "Editar Tarea" : "Crear Nueva Tarea";
   const pageDescription = isEditMode
     ? "Modifica los campos que desees actualizar"
@@ -39,6 +39,35 @@ export default function GoalForm() {
   const [priority, setPriority] = useState<TodoPriority>("medium");
   const [dueDate, setDueDate] = useState("");
   const [goalId, setGoalId] = useState("");
+
+  // Valores iniciales para detectar cambios
+  const [initialValues, setInitialValues] = useState({
+    title: "",
+    description: "",
+    priority: "medium" as TodoPriority,
+    dueDate: "",
+    goalId: "",
+  });
+
+  // Valores actuales del formulario
+  const currentValues = useMemo(() => ({
+    title,
+    description,
+    priority,
+    dueDate,
+    goalId,
+  }), [title, description, priority, dueDate, goalId]);
+
+  // Hook para detectar cambios sin guardar
+  const {
+    isBlocked,
+    handleConfirmNavigation,
+    handleCancelNavigation,
+    markAsSaved,
+  } = useUnsavedChanges({
+    initialValues,
+    currentValues,
+  });
 
   const [titleError, setTitleError] = useState("");
 
@@ -75,11 +104,20 @@ export default function GoalForm() {
           setPriority(data.priority);
           setGoalId(data.GoalId || "");
 
+          let formattedDate = "";
           if (data.dueDate) {
             const date = new Date(data.dueDate);
-            const formattedDate = date.toISOString().split("T")[0];
+            formattedDate = date.toISOString().split("T")[0];
             setDueDate(formattedDate);
           }
+
+          setInitialValues({
+            title: data.title,
+            description: data.description || "",
+            priority: data.priority,
+            dueDate: formattedDate,
+            goalId: data.GoalId || "",
+          });
         }
       } catch (err) {
         handleError(err);
@@ -125,15 +163,12 @@ export default function GoalForm() {
       };
 
       if (isEditMode) {
-        // ACTUALIZAR tarea existente
         await todoservice.updateTodo(id!, taskData);
         setSuccessMessage("¡Tarea actualizada exitosamente!");
       } else {
-        // CREAR nueva tarea
         await todoservice.createTodo(taskData);
         setSuccessMessage("¡Tarea creada exitosamente!");
 
-        // Limpiar formulario solo en modo crear
         setTitle("");
         setDescription("");
         setPriority("medium");
@@ -141,7 +176,8 @@ export default function GoalForm() {
         setGoalId("");
       }
 
-      // Redirigir a la lista de tareas después de 1.5 segundos
+      markAsSaved();
+
       setTimeout(() => {
         navigate("/tasks");
       }, 1500);
@@ -289,6 +325,19 @@ export default function GoalForm() {
           </Button>
         </div>
       </form>
+
+      {/* Modal de confirmación de navegación (cambios sin guardar) */}
+      <ConfirmModal
+        isOpen={isBlocked}
+        onClose={handleCancelNavigation}
+        onConfirm={handleConfirmNavigation}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        confirmText="Salir"
+        cancelText="Quedarse"
+        variant="warning"
+        loading={false}
+      />
     </section>
   );
 }

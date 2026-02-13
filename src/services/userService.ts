@@ -163,6 +163,24 @@ export const userService = {
   },
 
   /**
+   * Actualizar imagen de perfil del usuario autenticado
+   * PUT /api/user/profile-image
+   * @requires validarToken
+   */
+  updateProfileImage: async (profileImageUrl: string): Promise<IUserProfile> => {
+    try {
+      const response = await apiClient.put<ISuccessResponse<IUserProfile>>(
+        `${API_BASE_URL}/api/user/profile-image`,
+        { profileImageUrl },
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error updating profile image:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Logout de usuario (Local)
    * Elimina el token del localStorage
    * NOTA: Usar el contexto AuthContext.logout() en lugar de este método

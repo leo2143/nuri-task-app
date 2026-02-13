@@ -17,8 +17,7 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
-import NuriAlegre from "../../assets/ilustrations/nuri-alegre.svg";
-import Trama from "../../assets/icons/trama-white.svg";
+import TramaBlue from "../../assets/icons/trama-blue.svg";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -187,149 +186,120 @@ export default function Register() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center md:px-4 md:py-12">
+    <section className="min-h-screen flex flex-col bg-secondary">
       {loading && <Loading />}
 
-      <section className="w-full md:max-w-6xl grid md:grid-cols-2 gap-0 items-stretch overflow-hidden md:rounded-3xl md:shadow-2xl h-screen md:h-auto">
-        {/* Sección del Dibujo - Oculta en móvil */}
-        <div className="hidden md:flex relative bg-secondary flex-col items-center justify-center h-full px-8 py-12">
-          <div className="text-center flex flex-col justify-center items-center gap-10 z-10">
-            <h2 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
-              ¡Únete a Nosotros!
-            </h2>
-            <div className="transform hover:scale-105 transition-transform duration-300">
-              <img
-                className="w-64"
-                src={NuriAlegre}
-                alt="Nuri mascota alegre"
-              />
-            </div>
-          </div>
+      <div className="relative flex items-center justify-center pt-8 overflow-hidden">
+        <img
+          src={TramaBlue}
+          alt=""
+          aria-hidden="true"
+          className="max-w-none z-10"
+        />
+      </div>
 
-          {/* Textura decorativa */}
-          <div className="absolute bottom-0 left-0 right-0 opacity-20">
-            <img
-              className="w-full h-auto"
-              src={Trama}
-              alt="trama de la marca"
-              aria-hidden="true"
-            />
-          </div>
+      <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col">
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-heading font-bold text-neutral mb-2">
+            Crear Cuenta
+          </h1>
+          <p className="text-neutral font-bold text-sm">
+            Ingresa tus datos para registrarte
+          </p>
         </div>
 
-        {/* Formulario de Registro */}
-        <div className="bg-secondary md:bg-neutral md:rounded-r-3xl p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-heading font-bold text-neutral md:text-tertiary mb-2">
-              Crear Cuenta
-            </h1>
-            <p className="text-neutral/60 md:text-tertiary/60 font-body">
-              Ingresa tus datos para registrarte
+        <form onSubmit={onSubmit} className="space-y-4" method="post">
+          <Input
+            {...name}
+            id="name"
+            name="name"
+            label="Nombre Completo"
+            placeholder="Jose Duarte"
+            required
+            autoComplete="name"
+            disabled={loading}
+            error={nameError}
+            onBlur={handleNameBlur}
+            darkMode
+          />
+
+          <Input
+            {...email}
+            id="email"
+            name="email"
+            label="Correo electrónico"
+            placeholder="tuemail@email.com"
+            required
+            autoComplete="username email"
+            disabled={loading}
+            error={emailError}
+            onBlur={handleEmailBlur}
+            darkMode
+          />
+
+          <Input
+            {...password}
+            id="password"
+            name="password"
+            label="Contraseña"
+            placeholder="**********"
+            required
+            autoComplete="new-password"
+            disabled={loading}
+            error={passwordError}
+            onBlur={handlePasswordBlur}
+            helperText="Mínimo 8 caracteres"
+            darkMode
+          />
+
+          <Input
+            {...confirmPassword}
+            id="confirm_password"
+            name="confirm_password"
+            label="Confirmar Contraseña"
+            placeholder="**********"
+            required
+            autoComplete="new-password"
+            disabled={loading}
+            error={confirmPasswordError}
+            onBlur={handleConfirmPasswordBlur}
+            darkMode
+          />
+
+          {error &&
+            !nameError &&
+            !emailError &&
+            !passwordError &&
+            !confirmPasswordError && (
+              <div className="animate-shake">
+                <Alert msg={errorMessage} />
+              </div>
+            )}
+
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={loading}
+            variant="primary"
+            size="md"
+            fullWidth
+          >
+            {loading ? "Creando cuenta" : "Iniciar Sesión"}
+          </Button>
+
+          <div className="text-center mt-4">
+            <p className="text-neutral font-bold text-sm">
+              ¿Ya tienes una cuenta?{" "}
+              <Link
+                to="/login"
+                className="text-primary text-sm font-bold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+              >
+                Inicia sesión aquí
+              </Link>
             </p>
           </div>
-
-          <form onSubmit={onSubmit} className="space-y-6" method="post">
-            {/* Campo Nombre */}
-            <Input
-              {...name}
-              id="name"
-              name="name"
-              label="Nombre Completo"
-              placeholder="Juan Pérez"
-              required
-              autoComplete="name"
-              disabled={loading}
-              error={nameError}
-              onBlur={handleNameBlur}
-              responsiveDarkMode
-            />
-
-            {/* Campo Email */}
-            <Input
-              {...email}
-              id="email"
-              name="email"
-              label="Correo Electrónico"
-              placeholder="tu.correo@ejemplo.com"
-              required
-              autoComplete="username email"
-              disabled={loading}
-              error={emailError}
-              onBlur={handleEmailBlur}
-              responsiveDarkMode
-            />
-
-            {/* Campo Password */}
-            <Input
-              {...password}
-              id="password"
-              name="password"
-              label="Contraseña"
-              placeholder="Ingresa tu contraseña"
-              required
-              autoComplete="new-password"
-              disabled={loading}
-              error={passwordError}
-              onBlur={handlePasswordBlur}
-              helperText="Mínimo 6 caracteres."
-              responsiveDarkMode
-            />
-
-            {/* Campo Confirmar Password */}
-            <Input
-              {...confirmPassword}
-              id="confirm_password"
-              name="confirm_password"
-              label="Confirmar Contraseña"
-              placeholder="Confirma tu contraseña"
-              required
-              autoComplete="new-password"
-              disabled={loading}
-              error={confirmPasswordError}
-              onBlur={handleConfirmPasswordBlur}
-              responsiveDarkMode
-            />
-
-            {/* Error Alert - Solo mostrar errores del servidor */}
-            {error &&
-              !nameError &&
-              !emailError &&
-              !passwordError &&
-              !confirmPasswordError && (
-                <div className="animate-shake">
-                  <Alert msg={errorMessage} />
-                </div>
-              )}
-
-            {/* Botón Submit */}
-            <Button
-              type="submit"
-              loading={loading}
-              disabled={loading}
-              variant="primary"
-              size="lg"
-              fullWidth
-            >
-              {loading ? "Creando cuenta" : "Crear Cuenta"}
-            </Button>
-
-            {/* Login Link */}
-            <div className="text-center pt-4 border-t border-neutral/20">
-              <p className="text-neutral/70 md:text-tertiary/70 font-body">
-                ¿Ya tienes una cuenta?{" "}
-                <Link
-                  to="/login"
-                  className="text-primary hover:text-secondary font-semibold
-                    transition-colors duration-200 focus:outline-none focus:ring-2
-                    focus:ring-primary/50 rounded px-1"
-                >
-                  Inicia sesión aquí
-                </Link>
-              </p>
-            </div>
-          </form>
-        </div>
-      </section>
-    </main>
+        </form>
+      </div>
+    </section>
   );
 }
