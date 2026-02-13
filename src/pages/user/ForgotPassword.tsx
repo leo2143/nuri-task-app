@@ -6,8 +6,7 @@ import { Button, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { validateEmail } from "../../utils/validations";
-import NuriTriste from "../../assets/ilustrations/nuri-triste.svg";
-import Trama from "../../assets/icons/trama-white.svg";
+import TramaBlue from "../../assets/icons/trama-blue.svg";
 
 export default function ForgotPassword() {
   // Hook para manejar errores HTTP
@@ -81,161 +80,131 @@ export default function ForgotPassword() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center md:px-4 md:py-12">
+    <section className="min-h-screen flex flex-col bg-secondary">
       {loading && <Loading />}
 
-      <section className="w-full md:max-w-6xl grid md:grid-cols-2 gap-0 items-stretch overflow-hidden md:rounded-3xl md:shadow-2xl h-screen md:h-auto">
-        {/* Sección del Dibujo - Oculta en móvil */}
-        <div className="hidden md:flex relative bg-secondary flex-col items-center justify-center h-full px-8 py-12">
-          <div className="text-center flex flex-col justify-center items-center gap-10 z-10">
-            <h2 className="text-5xl font-heading font-bold text-white drop-shadow-lg">
-              ¿Olvidaste tu Contraseña?
-            </h2>
-            <div className="transform hover:scale-105 transition-transform duration-300">
-              <img
-                className="w-64"
-                src={NuriTriste}
-                alt="Nuri mascota triste"
-              />
-            </div>
-          </div>
+      <div className="relative flex items-center justify-center pt-8 overflow-hidden">
+        <img
+          src={TramaBlue}
+          alt=""
+          aria-hidden="true"
+          className="max-w-none z-10"
+        />
+      </div>
 
-          {/* Textura decorativa */}
-          <div className="absolute bottom-0 left-0 right-0 opacity-20">
-            <img
-              className="w-full h-auto"
-              src={Trama}
-              alt=""
-              aria-hidden="true"
-            />
-          </div>
+      <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col">
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-heading font-bold text-neutral mb-2">
+            Recuperar Contraseña
+          </h1>
+          <p className="text-neutral font-bold text-sm">
+            Ingresa tu email para recibir las instrucciones para recuperar tu contraseña
+          </p>
         </div>
 
-        {/* Formulario de Forgot Password */}
-        <div className="bg-secondary md:bg-neutral md:rounded-r-3xl p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-heading font-bold text-neutral md:text-tertiary mb-2">
-              Recuperar Contraseña
-            </h1>
-            <p className="text-neutral/60 md:text-tertiary/60 font-body">
-              Ingresa tu email y te enviaremos instrucciones para recuperar tu
-              contraseña
-            </p>
-          </div>
+        {!success ? (
+          <form onSubmit={onSubmit} className="space-y-5" method="post">
+            <Input
+              {...email}
+              id="email"
+              name="email"
+              label="Correo electronico"
+              placeholder="juanperez@email.com"
+              required
+              autoComplete="email"
+              disabled={loading}
+              error={emailError}
+              onBlur={handleEmailBlur}
+              helperText="Ingresa el email con que te registraste"
+              darkMode
+            />
 
-          {!success ? (
-            <form onSubmit={onSubmit} className="space-y-6" method="post">
-              {/* Campo Email */}
-              <Input
-                {...email}
-                id="email"
-                name="email"
-                label="Correo Electrónico"
-                placeholder="tu.correo@ejemplo.com"
-                required
-                autoComplete="email"
-                disabled={loading}
-                error={emailError}
-                onBlur={handleEmailBlur}
-                helperText="Ingresa el email con el que te registraste"
-                responsiveDarkMode
-              />
-
-              {/* Error Alert - Solo mostrar errores del servidor */}
-              {error && !emailError && (
-                <div className="animate-shake">
-                  <Alert msg={errorMessage} />
-                </div>
-              )}
-
-              {/* Botón Submit */}
-              <Button
-                type="submit"
-                loading={loading}
-                disabled={loading}
-                variant="primary"
-                size="lg"
-                fullWidth
-              >
-                {loading ? "Enviando" : "Enviar Instrucciones"}
-              </Button>
-
-              {/* Login Link */}
-              <div className="text-center pt-4 border-t border-neutral/20">
-                <p className="text-neutral/70 md:text-tertiary/70 font-body">
-                  ¿Recordaste tu contraseña?{" "}
-                  <Link
-                    to="/login"
-                    className="text-primary hover:text-secondary font-semibold
-                      transition-colors duration-200 focus:outline-none focus:ring-2
-                      focus:ring-primary/50 rounded px-1"
-                  >
-                    Inicia sesión aquí
-                  </Link>
-                </p>
+            {error && !emailError && (
+              <div className="animate-shake">
+                <Alert msg={errorMessage} />
               </div>
-            </form>
-          ) : (
-            // Mensaje de éxito
-            <div className="space-y-6">
-              <div className="bg-green-50 border-2 border-green-500 text-green-800 px-6 py-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <svg
-                    className="w-6 h-6 mt-0.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <div>
-                    <h3 className="font-heading font-bold text-lg mb-2">
-                      ¡Email Enviado!
-                    </h3>
-                    <p className="font-body text-sm">{successMessage}</p>
-                  </div>
-                </div>
-              </div>
+            )}
 
-              <div className="bg-secondary/10 border border-secondary p-4 rounded-lg">
-                <h4 className="font-heading font-semibold text-neutral mb-2">
-                  📬 Revisa tu bandeja de entrada
-                </h4>
-                <ul className="font-body text-sm text-neutral space-y-1 list-disc list-inside">
-                  <li>El email puede tardar unos minutos en llegar</li>
-                  <li>Revisa tu carpeta de spam o correo no deseado</li>
-                  <li>El enlace es válido por 1 hora</li>
-                </ul>
-              </div>
+            <Button
+              type="submit"
+              loading={loading}
+              disabled={loading}
+              variant="primary"
+              size="md"
+              fullWidth
+            >
+              {loading ? "Enviando" : "Recibir instrucciones"}
+            </Button>
 
-              <Button
-                type="button"
-                onClick={() => setSuccess(false)}
-                variant="primary"
-                size="md"
-                fullWidth
-              >
-                Enviar Otro Email
-              </Button>
-
-              <div className="text-center pt-4 border-t border-neutral/20">
+            <div className="text-center mt-4">
+              <p className="text-neutral font-bold text-sm">
+                ¿Ya tienes una cuenta?{" "}
                 <Link
                   to="/login"
-                  className="text-neutral hover:text-primary font-semibold font-body
-                    transition-colors duration-200 focus:outline-none focus:ring-2
-                    focus:ring-primary/50 rounded px-1"
+                  className="text-primary text-sm font-bold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
                 >
-                  ← Volver al Login
+                  Inicia sesión aquí
                 </Link>
+              </p>
+            </div>
+          </form>
+        ) : (
+          <div className="space-y-6">
+            <div className="bg-primary/20 border-2 border-primary text-neutral px-6 py-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                <svg
+                  className="w-6 h-6 mt-0.5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <h2 className="font-heading font-bold text-lg mb-2">
+                    ¡Email Enviado!
+                  </h2>
+                  <p className="font-body text-sm">{successMessage}</p>
+                </div>
               </div>
             </div>
-          )}
-        </div>
-      </section>
-    </main>
+
+            <div className="bg-neutral/10 border border-neutral/30 p-4 rounded-lg">
+              <h3 className="font-heading font-semibold text-neutral mb-2">
+                📬 Revisa tu bandeja de entrada
+              </h3>
+              <ul className="font-body text-sm text-neutral/80 space-y-1 list-disc list-inside">
+                <li>El email puede tardar unos minutos en llegar</li>
+                <li>Revisa tu carpeta de spam o correo no deseado</li>
+                <li>El enlace es válido por 1 hora</li>
+              </ul>
+            </div>
+
+            <Button
+              type="button"
+              onClick={() => setSuccess(false)}
+              variant="primary"
+              size="md"
+              fullWidth
+            >
+              Enviar Otro Email
+            </Button>
+
+            <div className="text-center mt-4">
+              <Link
+                to="/login"
+                className="text-primary font-bold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+              >
+                ← Volver al Login
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
