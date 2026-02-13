@@ -1,14 +1,15 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import Button from "../../../components/ui/Button";
 import { ConfirmModal } from "../../../components/ui";
+import { ImageUploadSlot } from "../../../components/ImageUploadSlot";
 import type {
   CreateAdminUserDto,
   UpdateAdminUserDto,
   IUser,
 } from "../../../interfaces";
-import { useHttpError } from "../../../hooks";
+import { useHttpError, useCloudinaryUpload, useUnsavedChanges } from "../../../hooks";
 import { userService } from "../../../services/userService";
 import { Input } from "../../../components/ui";
 import Loading from "../../../components/Loading";
@@ -23,6 +24,7 @@ export default function AdminUserForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { errorMessage, handleError, clearError } = useHttpError();
+  const { upload, isUploading: isImageUploading } = useCloudinaryUpload();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<IUser | null>(null);
 
@@ -48,6 +50,43 @@ export default function AdminUserForm() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState("");
 
+  // Valores iniciales para detectar cambios
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    email: "",
+    password: "",
+    isAdmin: false,
+    isSubscribed: false,
+    profileImageUrl: "",
+  });
+
+  // Valores actuales del formulario
+  const currentValues = useMemo(() => ({
+    name,
+    email,
+    password,
+    isAdmin,
+    isSubscribed,
+    profileImageUrl,
+  }), [name, email, password, isAdmin, isSubscribed, profileImageUrl]);
+
+  // URL de imagen pendiente (nueva imagen que no existía originalmente)
+  const pendingImageUrl = profileImageUrl && profileImageUrl !== initialValues.profileImageUrl
+    ? profileImageUrl
+    : undefined;
+
+  // Hook para detectar cambios sin guardar
+  const {
+    isBlocked,
+    handleConfirmNavigation,
+    handleCancelNavigation,
+    markAsSaved,
+  } = useUnsavedChanges({
+    initialValues,
+    currentValues,
+    pendingImageUrl,
+  });
+
   // Estados de error
   const [nameError, setNameError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -70,6 +109,15 @@ export default function AdminUserForm() {
           setIsAdmin(data.isAdmin);
           setIsSubscribed(data.subscription?.isActive || false);
           setProfileImageUrl(data.profileImageUrl || "");
+
+          setInitialValues({
+            name: data.name,
+            email: data.email,
+            password: "",
+            isAdmin: data.isAdmin,
+            isSubscribed: data.subscription?.isActive || false,
+            profileImageUrl: data.profileImageUrl || "",
+          });
         }
       } catch (err) {
         handleError(err);
@@ -96,13 +144,11 @@ export default function AdminUserForm() {
 
   // Validación de la contraseña
   const handlePasswordBlur = () => {
-    // En modo edición, la contraseña es opcional
     if (isEditMode && !password.trim()) {
       setPasswordError("");
       return;
     }
 
-    // En modo crear o si hay valor, validar
     if (!isEditMode || password.trim()) {
       const error = validatePassword(password);
       setPasswordError(error || "");
@@ -165,6 +211,7 @@ export default function AdminUserForm() {
         }
 
         await userService.adminUpdateUser(id!, updateData);
+        markAsSaved();
         setModalMessage("El usuario ha sido actualizado exitosamente");
         setIsSuccessModalOpen(true);
       } else {
@@ -178,6 +225,7 @@ export default function AdminUserForm() {
         };
 
         await userService.adminCreateUser(userData);
+        markAsSaved();
         setModalMessage("El usuario ha sido creado exitosamente");
         setIsSuccessModalOpen(true);
 
@@ -192,7 +240,7 @@ export default function AdminUserForm() {
       handleError(err);
       setModalMessage(
         errorMessage ||
-          "Hubo un error al procesar la solicitud. Por favor, intenta de nuevo.",
+        "Hubo un error al procesar la solicitud. Por favor, intenta de nuevo.",
       );
       setIsErrorModalOpen(true);
     } finally {
@@ -209,6 +257,22 @@ export default function AdminUserForm() {
   // Manejador para cerrar modal de error
   const handleErrorModalClose = () => {
     setIsErrorModalOpen(false);
+  };
+
+  // Manejadores de imagen de perfil
+  const handleImageUpload = async (file: File) => {
+    try {
+      const result = await upload(file);
+      if (result?.secure_url) {
+        setProfileImageUrl(result.secure_url);
+      }
+    } catch (error) {
+      console.error("Error uploading profile image:", error);
+    }
+  };
+
+  const handleImageRemove = () => {
+    setProfileImageUrl("");
   };
 
   if (loading && isEditMode && !user) {
@@ -336,18 +400,24 @@ export default function AdminUserForm() {
           </label>
         </div>
 
-        {/* Profile Image URL */}
-        <Input
-          type="url"
-          id="profileImageUrl"
-          name="profileImageUrl"
-          label="URL de Imagen de Perfil"
-          placeholder="https://ejemplo.com/imagen.jpg"
-          value={profileImageUrl}
-          onChange={(e) => setProfileImageUrl(e.target.value)}
-          disabled={loading}
-          helperText="Opcional: URL de la imagen de perfil del usuario"
-        />
+        {/* Profile Image */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-tertiary">
+            Imagen de Perfil
+          </label>
+          <ImageUploadSlot
+            imageUrl={profileImageUrl || undefined}
+            imageAlt="Imagen de perfil del usuario"
+            onImageSelect={handleImageUpload}
+            onImageEdit={handleImageUpload}
+            onImageRemove={handleImageRemove}
+            isUploading={isImageUploading}
+            className="w-24 h-24 rounded-full mx-auto"
+          />
+          <p className="text-xs text-gray-500 text-center">
+            Opcional: Imagen de perfil del usuario
+          </p>
+        </div>
 
         {/* Botones */}
         <div className="flex gap-4 pt-4">
@@ -372,6 +442,19 @@ export default function AdminUserForm() {
           </Button>
         </div>
       </form>
+
+      {/* Modal de confirmación de navegación (cambios sin guardar) */}
+      <ConfirmModal
+        isOpen={isBlocked}
+        onClose={handleCancelNavigation}
+        onConfirm={handleConfirmNavigation}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        confirmText="Salir"
+        cancelText="Quedarse"
+        variant="warning"
+        loading={false}
+      />
 
       {/* Modal de éxito */}
       <ConfirmModal

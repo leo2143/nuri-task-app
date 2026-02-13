@@ -1,9 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
-import { Select, Button } from "../../components/ui";
+import { Select, Button, ConfirmModal } from "../../components/ui";
 import type { IGoalCatalog, IAddSubGoal } from "../../interfaces";
-import { useHttpError } from "../../hooks";
+import { useHttpError, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { arrowsUpDown } from "../../assets/svg-icons";
 
@@ -16,9 +16,29 @@ export default function GoalSubGoalForm() {
 
   const pageTitle = "Asociar Metas";
 
-  // const [title, setTitle] = useState("");
-  const [goalId, setgoalId] = useState("");
+  const [goalId, setGoalId] = useState("");
   const [parentGoalTitle, setParentGoalTitle] = useState("");
+
+  // Valores iniciales para detectar cambios
+  const initialValues = useMemo(() => ({
+    goalId: "",
+  }), []);
+
+  // Valores actuales del formulario
+  const currentValues = useMemo(() => ({
+    goalId,
+  }), [goalId]);
+
+  // Hook para detectar cambios sin guardar
+  const {
+    isBlocked,
+    handleConfirmNavigation,
+    handleCancelNavigation,
+    markAsSaved,
+  } = useUnsavedChanges({
+    initialValues,
+    currentValues,
+  });
 
   useEffect(() => {
     const fetchGoalCatalog = async () => {
@@ -27,7 +47,7 @@ export default function GoalSubGoalForm() {
         clearError();
         const data = await goalService.getCatalogGoals();
 
-        // Obtenengo el tiulo antes de renderizar el select
+        // Obtengo el título antes de renderizar el select
         if (id) {
           const parentGoal = data.find((goal) => goal.id === id);
           if (parentGoal) {
@@ -50,8 +70,6 @@ export default function GoalSubGoalForm() {
     e.preventDefault();
 
     try {
-      //TODO: ACA DEBERIA VERIFICAR ANTES DE ENVIAR SI EXISTE UNA META RELACIONADA CON LA META RELACIONADA
-      //SI ESTA RELACIONADA DEBERIAMOS ALERTAR AL USUARIO DE QUE LA VA A ELIMINAR DE LA OTRA META
       setLoading(true);
 
       // Crear el body con el id de la submeta
@@ -61,7 +79,7 @@ export default function GoalSubGoalForm() {
 
       await goalService.addSubgoal(id!, body);
 
-      console.log("Meta asociada exitosamente");
+      markAsSaved();
 
       setTimeout(() => {
         navigate(`/goals/${id}`);
@@ -103,7 +121,7 @@ export default function GoalSubGoalForm() {
             name="goalId"
             label="Elegí la meta que querés asociar"
             value={goalId}
-            onChange={(e) => setgoalId(e.target.value)}
+            onChange={(e) => setGoalId(e.target.value)}
             options={goalCatalogs}
             placeholder="Sin meta asociada"
             disabled={loading}
@@ -120,6 +138,19 @@ export default function GoalSubGoalForm() {
           Asociar
         </Button>
       </form>
+
+      {/* Modal de confirmación de navegación (cambios sin guardar) */}
+      <ConfirmModal
+        isOpen={isBlocked}
+        onClose={handleCancelNavigation}
+        onConfirm={handleConfirmNavigation}
+        title="Cambios sin guardar"
+        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        confirmText="Salir"
+        cancelText="Quedarse"
+        variant="warning"
+        loading={false}
+      />
     </section>
   );
 }

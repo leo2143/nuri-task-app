@@ -20,49 +20,49 @@ export default function Loading() {
         <div className="absolute inset-0 animate-spin-slow">
           <img
             src={NenufarIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-12 h-12 top-[15%] left-[20%]"
           />
           <img
             src={FlorIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-8 h-8 top-[10%] left-1/2 -translate-x-1/2"
           />
           <img
             src={NenufarIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-12 h-12 top-[15%] right-[20%]"
           />
           <img
             src={NenufarIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-12 h-12 top-[42%] left-[5%]"
           />
           <img
             src={NenufarIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-12 h-12 top-[42%] right-[5%]"
           />
           <img
             src={NenufarIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-12 h-12 bottom-[15%] left-[20%]"
           />
           <img
             src={FlorIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-8 h-8 bottom-[10%] left-1/2 -translate-x-1/2"
           />
           <img
             src={NenufarIcon}
-            alt=""
+            alt="nenufar"
             aria-hidden="true"
             className="absolute w-12 h-12 bottom-[15%] right-[20%]"
           />
