@@ -17,6 +17,7 @@ interface InputProps {
   helperText?: string;
   darkMode?: boolean;
   responsiveDarkMode?: boolean;
+  withDivider?: boolean;
 }
 
 export default function Input({
@@ -36,6 +37,7 @@ export default function Input({
   helperText,
   darkMode = false,
   responsiveDarkMode = false,
+  withDivider = false,
 }: InputProps) {
   // Determinar si hay error
   const hasError = !!error;
@@ -45,21 +47,21 @@ export default function Input({
 
   // Estilos del label
   const labelStyles = responsiveDarkMode
-    ? "block text-sm font-medium text-white md:text-brand font-body"
+    ? "block text-base font-medium text-white md:text-brand font-body"
     : darkMode
-      ? "block text-sm font-medium text-white font-body"
-      : "block text-sm font-medium text-tertiary font-body";
+      ? "block text-base font-medium text-white font-body"
+      : "block text-base font-medium text-tertiary font-body";
 
   // Estilos del input - Modo Light
   const lightModeStyles = `
   w-full px-4 py-3 rounded-lg border-2  shadow-brand-glow
-  ${value ? "bg-brand/10 border-brand/50" : "bg-white"}
-  focus:bg-brand/20
+  ${value ? "bg-white border-brand/50 font-bold" : "bg-white"}
+  focus:bg-white
   focus:outline-none
   focus:border-transparent
   disabled:bg-brand/5 disabled:cursor-not-allowed disabled:opacity-60
-  font-body text-tertiary
-  placeholder:text-brand font-semibold
+  font-body text-tertiary text-sm
+  placeholder:text-brand placeholder:font-semibold
   [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgba(47,150,133,0.1)]
   [&:-webkit-autofill]:[-webkit-text-fill-color:rgb(58,37,29)]
   [&:-webkit-autofill:focus]:shadow-[inset_0_0_0_1000px_rgba(47,150,133,0.2)]
@@ -140,56 +142,57 @@ export default function Input({
       : "text-xs text-red-500 font-medium mt-1 flex items-center gap-1";
 
   return (
-    <div className={containerStyles}>
-      {/* Label */}
-      <label htmlFor={id} className={labelStyles}>
-        {label}
-        {required && <span className=" ml-1">*</span>}
-      </label>
+    <>
+      <div className={containerStyles}>
+        <label htmlFor={id} className={labelStyles}>
+          {label}
+          {required && <span className=" ml-1">*</span>}
+        </label>
 
-      {/* Input */}
-      <input
-        type={type}
-        id={id}
-        name={name}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        required={required}
-        disabled={disabled}
-        autoComplete={autoComplete}
-        aria-required={required}
-        aria-invalid={hasError}
-        aria-describedby={
-          error ? `${id}-error` : helperText ? `${id}-helper` : undefined
-        }
-        className={inputClasses}
-      />
+        <input
+          type={type}
+          id={id}
+          name={name}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          autoComplete={autoComplete}
+          aria-required={required}
+          aria-invalid={hasError}
+          aria-describedby={
+            error ? `${id}-error` : helperText ? `${id}-helper` : undefined
+          }
+          className={inputClasses}
+        />
 
-      {helperText && !error && (
-        <p id={`${id}-helper`} className={helperTextStyles}>
-          {helperText}
-        </p>
-      )}
-      {/* {dejo el svg asi, asi puedo variar el color sin repetir el svg} */}
-      {error && (
-        <p id={`${id}-error`} className={errorStyles} role="alert">
-          <svg
-            className="w-4 h-4"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
-          {error}
-        </p>
-      )}
-    </div>
+        {helperText && !error && (
+          <p id={`${id}-helper`} className={helperTextStyles}>
+            {helperText}
+          </p>
+        )}
+
+        {error && (
+          <p id={`${id}-error`} className={errorStyles} role="alert">
+            <svg
+              className="w-4 h-4"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {error}
+          </p>
+        )}
+      </div>
+      {withDivider && <div className="border-brand rounded-lg border" />}
+    </>
   );
 }
