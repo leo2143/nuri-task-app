@@ -52,7 +52,6 @@ export function TaskCard({
             }}
             onClick={(e) => e.stopPropagation()}
             ariaLabel={`Marcar tarea "${title}" como ${completed ? "incompleta" : "completa"}`}
-            size="md"
           />
         </div>
       </div>
