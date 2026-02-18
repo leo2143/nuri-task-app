@@ -1,6 +1,5 @@
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { ButtonLink } from "../../components/ui";
+import { ButtonLink, TaskCard } from "../../components/ui";
 import type { ITodo, ITodoFilters } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
@@ -9,8 +8,6 @@ import FilterableList from "../../components/FilterableList";
 const ITEMS_PER_PAGE = 5;
 
 export default function TaskList() {
-  const navigate = useNavigate();
-
   const filterableList = useFilterableList<ITodo, ITodoFilters>({
     fetchFn: todoservice.gettodos,
     buildFilters: (searchTerm, pagination) => ({
@@ -57,39 +54,16 @@ export default function TaskList() {
     return localTaskStates[task._id!] ?? task.completed;
   };
 
-  const renderTaskItem = (task: ITodo) => {
-    const isCompleted = getTaskCompleted(task);
-
-    return (
-      <div
-        key={task._id}
-        className="block bg-white p-5 rounded-lg shadow-brand-glow cursor-pointer"
-        onClick={() => navigate(`/tasks/${task._id}`)}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id={`task-${task._id}`}
-              checked={isCompleted}
-              onChange={(e) => {
-                e.stopPropagation();
-                handleToggleComplete(task._id!, task.completed);
-              }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-5 h-5 text-primary rounded cursor-pointer bg-primary"
-              aria-label={`Marcar tarea "${task.title}" como ${isCompleted ? "incompleta" : "completa"}`}
-            />
-            <span
-              className={`flex-1 text-lg font-body ${isCompleted ? "line-through text-neutral-dark" : "text-tertiary"}`}
-            >
-              {task.title}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const renderTaskItem = (task: ITodo) => (
+    <TaskCard
+      key={task._id}
+      id={task._id}
+      title={task.title}
+      goalTitle={task.goalTitle}
+      completed={getTaskCompleted(task)}
+      onToggleComplete={handleToggleComplete}
+    />
+  );
 
   return (
     <div className="flex flex-col gap-11 justify-center">

@@ -11,7 +11,7 @@ import type {
 } from "../../interfaces";
 import { useHttpError, useUnsavedChanges } from "../../hooks";
 import { todoservice } from "../../services/todoService";
-import { Input, Select } from "../../components/ui";
+import { Input, Select, TextArea } from "../../components/ui";
 import Loading from "../../components/Loading";
 import { goalService } from "../../services/goalService";
 
@@ -27,10 +27,7 @@ export default function TaskForm() {
   const isEditMode = !!id;
 
   const pageTitle = isEditMode ? "Editar Tarea" : "Crear Nueva Tarea";
-  const pageDescription = isEditMode
-    ? "Modifica los campos que desees actualizar"
-    : "Completa los campos para agregar una nueva tarea";
-  const submitButtonText = isEditMode ? "Guardar Cambios" : "Crear Tarea";
+  const submitButtonText = isEditMode ? "Guardar Cambios" : "Guardar";
   const loadingButtonText = isEditMode ? "Guardando..." : "Creando...";
 
   // Estados del formulario
@@ -202,7 +199,6 @@ export default function TaskForm() {
         <h2 className="font-heading font-bold text-tertiary mb-2">
           {pageTitle}
         </h2>
-        <p className="font-body text-tertiary">{pageDescription}</p>
       </div>
 
       {errorMessage && (
@@ -223,12 +219,11 @@ export default function TaskForm() {
         method="post"
         noValidate
       >
-        {/* Título */}
         <Input
           type="text"
           id="title"
           name="title"
-          label="Título de la Tarea"
+          label="¿Qué tenes que hacer?"
           placeholder="Ej: Completar informe mensual"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -236,93 +231,71 @@ export default function TaskForm() {
           required
           disabled={loading}
           error={titleError}
-          helperText="Campo obligatorio"
+          withDivider
         />
 
-        {/* Descripción */}
-        <div className="space-y-2">
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium text-tertiary"
-          >
-            Descripción
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            rows={4}
-            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
-            placeholder="Describe los detalles de la tarea (opcional)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            disabled={loading}
-          />
-        </div>
+        <TextArea
+          id="description"
+          name="description"
+          label="Contame un poco más (Opcional)"
+          rows={4}
+          placeholder="Describe los detalles de la tarea"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          disabled={loading}
+          withDivider
+        />
 
-        {/* Prioridad */}
-        <div className="space-y-2">
-          <label
-            htmlFor="priority"
-            className="block text-sm font-medium text-tertiary"
-          >
-            Prioridad
-          </label>
-          <select
-            id="priority"
-            name="priority"
-            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as TodoPriority)}
-            disabled={loading}
-          >
-            <option value="low">Baja</option>
-            <option value="medium">Media</option>
-            <option value="high">Alta</option>
-          </select>
-        </div>
         <Select
           id="goalId"
           name="goalId"
-          label="Meta relacionada (opcional)"
+          label="Meta relacionada (Opcional)"
           value={goalId}
           onChange={(e) => setGoalId(e.target.value)}
           options={goalCatalogs}
           placeholder="Sin meta asociada"
           disabled={loading}
+          withDivider
         />
-        {/* Fecha límite */}
+
+        <Select
+          id="priority"
+          name="priority"
+          label="Prioridad"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value as TodoPriority)}
+          options={[
+            { id: "low", title: "Baja" },
+            { id: "medium", title: "Media" },
+            { id: "high", title: "Alta" },
+          ]}
+          placeholder="Selecciona prioridad"
+          disabled={loading}
+          withDivider
+        />
+
         <Input
           type="date"
           id="dueDate"
           name="dueDate"
-          label="Fecha Límite"
+          label="¿Para cuándo te gustaría lograrla?"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
           disabled={loading}
-          helperText="Opcional: selecciona una fecha de vencimiento"
         />
 
-        {/* Botones */}
+
         <div className="flex gap-4 pt-4">
           <Button
             type="submit"
             variant="primary"
-            size="lg"
+            size="md"
             disabled={loading}
             className="flex-1"
           >
             {loading ? loadingButtonText : submitButtonText}
           </Button>
 
-          <Button
-            type="button"
-            variant="secondary"
-            size="lg"
-            disabled={loading}
-            onClick={() => navigate("/tasks")}
-          >
-            Cancelar
-          </Button>
         </div>
       </form>
 

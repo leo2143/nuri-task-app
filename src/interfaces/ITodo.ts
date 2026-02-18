@@ -34,6 +34,7 @@ export interface ITodo {
   completed: boolean;
   userId: string | ITodoUser;
   GoalId?: string | null;
+  goalTitle?: string | null;
   priority: TodoPriority;
   dueDate?: Date | string | null;
   createdAt?: Date | string;

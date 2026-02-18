@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import { ButtonLink, ProgressBar, StatusBadge } from "../../components/ui";
+import { ButtonLink, GoalCard } from "../../components/ui";
 import type { IGoal, IGoalFilters } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { goalService } from "../../services/goalService";
@@ -19,28 +18,14 @@ export default function GoalList() {
   });
 
   const renderGoalItem = (goal: IGoal) => (
-    <Link key={goal._id} to={`/goals/${goal._id}`}>
-      <div className="block bg-white p-5 rounded-lg shadow-brand-glow">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-base font-body font-bold text-tertiary">
-            {goal.title}
-          </h4>
-          <StatusBadge status={goal.status} />
-        </div>
-        {goal.description && (
-          <p className="mb-3 text-sm text-tertiary opacity-75">
-            {goal.description}
-          </p>
-        )}
-        <ProgressBar
-          progress={goal.progress}
-          variant="inline"
-          height="lg"
-          color="bg-brand"
-          bgColor="bg-gray-300"
-        />
-      </div>
-    </Link>
+    <GoalCard
+      key={goal._id}
+      id={goal._id}
+      title={goal.title}
+      description={goal.description}
+      status={goal.status}
+      progress={goal.progress}
+    />
   );
 
   return (
