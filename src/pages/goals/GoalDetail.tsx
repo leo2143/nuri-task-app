@@ -1,48 +1,235 @@
-import { useNavigate } from "react-router-dom";
-import { Button, ButtonLink, ProgressBar } from "../../components/ui";
-import type { IGoal } from "../../interfaces";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  ButtonLink,
+  ProgressBar,
+  ConfirmModal,
+  TaskCard,
+  GoalCard,
+} from "../../components/ui";
+import type { IGoal, ITodo } from "../../interfaces";
 import { useFetchById, useFormatDate } from "../../hooks";
 import { goalService } from "../../services/goalService";
+import { todoservice } from "../../services/todoService"; // Solo para updateTodoState
 import Loading from "../../components/Loading";
+import FilterableList from "../../components/FilterableList";
+import { lapiz, calendar, chevronDown } from "../../assets/svg-icons";
+
+type TabType = "tasks" | "subgoals";
 
 export default function GoalDetail() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<TabType>("tasks");
+  const [tasks, setTasks] = useState<ITodo[]>([]);
+  const [subGoals, setSubGoals] = useState<IGoal[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [loadingSubGoals, setLoadingSubGoals] = useState(false);
+  const [isFirstLoadTasks, setIsFirstLoadTasks] = useState(true);
+  const [isFirstLoadSubGoals, setIsFirstLoadSubGoals] = useState(true);
+  const [taskSearchTerm, setTaskSearchTerm] = useState("");
+  const [subGoalSearchTerm, setSubGoalSearchTerm] = useState("");
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [localGoal, setLocalGoal] = useState<IGoal | null>(null);
 
   const {
-    data: goal,
+    data: fetchedGoal,
     loading,
     errorMessage,
   } = useFetchById<IGoal>({
     fetchFn: goalService.getGoalById,
   });
 
-  const createdDate = useFormatDate(goal?.createdAt);
+  // Sincronizar localGoal cuando se obtienen los datos
+  useEffect(() => {
+    if (fetchedGoal) {
+      setLocalGoal(fetchedGoal);
+    }
+  }, [fetchedGoal]);
+
+  const goal = localGoal;
+
   const dueDate = useFormatDate(goal?.dueDate);
 
-  const handleDeleteGoal = async () => {
-    if (!goal?._id) {
-      return;
+  // Cargar tareas relacionadas
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (!goal?._id) return;
+      setLoadingTasks(true);
+      try {
+        const tasksData = await goalService.getGoalTodos(goal._id);
+        setTasks(tasksData);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+      } finally {
+        setLoadingTasks(false);
+        setIsFirstLoadTasks(false);
+      }
+    };
+
+    if (activeTab === "tasks" && goal?._id) {
+      fetchTasks();
     }
+  }, [goal?._id, activeTab]);
 
-    const confirmed = window.confirm(
-      `¿Estás seguro de que quieres eliminar la meta "${goal.title}"?\n\nEsta acción no se puede deshacer.`,
+  // Cargar submetas
+  useEffect(() => {
+    const fetchSubGoals = async () => {
+      if (!goal?._id) return;
+      setLoadingSubGoals(true);
+      try {
+        const subGoalsData = await goalService.getSubGoals(goal._id);
+        setSubGoals(subGoalsData);
+      } catch (error) {
+        console.error("Error fetching subgoals:", error);
+      } finally {
+        setLoadingSubGoals(false);
+        setIsFirstLoadSubGoals(false);
+      }
+    };
+
+    if (activeTab === "subgoals" && goal?._id) {
+      fetchSubGoals();
+    }
+  }, [goal?._id, activeTab]);
+
+  const handleToggleTaskComplete = useCallback(
+    async (taskId: string, currentCompleted: boolean) => {
+      try {
+        const newStatus = !currentCompleted;
+        await todoservice.updateTodoState(taskId, newStatus);
+        setTasks((prev) =>
+          prev.map((task) =>
+            task._id === taskId ? { ...task, completed: newStatus } : task,
+          ),
+        );
+      } catch (error) {
+        console.error("Error toggling task:", error);
+      }
+    },
+    [],
+  );
+
+  // Filtrar tareas localmente
+  const filteredTasks = useMemo(() => {
+    if (!taskSearchTerm) return tasks;
+    const searchLower = taskSearchTerm.toLowerCase();
+    return tasks.filter(
+      (task) =>
+        task.title.toLowerCase().includes(searchLower) ||
+        task.description?.toLowerCase().includes(searchLower),
     );
+  }, [tasks, taskSearchTerm]);
 
-    if (!confirmed) return;
+  // Filtrar submetas localmente
+  const filteredSubGoals = useMemo(() => {
+    if (!subGoalSearchTerm) return subGoals;
+    const searchLower = subGoalSearchTerm.toLowerCase();
+    return subGoals.filter(
+      (subGoal) =>
+        subGoal.title.toLowerCase().includes(searchLower) ||
+        subGoal.description?.toLowerCase().includes(searchLower),
+    );
+  }, [subGoals, subGoalSearchTerm]);
+
+  // Render functions para FilterableList
+  const renderTaskItem = useCallback(
+    (task: ITodo) => (
+      <TaskCard
+        key={task._id}
+        id={task._id}
+        title={task.title}
+        description={task.description}
+        completed={task.completed}
+        onToggleComplete={handleToggleTaskComplete}
+      />
+    ),
+    [handleToggleTaskComplete],
+  );
+
+  const renderSubGoalItem = useCallback(
+    (subGoal: IGoal) => (
+      <GoalCard
+        key={subGoal._id}
+        id={subGoal._id}
+        title={subGoal.title}
+        description={subGoal.description}
+        status={subGoal.status}
+        progress={subGoal.progress}
+      />
+    ),
+    [],
+  );
+
+  const handleStatusChange = async (
+    newStatus: "active" | "paused" | "completed",
+  ) => {
+    if (!goal?._id || !goal) return;
+    setUpdatingStatus(true);
+    try {
+      const updatedGoal = await goalService.updateGoal(goal._id, {
+        title: goal.title,
+        description: goal.description,
+        reason: goal.reason,
+        status: newStatus,
+        priority: goal.priority,
+        dueDate: goal.dueDate,
+      });
+      setLocalGoal(updatedGoal);
+      setIsStatusOpen(false);
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const handleDeleteGoal = async () => {
+    if (!goal?._id) return;
 
     try {
       await goalService.deleteGoal(goal._id);
-
-      // Redirigir a la lista después de eliminar
       navigate("/goals", {
         replace: true,
         state: { message: "Meta eliminada exitosamente" },
       });
     } catch (err) {
       console.error("Error al eliminar meta:", err);
-      alert("Error al eliminar la meta. Por favor, intenta de nuevo.");
     }
   };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return "Alta";
+      case "medium":
+        return "Media";
+      case "low":
+        return "Baja";
+      default:
+        return priority;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "active":
+        return "Activa";
+      case "paused":
+        return "Pausada";
+      case "completed":
+        return "Completada";
+      default:
+        return status;
+    }
+  };
+
+  const statusOptions = [
+    { id: "active", title: "Activa" },
+    { id: "paused", title: "Pausada" },
+    { id: "completed", title: "Completada" },
+  ];
 
   if (loading) {
     return <Loading />;
@@ -69,206 +256,211 @@ export default function GoalDetail() {
   }
 
   return (
-    <section className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="font-heading font-bold text-tertiary">
+    <section className="max-w-4xl mx-auto space-y-4">
+      {/* Card Principal */}
+      <article className="bg-secondary-dark rounded-2xl p-5 text-white">
+        {/* Título y botón editar */}
+        <div className="flex items-start justify-between mb-3">
+          <h2 className="text-xl font-heading font-bold text-brand flex items-center gap-2">
             {goal.title}
           </h2>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              goal.status === "active"
-                ? "bg-greenCheap-light text-greenCheap-dark"
-                : goal.status === "paused"
-                  ? "bg-yellowCheap text-yellow-800"
-                  : "bg-blueCheap-light text-blueCheap-dark"
-            }`}
+          <Link
+            to={`/goals/${goal._id}/edit`}
+            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+            aria-label="Editar meta"
           >
-            {goal.status === "active"
-              ? "Activa"
-              : goal.status === "paused"
-                ? "Pausada"
-                : "Completada"}
-          </span>
+            <img
+              src={lapiz}
+              alt=""
+              aria-hidden="true"
+              className="w-5 h-5 invert brightness-0"
+            />
+          </Link>
         </div>
 
-        <div className="flex items-center gap-4 text-sm font-body text-tertiary flex-wrap">
-          {createdDate.isValid && (
-            <time
-              dateTime={createdDate.iso}
-              className="flex flex-wrap items-center gap-1"
-            >
-              <span className="font-semibold">Creada:</span>
-              <span>{createdDate.formatted}</span>
-            </time>
-          )}
-          {dueDate.isValid && (
-            <time
-              dateTime={dueDate.iso}
-              className="flex flex-wrap items-center gap-1"
-            >
-              <span className="font-semibold">Vence:</span>
-              <span>{dueDate.formatted}</span>
-            </time>
-          )}
-          <span
-            className={`px-2 py-1 rounded text-xs font-semibold text-center ${
-              goal.priority === "high"
-                ? "bg-red-100 text-red-800"
-                : goal.priority === "medium"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-green-100 text-green-800"
-            }`}
-          >
-            {goal.priority === "high"
-              ? "Alta"
-              : goal.priority === "medium"
-                ? "Media"
-                : "Baja"}
-          </span>
-        </div>
-      </div>
-
-      {/* Descripción */}
-      <div className="bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300 mb-6">
-        <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
-          Descripción
-        </h3>
-        <p className="font-body text-tertiary leading-relaxed">
-          {goal.description || (
-            <em className="text-tertiary opacity-60">Sin descripción</em>
-          )}
+        {/* Descripción */}
+        <p className="text-base text-white mb-1 leading-relaxed">
+          {goal.description || "Sin descripción"}
         </p>
-      </div>
 
-      {/* Progreso */}
-      <div className="bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300 mb-6">
-        <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
-          Progreso
-        </h3>
-        <ProgressBar progress={goal.progress} label="Progreso General" />
+        {/* Reason */}
+        {goal.reason && (
+          <p className="text-base text-white mb-4 leading-relaxed">
+            {goal.reason}
+          </p>
+        )}
 
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="bg-white p-3 rounded border border-gray-300">
-            <p className="text-tertiary opacity-75 mb-1">Tareas</p>
-            <p className="text-lg font-bold text-tertiary">
-              {goal.completedTasks}/{goal.totalTasks}
-            </p>
-          </div>
-          <div className="bg-white p-3 rounded border border-gray-300">
-            <p className="text-tertiary opacity-75 mb-1">Submetas</p>
-            <p className="text-lg font-bold text-tertiary">
-              {goal.completedSubGoals}/{goal.totalSubGoals}
-            </p>
-          </div>
+        {/* Fecha y Prioridad */}
+        <div className="flex items-center justify-between mb-4">
+          {dueDate.isValid && (
+            <div className="flex items-center gap-2">
+              <img
+                src={calendar}
+                alt=""
+                aria-hidden="true"
+                className="w-5 h-5"
+              />
+              <time dateTime={dueDate.iso} className="text-sm font-bold text-brand">
+                {dueDate.formatted}
+              </time>
+            </div>
+          )}
+          <span className="text-sm font-bold text-brand">
+            Prioridad: {getPriorityLabel(goal.priority)}
+          </span>
         </div>
-      </div>
 
-      {/* Criterios SMART (si existen) */}
-      {goal.smart && (
-        <div className="bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300 mb-6">
-          <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
-            Criterios SMART
-          </h3>
-          <dl className="space-y-3">
-            {goal.smart.specific && (
-              <div>
-                <dt className="font-semibold text-tertiary">Específico:</dt>
-                <dd className="text-tertiary opacity-75 ml-4">
-                  {goal.smart.specific}
-                </dd>
-              </div>
-            )}
-            {goal.smart.measurable && (
-              <div>
-                <dt className="font-semibold text-tertiary">Medible:</dt>
-                <dd className="text-tertiary opacity-75 ml-4">
-                  {goal.smart.measurable}
-                </dd>
-              </div>
-            )}
-            {goal.smart.achievable && (
-              <div>
-                <dt className="font-semibold text-tertiary">Alcanzable:</dt>
-                <dd className="text-tertiary opacity-75 ml-4">
-                  {goal.smart.achievable}
-                </dd>
-              </div>
-            )}
-            {goal.smart.relevant && (
-              <div>
-                <dt className="font-semibold text-tertiary">Relevante:</dt>
-                <dd className="text-tertiary opacity-75 ml-4">
-                  {goal.smart.relevant}
-                </dd>
-              </div>
-            )}
-            {goal.smart.timeBound && (
-              <div>
-                <dt className="font-semibold text-tertiary">
-                  Con límite de tiempo:
-                </dt>
-                <dd className="text-tertiary opacity-75 ml-4">
-                  {goal.smart.timeBound}
-                </dd>
-              </div>
-            )}
-          </dl>
+        {/* Barra de Progreso */}
+        <div className="mb-4">
+          <ProgressBar
+            progress={goal.progress}
+            variant="inline"
+            height="2xl"
+            color="bg-brand"
+            bgColor="bg-[#D2D2D2]"
+          />
         </div>
-      )}
 
-      {/* Comentarios */}
-      {goal.comments && goal.comments.length > 0 && (
-        <div className="bg-gray-100 p-6 rounded-lg shadow-lg border border-gray-300 mb-6">
-          <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
-            Comentarios
-          </h3>
-          <ul className="space-y-3">
-            {goal.comments.map((comment, index) => (
-              <li
-                key={index}
-                className="bg-white p-4 rounded border border-gray-300"
-              >
-                <p className="text-tertiary mb-2">{comment.text}</p>
-                <div className="flex items-center gap-2 text-xs text-tertiary opacity-75">
-                  <span className="font-semibold">{comment.author}</span>
-                  <span>•</span>
-                  <time>
-                    {new Date(comment.date).toLocaleDateString("es-ES")}
-                  </time>
-                </div>
-              </li>
-            ))}
-          </ul>
+        {/* Select de Estado */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsStatusOpen(!isStatusOpen)}
+            disabled={updatingStatus}
+            className={`
+              w-full px-4 py-3 pr-12
+              bg-primary text-tertiary font-bold text-base
+              text-center cursor-pointer outline-none
+              ${isStatusOpen ? "rounded-t-lg" : "rounded-lg"}
+              ${updatingStatus ? "opacity-60 cursor-not-allowed" : ""}
+              transition-all duration-200
+            `}
+            aria-haspopup="listbox"
+            aria-expanded={isStatusOpen}
+          >
+            {updatingStatus ? "Actualizando..." : getStatusLabel(goal.status)}
+          </button>
+
+          <img
+            src={chevronDown}
+            alt=""
+            aria-hidden="true"
+            className={`
+              absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none
+              transition-transform duration-200
+              ${isStatusOpen ? "rotate-180" : ""}
+            `}
+          />
+
+          {isStatusOpen && !updatingStatus && (
+            <ul
+              role="listbox"
+              className="absolute z-50 w-full bg-primary rounded-b-lg overflow-hidden"
+            >
+              {statusOptions.map((option) => (
+                <li
+                  key={option.id}
+                  role="option"
+                  aria-selected={goal.status === option.id}
+                  onClick={() =>
+                    handleStatusChange(
+                      option.id as "active" | "paused" | "completed",
+                    )
+                  }
+                  className={`
+                    px-4 py-3 cursor-pointer text-center
+                    font-body text-base text-tertiary
+                    ${goal.status === option.id ? "bg-primary/80 font-bold" : ""}
+                    hover:bg-primary/70
+                    transition-colors duration-150
+                  `}
+                >
+                  {option.title}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      )}
+      </article>
 
-      {/* Acciones */}
-      <div className="flex flex-wrap gap-4">
-        <ButtonLink
-          to={`/goals/${goal._id}/edit`}
-          variant="secondary"
-          size="md"
-        >
-          Editar Meta
-        </ButtonLink>
-        <ButtonLink
-          to={`/goals/${goal._id}/new/subgoal`}
-          variant="primary"
-          size="md"
-        >
-          Relacionar Meta
-        </ButtonLink>
+      {/* Botón Asociar Meta */}
+      <ButtonLink
+        to={`/goals/${goal._id}/new/subgoal`}
+        variant="primary"
+        size="md"
+        className="w-full flex items-center justify-center gap-2"
+        icon="add"
+      >
 
-        <Button
+        Asociar Meta
+      </ButtonLink>
+
+      {/* Tabs */}
+      <div className="flex gap-2">
+        <button
           type="button"
-          variant="danger"
-          size="md"
-          onClick={handleDeleteGoal}
+          onClick={() => setActiveTab("tasks")}
+          className={`
+            flex-1 py-3 px-4 font-body font-bold text-base transition-colors rounded-lg shadow-brand-glow
+            ${activeTab === "tasks" ? "bg-brand text-tertiary" : "bg-white text-brand"}
+          `}
         >
-          Eliminar Meta
-        </Button>
+          Tareas
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("subgoals")}
+          className={`
+            flex-1 py-3 px-4 font-body font-bold text-base transition-colors rounded-lg shadow-brand-glow
+            ${activeTab === "subgoals" ? "bg-brand text-tertiary" : "bg-white text-brand"}
+          `}
+        >
+          Metas Asociadas
+        </button>
       </div>
+
+      {/* Contenido de Tabs */}
+      {activeTab === "tasks" && (
+        <FilterableList
+          data={filteredTasks}
+          loading={loadingTasks}
+          errorMessage=""
+          isEmpty={filteredTasks.length === 0}
+          searchTerm={taskSearchTerm}
+          onSearchChange={setTaskSearchTerm}
+          searchPlaceholder="Buscar tarea..."
+          renderItem={renderTaskItem}
+          emptyStateName="Tareas"
+          isFirstLoad={isFirstLoadTasks}
+        />
+      )}
+
+      {activeTab === "subgoals" && (
+        <FilterableList
+          data={filteredSubGoals}
+          loading={loadingSubGoals}
+          errorMessage=""
+          isEmpty={filteredSubGoals.length === 0}
+          searchTerm={subGoalSearchTerm}
+          onSearchChange={setSubGoalSearchTerm}
+          searchPlaceholder="Buscar meta..."
+          renderItem={renderSubGoalItem}
+          emptyStateName="Metas"
+          isFirstLoad={isFirstLoadSubGoals}
+        />
+      )}
+
+
+      {/* Modal de Confirmación de Eliminación */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="¿Eliminar meta?"
+        message={`¿Estás seguro de que quieres eliminar la meta "${goal.title}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        variant="danger"
+        onConfirm={handleDeleteGoal}
+        onClose={() => setIsDeleteModalOpen(false)}
+      />
     </section>
   );
 }

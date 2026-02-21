@@ -4,10 +4,10 @@ import type {
   IUpdateGoal,
   ISuccessResponse,
   ICreateGoal,
-  IAddGoalComment,
   IGoalCatalog,
   IAddSubGoal,
   IGoalFilters,
+  ITodo,
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
@@ -152,6 +152,23 @@ export const goalService = {
   },
 
   /**
+   * Obtener las tareas de una meta
+   * GET /api/goals/:id/todos
+   * @requires Bearer Token
+   */
+  getGoalTodos: async (goalId: string): Promise<ITodo[]> => {
+    try {
+      const response = await apiClient.get<ISuccessResponse<ITodo[]>>(
+        `${API_BASE_URL}/api/goals/${goalId}/todos`,
+      );
+      return response.data.data || [];
+    } catch (error) {
+      console.error(`Error fetching todos for goal ${goalId}:`, error);
+      throw error;
+    }
+  },
+
+  /**
    * Actualizar una meta existente
    * PUT /api/goals/:id
    * @requires Bearer Token
@@ -200,26 +217,6 @@ export const goalService = {
     }
   },
 
-  /**
-   * Agregar un comentario a una meta
-   * POST /api/goals/:id/comments
-   * @requires Bearer Token
-   */
-  addComment: async (
-    id: string,
-    commentData: IAddGoalComment,
-  ): Promise<IGoal> => {
-    try {
-      const response = await apiClient.post<ISuccessResponse<IGoal>>(
-        `${API_BASE_URL}/api/goals/${id}/comments`,
-        commentData,
-      );
-      return response.data.data!;
-    } catch (error) {
-      console.error(`Error adding comment to goal ${id}:`, error);
-      throw error;
-    }
-  },
   /**
    * Obtener todas los catalogos de metas
    * GET /api/goals/catalogs

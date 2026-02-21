@@ -10,9 +10,14 @@ import { arrowsUpDown } from "../../assets/svg-icons";
 export default function GoalSubGoalForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { errorMessage, handleError, clearError } = useHttpError();
+  const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
+
+  // Estados para modales
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const pageTitle = "Asociar Metas";
 
@@ -58,7 +63,8 @@ export default function GoalSubGoalForm() {
 
         setGoalCatalogs(filteredData);
       } catch (err) {
-        handleError(err);
+        // No mostrar modal de error al cargar catálogo, no es crítico
+        console.error("Error fetching goal catalogs:", err);
       } finally {
         setLoading(false);
       }
@@ -66,8 +72,24 @@ export default function GoalSubGoalForm() {
     fetchGoalCatalog();
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Handlers para modales
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    navigate(`/goals/${id}`);
+  };
+
+  const handleErrorModalClose = () => {
+    setIsErrorModalOpen(false);
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!goalId) {
+      setModalMessage("Debes seleccionar una meta para asociar");
+      setIsErrorModalOpen(true);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -80,12 +102,12 @@ export default function GoalSubGoalForm() {
       await goalService.addSubgoal(id!, body);
 
       markAsSaved();
-
-      setTimeout(() => {
-        navigate(`/goals/${id}`);
-      }, 1500);
+      setModalMessage("¡Metas asociadas exitosamente!");
+      setIsSuccessModalOpen(true);
     } catch (err) {
       handleError(err);
+      setModalMessage("Error al asociar las metas. Por favor, intenta de nuevo.");
+      setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -106,14 +128,10 @@ export default function GoalSubGoalForm() {
         </div>
       </div>
 
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
-      )}
       <div className="flex justify-center py-5">
         <img src={arrowsUpDown} alt="flechas arriba abajo" />
       </div>
+
       <form onSubmit={handleSubmit} noValidate method="post">
         <div>
           <Select
@@ -149,6 +167,32 @@ export default function GoalSubGoalForm() {
         confirmText="Salir"
         cancelText="Quedarse"
         variant="warning"
+        loading={false}
+      />
+
+      {/* Modal de éxito */}
+      <ConfirmModal
+        isOpen={isSuccessModalOpen}
+        onClose={handleSuccessModalClose}
+        onConfirm={handleSuccessModalClose}
+        title="¡Éxito!"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="success"
+        loading={false}
+      />
+
+      {/* Modal de error */}
+      <ConfirmModal
+        isOpen={isErrorModalOpen}
+        onClose={handleErrorModalClose}
+        onConfirm={handleErrorModalClose}
+        title="Error"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="danger"
         loading={false}
       />
     </section>

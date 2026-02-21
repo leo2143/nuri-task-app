@@ -3,7 +3,7 @@ import { VisualBoard } from '../../components/VisualBoard';
 import type { IMoodboardImage } from '../../interfaces';
 import { moodboardService } from '../../services/moodboardService';
 import StateMessage from '../../components/StateMessage';
-import { ConfirmModal } from '../../components/ui';
+import { ConfirmModal, Spinner } from '../../components/ui';
 
 export default function Moodboard() {
   const [images, setImages] = useState<IMoodboardImage[]>([]);
@@ -91,7 +91,7 @@ export default function Moodboard() {
 
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <Spinner size="xl" />
           <p className="mt-4 text-tertiary/70">Cargando moodboard...</p>
         </div>
       ) : (

@@ -276,11 +276,7 @@ export default function AdminUserForm() {
   };
 
   if (loading && isEditMode && !user) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <Loading />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

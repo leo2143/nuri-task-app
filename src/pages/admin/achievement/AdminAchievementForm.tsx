@@ -268,11 +268,7 @@ export default function AdminAchievementForm() {
   };
 
   if (loading && isEditMode && !achievement) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <Loading />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (

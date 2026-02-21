@@ -1,6 +1,6 @@
 /**
  * Interface para el modelo de Goal (Metas)
- * Representa una meta SMART del usuario
+ * Representa una meta del usuario
  */
 
 /**
@@ -13,26 +13,6 @@ export type GoalStatus = "active" | "paused" | "completed";
  */
 export type GoalPriority = "low" | "medium" | "high";
 
-/**
- * Interface para los criterios SMART de una meta
- */
-export interface ISmartCriteria {
-  specific: string;
-  measurable: string;
-  achievable: string;
-  relevant: string;
-  timeBound: string;
-}
-
-/**
- * Interface para comentarios en una meta
- */
-export interface IGoalComment {
-  _id?: string;
-  text: string;
-  author: string;
-  date: Date | string;
-}
 /**
  * Interface para catalogo en una meta
  */
@@ -57,12 +37,12 @@ export interface IGoalUser {
  */
 export interface IGoal {
   _id?: string;
-  title: string;
-  description: string;
+  title: string; // 3-50 caracteres
+  description: string; // max 100 caracteres
+  reason?: string; // max 50 caracteres
   status: GoalStatus;
   priority: GoalPriority;
   dueDate: Date | string | null;
-  smart?: ISmartCriteria;
   parentGoalId?: string | null;
   totalSubGoals: number;
   completedSubGoals: number;
@@ -70,7 +50,6 @@ export interface IGoal {
   completedTasks: number;
   progress: number;
   calculatedProgress?: number;
-  comments: IGoalComment[];
   userId: string | IGoalUser;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -80,14 +59,14 @@ export interface IGoal {
 /**
  * Interface para crear una nueva meta
  * NOTA: userId se obtiene automáticamente del token JWT en el backend
+ * NOTA: status se establece automáticamente en 'active' en el backend
  */
 export interface ICreateGoal {
   title: string;
   description?: string;
-  status?: GoalStatus;
+  reason?: string;
   priority?: GoalPriority;
   dueDate?: Date | string | null;
-  smart?: ISmartCriteria;
   parentGoalId?: string | null;
 }
 
@@ -95,18 +74,13 @@ export interface ICreateGoal {
  * Interface para actualizar una meta
  */
 export interface IUpdateGoal {
-  title?: string;
+  title: string; // requerido
   description?: string;
+  reason?: string;
   status?: GoalStatus;
   priority?: GoalPriority;
   dueDate?: Date | string | null;
-  smart?: Partial<ISmartCriteria>;
   parentGoalId?: string | null;
-  totalSubGoals?: number;
-  completedSubGoals?: number;
-  totalTasks?: number;
-  completedTasks?: number;
-  progress?: number;
 }
 
 /**
@@ -117,14 +91,7 @@ export interface IUpdateGoalState {
 }
 
 /**
- * Interface para agregar un comentario a una meta
- */
-export interface IAddGoalComment {
-  text: string;
-  author: string;
-}
-/**
- * Interface para agregar un comentario a una meta
+ * Interface para agregar una submeta
  */
 export interface IAddSubGoal {
   subgoalId: string;

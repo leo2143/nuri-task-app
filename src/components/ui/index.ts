@@ -17,3 +17,4 @@ export { StreakCard } from "./StreakCard";
 export { StatusBadge } from "./StatusBadge";
 export { GoalCard } from "./GoalCard";
 export { TaskCard } from "./TaskCard";
+export { default as Spinner } from "./Spinner";
