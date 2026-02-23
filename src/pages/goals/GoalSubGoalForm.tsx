@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
-import { Select, Button, ConfirmModal } from "../../components/ui";
-import type { IGoalCatalog, IAddSubGoal } from "../../interfaces";
+import { Select, Button, ConfirmModal, GoalCard } from "../../components/ui";
+import type { IGoal, IGoalCatalog, IAddSubGoal } from "../../interfaces";
 import { useHttpError, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { arrowsUpDown } from "../../assets/svg-icons";
@@ -22,7 +22,7 @@ export default function GoalSubGoalForm() {
   const pageTitle = "Asociar Metas";
 
   const [goalId, setGoalId] = useState("");
-  const [parentGoalTitle, setParentGoalTitle] = useState("");
+  const [parentGoal, setParentGoal] = useState<IGoal | null>(null);
 
   // Valores iniciales para detectar cambios
   const initialValues = useMemo(() => ({
@@ -46,30 +46,29 @@ export default function GoalSubGoalForm() {
   });
 
   useEffect(() => {
-    const fetchGoalCatalog = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         clearError();
-        const data = await goalService.getCatalogGoals();
 
-        // Obtengo el título antes de renderizar el select
-        if (id) {
-          const parentGoal = data.find((goal) => goal.id === id);
-          if (parentGoal) {
-            setParentGoalTitle(parentGoal.title);
-          }
+        const [parentGoalData, catalogData] = await Promise.all([
+          id ? goalService.getGoalById(id) : Promise.resolve(null),
+          goalService.getCatalogGoals(),
+        ]);
+
+        if (parentGoalData) {
+          setParentGoal(parentGoalData);
         }
-        const filteredData = id ? data.filter((goal) => goal.id !== id) : data;
 
+        const filteredData = id ? catalogData.filter((goal) => goal.id !== id) : catalogData;
         setGoalCatalogs(filteredData);
       } catch (err) {
-        // No mostrar modal de error al cargar catálogo, no es crítico
-        console.error("Error fetching goal catalogs:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchGoalCatalog();
+    fetchData();
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handlers para modales
@@ -120,12 +119,13 @@ export default function GoalSubGoalForm() {
           {pageTitle}
         </h2>
 
-        <div>
-          <p className="mt-4">Meta</p>
-          <div className="mt-2 p-3 bg-primary/10 border border-primary/30 rounded-lg">
-            <p className="font-body text-sm text-tertiary">{parentGoalTitle}</p>
-          </div>
-        </div>
+        {parentGoal && (
+          <GoalCard
+            id={parentGoal._id}
+            title={parentGoal.title}
+            status={parentGoal.status}
+          />
+        )}
       </div>
 
       <div className="flex justify-center py-5">

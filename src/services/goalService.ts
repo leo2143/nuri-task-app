@@ -185,6 +185,27 @@ export const goalService = {
       throw error;
     }
   },
+
+  /**
+   * Actualizar solo el estado de una meta
+   * PATCH /api/goals/:id/status
+   * @requires Bearer Token
+   */
+  updateGoalStatus: async (
+    id: string,
+    status: "active" | "paused" | "completed",
+  ): Promise<IGoal> => {
+    try {
+      const response = await apiClient.patch<ISuccessResponse<IGoal>>(
+        `${API_BASE_URL}/api/goals/${id}/status`,
+        { status },
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error(`Error updating goal status ${id}:`, error);
+      throw error;
+    }
+  },
   /**
    * Agrega una submeta a una meta padre
    * patch /api/goals/:id

@@ -6,6 +6,8 @@ import {
   ConfirmModal,
   TaskCard,
   GoalCard,
+  StatusSelect,
+  TabGroup,
 } from "../../components/ui";
 import type { IGoal, ITodo } from "../../interfaces";
 import { useFetchById, useFormatDate } from "../../hooks";
@@ -13,7 +15,7 @@ import { goalService } from "../../services/goalService";
 import { todoservice } from "../../services/todoService"; // Solo para updateTodoState
 import Loading from "../../components/Loading";
 import FilterableList from "../../components/FilterableList";
-import { lapiz, calendar, chevronDown } from "../../assets/svg-icons";
+import { lapiz, calendar } from "../../assets/svg-icons";
 
 type TabType = "tasks" | "subgoals";
 
@@ -28,7 +30,6 @@ export default function GoalDetail() {
   const [isFirstLoadSubGoals, setIsFirstLoadSubGoals] = useState(true);
   const [taskSearchTerm, setTaskSearchTerm] = useState("");
   const [subGoalSearchTerm, setSubGoalSearchTerm] = useState("");
-  const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [localGoal, setLocalGoal] = useState<IGoal | null>(null);
@@ -141,11 +142,12 @@ export default function GoalDetail() {
         id={task._id}
         title={task.title}
         description={task.description}
+        goalTitle={goal?.title}
         completed={task.completed}
         onToggleComplete={handleToggleTaskComplete}
       />
     ),
-    [handleToggleTaskComplete],
+    [handleToggleTaskComplete, goal?.title],
   );
 
   const renderSubGoalItem = useCallback(
@@ -168,16 +170,8 @@ export default function GoalDetail() {
     if (!goal?._id || !goal) return;
     setUpdatingStatus(true);
     try {
-      const updatedGoal = await goalService.updateGoal(goal._id, {
-        title: goal.title,
-        description: goal.description,
-        reason: goal.reason,
-        status: newStatus,
-        priority: goal.priority,
-        dueDate: goal.dueDate,
-      });
+      const updatedGoal = await goalService.updateGoalStatus(goal._id, newStatus);
       setLocalGoal(updatedGoal);
-      setIsStatusOpen(false);
     } catch (error) {
       console.error("Error updating status:", error);
     } finally {
@@ -212,25 +206,6 @@ export default function GoalDetail() {
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "active":
-        return "Activa";
-      case "paused":
-        return "Pausada";
-      case "completed":
-        return "Completada";
-      default:
-        return status;
-    }
-  };
-
-  const statusOptions = [
-    { id: "active", title: "Activa" },
-    { id: "paused", title: "Pausada" },
-    { id: "completed", title: "Completada" },
-  ];
-
   if (loading) {
     return <Loading />;
   }
@@ -258,7 +233,7 @@ export default function GoalDetail() {
   return (
     <section className="max-w-4xl mx-auto space-y-4">
       {/* Card Principal */}
-      <article className="bg-secondary-dark rounded-2xl p-5 text-white">
+      <div className="bg-secondary-dark rounded-2xl p-5 text-white">
         {/* Título y botón editar */}
         <div className="flex items-start justify-between mb-3">
           <h2 className="text-xl font-heading font-bold text-brand flex items-center gap-2">
@@ -322,66 +297,12 @@ export default function GoalDetail() {
         </div>
 
         {/* Select de Estado */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setIsStatusOpen(!isStatusOpen)}
-            disabled={updatingStatus}
-            className={`
-              w-full px-4 py-3 pr-12
-              bg-primary text-tertiary font-bold text-base
-              text-center cursor-pointer outline-none
-              ${isStatusOpen ? "rounded-t-lg" : "rounded-lg"}
-              ${updatingStatus ? "opacity-60 cursor-not-allowed" : ""}
-              transition-all duration-200
-            `}
-            aria-haspopup="listbox"
-            aria-expanded={isStatusOpen}
-          >
-            {updatingStatus ? "Actualizando..." : getStatusLabel(goal.status)}
-          </button>
-
-          <img
-            src={chevronDown}
-            alt=""
-            aria-hidden="true"
-            className={`
-              absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none
-              transition-transform duration-200
-              ${isStatusOpen ? "rotate-180" : ""}
-            `}
-          />
-
-          {isStatusOpen && !updatingStatus && (
-            <ul
-              role="listbox"
-              className="absolute z-50 w-full bg-primary rounded-b-lg overflow-hidden"
-            >
-              {statusOptions.map((option) => (
-                <li
-                  key={option.id}
-                  role="option"
-                  aria-selected={goal.status === option.id}
-                  onClick={() =>
-                    handleStatusChange(
-                      option.id as "active" | "paused" | "completed",
-                    )
-                  }
-                  className={`
-                    px-4 py-3 cursor-pointer text-center
-                    font-body text-base text-tertiary
-                    ${goal.status === option.id ? "bg-primary/80 font-bold" : ""}
-                    hover:bg-primary/70
-                    transition-colors duration-150
-                  `}
-                >
-                  {option.title}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </article>
+        <StatusSelect
+          value={goal.status}
+          onChange={handleStatusChange}
+          disabled={updatingStatus}
+        />
+      </div>
 
       {/* Botón Asociar Meta */}
       <ButtonLink
@@ -396,28 +317,14 @@ export default function GoalDetail() {
       </ButtonLink>
 
       {/* Tabs */}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("tasks")}
-          className={`
-            flex-1 py-3 px-4 font-body font-bold text-base transition-colors rounded-lg shadow-brand-glow
-            ${activeTab === "tasks" ? "bg-brand text-tertiary" : "bg-white text-brand"}
-          `}
-        >
-          Tareas
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("subgoals")}
-          className={`
-            flex-1 py-3 px-4 font-body font-bold text-base transition-colors rounded-lg shadow-brand-glow
-            ${activeTab === "subgoals" ? "bg-brand text-tertiary" : "bg-white text-brand"}
-          `}
-        >
-          Metas Asociadas
-        </button>
-      </div>
+      <TabGroup
+        tabs={[
+          { id: "tasks", label: "Tareas" },
+          { id: "subgoals", label: "Metas Asociadas" },
+        ]}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as TabType)}
+      />
 
       {/* Contenido de Tabs */}
       {activeTab === "tasks" && (

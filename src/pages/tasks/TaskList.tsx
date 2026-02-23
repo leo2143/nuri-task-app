@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ButtonLink, TaskCard } from "../../components/ui";
 import type { ITodo, ITodoFilters } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
@@ -8,10 +9,14 @@ import FilterableList from "../../components/FilterableList";
 const ITEMS_PER_PAGE = 5;
 
 export default function TaskList() {
+  const [searchParams] = useSearchParams();
+  const isCompletedView = searchParams.get("completed") === "true";
+
   const filterableList = useFilterableList<ITodo, ITodoFilters>({
     fetchFn: todoservice.gettodos,
     buildFilters: (searchTerm, pagination) => ({
       search: searchTerm || undefined,
+      completed: isCompletedView ? true : undefined,
       limit: pagination?.limit,
       cursor: pagination?.cursor,
     }),
@@ -69,17 +74,19 @@ export default function TaskList() {
     <div className="flex flex-col gap-11 justify-center">
       <div className="flex flex-col gap-6 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
-          Mis Tareas
+          {isCompletedView ? "Tareas Realizadas" : "Mis Tareas"}
         </h2>
 
-        <ButtonLink
-          to="/tasks/new"
-          variant="primary"
-          fullWidth
-          icon="add"
-        >
-          Agregar Nueva Tarea
-        </ButtonLink>
+        {!isCompletedView && (
+          <ButtonLink
+            to="/tasks/new"
+            variant="primary"
+            fullWidth
+            icon="add"
+          >
+            Agregar Nueva Tarea
+          </ButtonLink>
+        )}
       </div>
 
       <FilterableList
@@ -91,6 +98,16 @@ export default function TaskList() {
         loadMoreText="Cargar más tareas"
         loadingMoreText="Cargando más tareas..."
       />
+
+      {!isCompletedView && (
+        <ButtonLink
+          to="/tasks?completed=true"
+          variant="secondary"
+          fullWidth
+        >
+          Ver Historial de Tareas Realizadas
+        </ButtonLink>
+      )}
     </div>
   );
 }

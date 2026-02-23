@@ -10,16 +10,19 @@ import {
   metrics,
 } from "../assets/svg-icons";
 import MenuNavItem from "./MenuNavItem";
+import ActionSelect from "./ui/ActionSelect";
 
 export default function Footer() {
   return (
     <footer className="w-full bg-neutral fixed bottom-0 z-30">
       <div className="min-h-[60px] max-h-[60px]   bg-brand rounded-full text-white m-5  text-center relative flex items-center justify-between">
-        <img
-          className="h-full"
-          src={navButton}
-          alt="ícono de botón de navegación"
-        />
+        <ActionSelect>
+          <img
+            className="h-full cursor-pointer"
+            src={navButton}
+            alt="ícono de botón de navegación"
+          />
+        </ActionSelect>
         <MenuNavItem
           to="/"
           icon={home}

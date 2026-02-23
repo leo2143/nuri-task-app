@@ -35,7 +35,7 @@ export function TaskCard({
     >
       <div className="flex flex-col gap-1 flex-1 mr-4">
         <span
-          className={`font-body font-bold text-base ${completed ? "line-through text-tertiary/50" : "text-tertiary"}`}
+          className={`font-body font-bold text-base text-tertiary"}`}
         >
           {title}
         </span>
