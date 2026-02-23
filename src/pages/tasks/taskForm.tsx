@@ -18,11 +18,15 @@ import { goalService } from "../../services/goalService";
 export default function TaskForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { errorMessage, handleError, clearError } = useHttpError();
+  const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [task, setTask] = useState<ITodo | null>(null);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
+
+  // Estados para modales
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const isEditMode = !!id;
 
@@ -79,7 +83,8 @@ export default function TaskForm() {
           setGoalCatalogs(data);
         }
       } catch (err) {
-        handleError(err);
+        // No mostrar error si no hay metas, es una opción válida
+        console.error("Error fetching goal catalogs:", err);
       } finally {
         setLoading(false);
       }
@@ -118,6 +123,8 @@ export default function TaskForm() {
         }
       } catch (err) {
         handleError(err);
+        setModalMessage("Error al cargar la tarea");
+        setIsErrorModalOpen(true);
       } finally {
         setLoading(false);
       }
@@ -136,11 +143,20 @@ export default function TaskForm() {
     }
   };
 
+  // Handlers para modales
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    navigate("/tasks");
+  };
+
+  const handleErrorModalClose = () => {
+    setIsErrorModalOpen(false);
+  };
+
   // Manejador del submit
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
-    setSuccessMessage("");
 
     // Validación
     if (!title.trim()) {
@@ -161,10 +177,10 @@ export default function TaskForm() {
 
       if (isEditMode) {
         await todoservice.updateTodo(id!, taskData);
-        setSuccessMessage("¡Tarea actualizada exitosamente!");
+        setModalMessage("¡Tarea actualizada exitosamente!");
       } else {
         await todoservice.createTodo(taskData);
-        setSuccessMessage("¡Tarea creada exitosamente!");
+        setModalMessage("¡Tarea creada exitosamente!");
 
         setTitle("");
         setDescription("");
@@ -174,23 +190,18 @@ export default function TaskForm() {
       }
 
       markAsSaved();
-
-      setTimeout(() => {
-        navigate("/tasks");
-      }, 1500);
+      setIsSuccessModalOpen(true);
     } catch (err) {
       handleError(err);
+      setModalMessage("Error al procesar la solicitud. Por favor, intenta de nuevo.");
+      setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading && isEditMode && !task) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <Loading />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -200,18 +211,6 @@ export default function TaskForm() {
           {pageTitle}
         </h2>
       </div>
-
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="font-body text-green-600">{successMessage}</p>
-        </div>
-      )}
 
       <form
         onSubmit={handleSubmit}
@@ -309,6 +308,32 @@ export default function TaskForm() {
         confirmText="Salir"
         cancelText="Quedarse"
         variant="warning"
+        loading={false}
+      />
+
+      {/* Modal de éxito */}
+      <ConfirmModal
+        isOpen={isSuccessModalOpen}
+        onClose={handleSuccessModalClose}
+        onConfirm={handleSuccessModalClose}
+        title="¡Éxito!"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="success"
+        loading={false}
+      />
+
+      {/* Modal de error */}
+      <ConfirmModal
+        isOpen={isErrorModalOpen}
+        onClose={handleErrorModalClose}
+        onConfirm={handleErrorModalClose}
+        title="Error"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="danger"
         loading={false}
       />
     </section>

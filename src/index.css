@@ -98,6 +98,15 @@
   .text-body {
     font-family: theme("fontFamily.body");
   }
+
+  /* Patrón de fondo repetible para Home */
+  .home-trama-bg {
+    background-image: url("./assets/icons/trama-blue-black.svg");
+    background-repeat: repeat-x;
+    background-position: 0px 110px ;
+    background-size: auto 32px;
+  }
+
 }
 
 /* Soporte para prefers-reduced-motion (accesibilidad) */

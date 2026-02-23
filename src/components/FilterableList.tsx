@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { InputFilter } from "./ui";
+import { InputFilter, Spinner } from "./ui";
 import Loading from "./Loading";
 import StateMessage from "./StateMessage";
 import LoadMoreButton from "./LoadMoreButton";
@@ -69,7 +69,7 @@ export default function FilterableList<T extends { _id?: string }>({
             <div className="flex items-center gap-2">
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <Spinner size="sm" />
                   <p className="text-sm text-tertiary/70">Buscando...</p>
                 </>
               ) : (

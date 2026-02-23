@@ -36,3 +36,9 @@ export { default as check } from "./check.svg";
 export { default as translusentAdd } from "./translusent_add.svg";
 export { default as chevronDown } from "./chevron-down.svg";
 
+export { default as calendar } from "./calendar.svg";
+export { default as calendarBrand } from "./calendar-brand.svg";
+export { default as lapizWrite } from "./lapiz-write.svg";
+export { default as metricWhite } from "./metric-white.svg";
+
+

@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
-import { Select, Button, ConfirmModal } from "../../components/ui";
-import type { IGoalCatalog, IAddSubGoal } from "../../interfaces";
+import { Select, Button, ConfirmModal, GoalCard } from "../../components/ui";
+import type { IGoal, IGoalCatalog, IAddSubGoal } from "../../interfaces";
 import { useHttpError, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { arrowsUpDown } from "../../assets/svg-icons";
@@ -10,14 +10,19 @@ import { arrowsUpDown } from "../../assets/svg-icons";
 export default function GoalSubGoalForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { errorMessage, handleError, clearError } = useHttpError();
+  const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
+
+  // Estados para modales
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const pageTitle = "Asociar Metas";
 
   const [goalId, setGoalId] = useState("");
-  const [parentGoalTitle, setParentGoalTitle] = useState("");
+  const [parentGoal, setParentGoal] = useState<IGoal | null>(null);
 
   // Valores iniciales para detectar cambios
   const initialValues = useMemo(() => ({
@@ -41,33 +46,49 @@ export default function GoalSubGoalForm() {
   });
 
   useEffect(() => {
-    const fetchGoalCatalog = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         clearError();
-        const data = await goalService.getCatalogGoals();
 
-        // Obtengo el título antes de renderizar el select
-        if (id) {
-          const parentGoal = data.find((goal) => goal.id === id);
-          if (parentGoal) {
-            setParentGoalTitle(parentGoal.title);
-          }
+        const [parentGoalData, catalogData] = await Promise.all([
+          id ? goalService.getGoalById(id) : Promise.resolve(null),
+          goalService.getCatalogGoals(),
+        ]);
+
+        if (parentGoalData) {
+          setParentGoal(parentGoalData);
         }
-        const filteredData = id ? data.filter((goal) => goal.id !== id) : data;
 
+        const filteredData = id ? catalogData.filter((goal) => goal.id !== id) : catalogData;
         setGoalCatalogs(filteredData);
       } catch (err) {
-        handleError(err);
+        console.error("Error fetching data:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchGoalCatalog();
+    fetchData();
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handlers para modales
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    navigate(`/goals/${id}`);
+  };
+
+  const handleErrorModalClose = () => {
+    setIsErrorModalOpen(false);
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!goalId) {
+      setModalMessage("Debes seleccionar una meta para asociar");
+      setIsErrorModalOpen(true);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -80,12 +101,12 @@ export default function GoalSubGoalForm() {
       await goalService.addSubgoal(id!, body);
 
       markAsSaved();
-
-      setTimeout(() => {
-        navigate(`/goals/${id}`);
-      }, 1500);
+      setModalMessage("¡Metas asociadas exitosamente!");
+      setIsSuccessModalOpen(true);
     } catch (err) {
       handleError(err);
+      setModalMessage("Error al asociar las metas. Por favor, intenta de nuevo.");
+      setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
@@ -98,22 +119,19 @@ export default function GoalSubGoalForm() {
           {pageTitle}
         </h2>
 
-        <div>
-          <p className="mt-4">Meta</p>
-          <div className="mt-2 p-3 bg-primary/10 border border-primary/30 rounded-lg">
-            <p className="font-body text-sm text-tertiary">{parentGoalTitle}</p>
-          </div>
-        </div>
+        {parentGoal && (
+          <GoalCard
+            id={parentGoal._id}
+            title={parentGoal.title}
+            status={parentGoal.status}
+          />
+        )}
       </div>
 
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
-      )}
       <div className="flex justify-center py-5">
         <img src={arrowsUpDown} alt="flechas arriba abajo" />
       </div>
+
       <form onSubmit={handleSubmit} noValidate method="post">
         <div>
           <Select
@@ -149,6 +167,32 @@ export default function GoalSubGoalForm() {
         confirmText="Salir"
         cancelText="Quedarse"
         variant="warning"
+        loading={false}
+      />
+
+      {/* Modal de éxito */}
+      <ConfirmModal
+        isOpen={isSuccessModalOpen}
+        onClose={handleSuccessModalClose}
+        onConfirm={handleSuccessModalClose}
+        title="¡Éxito!"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="success"
+        loading={false}
+      />
+
+      {/* Modal de error */}
+      <ConfirmModal
+        isOpen={isErrorModalOpen}
+        onClose={handleErrorModalClose}
+        onConfirm={handleErrorModalClose}
+        title="Error"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="danger"
         loading={false}
       />
     </section>

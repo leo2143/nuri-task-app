@@ -1,6 +1,7 @@
 // Ilustraciones de Nuri - Mascota de la aplicación
 export { default as nuriCompleto } from "./nuri-completo.svg";
 export { default as nuriCorazon } from "./nuri-corazon.svg";
+export { default as nuriCorazonCortado } from "./nuri-corazon-cortado.svg";
 export { default as nuriConNenu } from "./nuri-con-nenu.svg";
 export { default as nuriSinNenu } from "./nuri-sin-nenu.svg";
 export { default as nuriTriste } from "./nuri-triste.svg";

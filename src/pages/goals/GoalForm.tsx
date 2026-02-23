@@ -1,73 +1,70 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
-import type { FormEvent, ChangeEvent } from "react";
-import { Button, Input, ConfirmModal } from "../../components/ui";
+import type { FormEvent } from "react";
+import {
+  Button,
+  Input,
+  Select,
+  TextArea,
+  ConfirmModal,
+} from "../../components/ui";
 import type {
   ICreateGoal,
   IGoal,
   GoalStatus,
   GoalPriority,
-  ISmartCriteria,
+  IUpdateGoal,
 } from "../../interfaces";
-import { useHttpError, useField, useUnsavedChanges } from "../../hooks";
+import { useHttpError, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
-import { validateField } from "../../utils/validations";
+import { validateField, validateMinLength } from "../../utils/validations";
+import Loading from "../../components/Loading";
 
 export default function GoalForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { errorMessage, handleError, clearError } = useHttpError();
+  const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [goal, setGoal] = useState<IGoal | null>(null);
   const isEditMode = !!id;
 
-  const pageTitle = isEditMode ? "Editar Meta" : "Crear Nueva Meta";
-  const pageDescription = isEditMode
-    ? "Modifica los campos que desees actualizar"
-    : "Completa los campos para agregar una nueva meta";
-  const submitButtonText = isEditMode ? "Guardar Cambios" : "Crear Meta";
-  const loadingButtonText = isEditMode ? "Guardando..." : "Creando...";
+  // Estados para modales
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
+  const pageTitle = isEditMode ? "Editar tu meta" : "Crea tu meta";
+
+  // Estados del formulario
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [reason, setReason] = useState("");
   const [status, setStatus] = useState<GoalStatus>("active");
   const [priority, setPriority] = useState<GoalPriority>("medium");
   const [dueDate, setDueDate] = useState("");
-
-  const smartSpecific = useField("text");
-  const smartMeasurable = useField("text");
-  const smartAchievable = useField("text");
-  const smartRelevant = useField("text");
-  const smartTimeBound = useField("text");
 
   // Valores iniciales para detectar cambios
   const [initialValues, setInitialValues] = useState({
     title: "",
     description: "",
+    reason: "",
     status: "active" as GoalStatus,
     priority: "medium" as GoalPriority,
     dueDate: "",
-    smartSpecific: "",
-    smartMeasurable: "",
-    smartAchievable: "",
-    smartRelevant: "",
-    smartTimeBound: "",
   });
 
   // Valores actuales del formulario
-  const currentValues = useMemo(() => ({
-    title,
-    description,
-    status,
-    priority,
-    dueDate,
-    smartSpecific: smartSpecific.value,
-    smartMeasurable: smartMeasurable.value,
-    smartAchievable: smartAchievable.value,
-    smartRelevant: smartRelevant.value,
-    smartTimeBound: smartTimeBound.value,
-  }), [title, description, status, priority, dueDate, smartSpecific.value, smartMeasurable.value, smartAchievable.value, smartRelevant.value, smartTimeBound.value]);
+  const currentValues = useMemo(
+    () => ({
+      title,
+      description,
+      reason,
+      status,
+      priority,
+      dueDate,
+    }),
+    [title, description, reason, status, priority, dueDate]
+  );
 
   // Hook para detectar cambios sin guardar
   const {
@@ -80,13 +77,23 @@ export default function GoalForm() {
     currentValues,
   });
 
+  // Estados de errores de campos
   const [titleError, setTitleError] = useState("");
-  const [smartSpecificError, setSmartSpecificError] = useState("");
-  const [smartMeasurableError, setSmartMeasurableError] = useState("");
-  const [smartAchievableError, setSmartAchievableError] = useState("");
-  const [smartRelevantError, setSmartRelevantError] = useState("");
-  const [smartTimeBoundError, setSmartTimeBoundError] = useState("");
-  const [smartError, setSmartError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [reasonError, setReasonError] = useState("");
+
+  // Opciones para los selects
+  const statusOptions = [
+    { id: "active", title: "Activa" },
+    { id: "paused", title: "Pausada" },
+    { id: "completed", title: "Completada" },
+  ];
+
+  const priorityOptions = [
+    { id: "low", title: "Baja" },
+    { id: "medium", title: "Media" },
+    { id: "high", title: "Alta" },
+  ];
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -101,6 +108,7 @@ export default function GoalForm() {
           setGoal(data);
           setTitle(data.title);
           setDescription(data.description || "");
+          setReason(data.reason || "");
           setStatus(data.status);
           setPriority(data.priority);
 
@@ -111,45 +119,19 @@ export default function GoalForm() {
             setDueDate(formattedDate);
           }
 
-          const specificValue = data.smart?.specific || "";
-          const measurableValue = data.smart?.measurable || "";
-          const achievableValue = data.smart?.achievable || "";
-          const relevantValue = data.smart?.relevant || "";
-          const timeBoundValue = data.smart?.timeBound || "";
-
-          if (data.smart) {
-            smartSpecific.onChange({
-              target: { value: specificValue },
-            } as ChangeEvent<HTMLInputElement>);
-            smartMeasurable.onChange({
-              target: { value: measurableValue },
-            } as ChangeEvent<HTMLInputElement>);
-            smartAchievable.onChange({
-              target: { value: achievableValue },
-            } as ChangeEvent<HTMLInputElement>);
-            smartRelevant.onChange({
-              target: { value: relevantValue },
-            } as ChangeEvent<HTMLInputElement>);
-            smartTimeBound.onChange({
-              target: { value: timeBoundValue },
-            } as ChangeEvent<HTMLInputElement>);
-          }
-
           setInitialValues({
             title: data.title,
             description: data.description || "",
+            reason: data.reason || "",
             status: data.status,
             priority: data.priority,
             dueDate: formattedDate,
-            smartSpecific: specificValue,
-            smartMeasurable: measurableValue,
-            smartAchievable: achievableValue,
-            smartRelevant: relevantValue,
-            smartTimeBound: timeBoundValue,
           });
         }
       } catch (err) {
         handleError(err);
+        setModalMessage("Error al cargar la meta");
+        setIsErrorModalOpen(true);
       } finally {
         setLoading(false);
       }
@@ -158,96 +140,78 @@ export default function GoalForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  // Validaciones
   const handleTitleBlur = () => {
+    const minError = validateMinLength(title, 3, "El título");
+    if (minError) {
+      setTitleError(minError);
+      return;
+    }
+    if (title.length > 50) {
+      setTitleError("El título no puede exceder 50 caracteres");
+      return;
+    }
     const error = validateField("El título", title);
     setTitleError(error || "");
   };
 
-  const handleSmartSpecificBlur = () => {
-    const error = validateField("Específico", smartSpecific.value);
-    setSmartSpecificError(error || "");
+  const handleDescriptionBlur = () => {
+    if (description.length > 100) {
+      setDescriptionError("La descripción no puede exceder 100 caracteres");
+      return;
+    }
+    setDescriptionError("");
   };
 
-  const handleSmartMeasurableBlur = () => {
-    const error = validateField("Medible", smartMeasurable.value);
-    setSmartMeasurableError(error || "");
+  const handleReasonBlur = () => {
+    if (reason.length > 50) {
+      setReasonError("Este campo no puede exceder 50 caracteres");
+      return;
+    }
+    setReasonError("");
   };
 
-  const handleSmartAchievableBlur = () => {
-    const error = validateField("Alcanzable", smartAchievable.value);
-    setSmartAchievableError(error || "");
+  // Handlers para modales
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    navigate("/goals");
   };
 
-  const handleSmartRelevantBlur = () => {
-    const error = validateField("Relevante", smartRelevant.value);
-    setSmartRelevantError(error || "");
-  };
-
-  const handleSmartTimeBoundBlur = () => {
-    const error = validateField("Con límite de tiempo", smartTimeBound.value);
-    setSmartTimeBoundError(error || "");
+  const handleErrorModalClose = () => {
+    setIsErrorModalOpen(false);
   };
 
   // Valida todos los campos del formulario
   const validateAllFields = (): boolean => {
-    // Limpiar errores anteriores
     setTitleError("");
-    setSmartSpecificError("");
-    setSmartMeasurableError("");
-    setSmartAchievableError("");
-    setSmartRelevantError("");
-    setSmartTimeBoundError("");
+    setDescriptionError("");
+    setReasonError("");
 
-    // Validar título
+    // Validar título (requerido, min 3, max 50)
+    const minError = validateMinLength(title, 3, "El título");
+    if (minError) {
+      setTitleError(minError);
+      return false;
+    }
+    if (title.length > 50) {
+      setTitleError("El título no puede exceder 50 caracteres");
+      return false;
+    }
     const titleValidation = validateField("El título", title);
     if (titleValidation) {
       setTitleError(titleValidation);
       return false;
     }
 
-    // Validar cada campo SMART individualmente
-    const smartSpecificValidation = validateField(
-      "Específico",
-      smartSpecific.value,
-    );
-    if (smartSpecificValidation) {
-      setSmartSpecificError(smartSpecificValidation);
+    // Validar descripción (max 100)
+    if (description.length > 100) {
+      setDescriptionError("La descripción no puede exceder 100 caracteres");
       return false;
     }
 
-    const smartMeasurableValidation = validateField(
-      "Medible",
-      smartMeasurable.value,
-    );
-    if (smartMeasurableValidation) {
-      setSmartMeasurableError(smartMeasurableValidation);
-      return false;
-    }
-
-    const smartAchievableValidation = validateField(
-      "Alcanzable",
-      smartAchievable.value,
-    );
-    if (smartAchievableValidation) {
-      setSmartAchievableError(smartAchievableValidation);
-      return false;
-    }
-
-    const smartRelevantValidation = validateField(
-      "Relevante",
-      smartRelevant.value,
-    );
-    if (smartRelevantValidation) {
-      setSmartRelevantError(smartRelevantValidation);
-      return false;
-    }
-
-    const smartTimeBoundValidation = validateField(
-      "Con límite de tiempo",
-      smartTimeBound.value,
-    );
-    if (smartTimeBoundValidation) {
-      setSmartTimeBoundError(smartTimeBoundValidation);
+    // Validar reason (max 50)
+    if (reason.length > 50) {
+      setReasonError("Este campo no puede exceder 50 caracteres");
       return false;
     }
 
@@ -257,10 +221,7 @@ export default function GoalForm() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     clearError();
-    setSuccessMessage("");
-    setSmartError("");
 
-    // Validar todos los campos
     if (!validateAllFields()) {
       return;
     }
@@ -268,71 +229,52 @@ export default function GoalForm() {
     try {
       setLoading(true);
 
-      const goalData: ICreateGoal = {
-        title: title.trim(),
-        description: description.trim(),
-        status,
-        priority,
-        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-      };
-
-      // Agregar SMART criteria al goalData
-      const smart: ISmartCriteria = {
-        specific: smartSpecific.value.trim(),
-        measurable: smartMeasurable.value.trim(),
-        achievable: smartAchievable.value.trim(),
-        relevant: smartRelevant.value.trim(),
-        timeBound: smartTimeBound.value.trim(),
-      };
-      goalData.smart = smart;
-
       if (isEditMode) {
-        await goalService.updateGoal(id!, goalData);
-        setSuccessMessage("¡Meta actualizada exitosamente!");
+        // En edición sí enviamos status
+        const updateData: IUpdateGoal = {
+          title: title.trim(),
+          description: description.trim() || undefined,
+          reason: reason.trim() || undefined,
+          status,
+          priority,
+          dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        };
+        await goalService.updateGoal(id!, updateData);
+        setModalMessage("¡Meta actualizada exitosamente!");
       } else {
-        await goalService.createGoal(goalData);
-        setSuccessMessage("¡Meta creada exitosamente!");
+        // En creación NO enviamos status (se establece automáticamente)
+        const createData: ICreateGoal = {
+          title: title.trim(),
+          description: description.trim() || undefined,
+          reason: reason.trim() || undefined,
+          priority,
+          dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        };
+        await goalService.createGoal(createData);
+        setModalMessage("¡Meta creada exitosamente!");
 
+        // Limpiar formulario
         setTitle("");
         setDescription("");
+        setReason("");
         setStatus("active");
         setPriority("medium");
         setDueDate("");
-        smartSpecific.onChange({
-          target: { value: "" },
-        } as ChangeEvent<HTMLInputElement>);
-        smartMeasurable.onChange({
-          target: { value: "" },
-        } as ChangeEvent<HTMLInputElement>);
-        smartAchievable.onChange({
-          target: { value: "" },
-        } as ChangeEvent<HTMLInputElement>);
-        smartRelevant.onChange({
-          target: { value: "" },
-        } as ChangeEvent<HTMLInputElement>);
-        smartTimeBound.onChange({
-          target: { value: "" },
-        } as ChangeEvent<HTMLInputElement>);
       }
 
       markAsSaved();
-
-      setTimeout(() => {
-        navigate("/goals");
-      }, 1500);
+      setIsSuccessModalOpen(true);
     } catch (err) {
       handleError(err);
+      setModalMessage("Error al procesar la solicitud. Por favor, intenta de nuevo.");
+      setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading && isEditMode && !goal) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-12">
-        <p className="font-body text-tertiary">Cargando meta...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -341,26 +283,7 @@ export default function GoalForm() {
         <h2 className="font-heading font-bold text-tertiary mb-2">
           {pageTitle}
         </h2>
-        <p className="font-body text-tertiary">{pageDescription}</p>
       </div>
-
-      {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="font-body text-green-600">{successMessage}</p>
-        </div>
-      )}
-
-      {smartError && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="font-body text-yellow-700">{smartError}</p>
-        </div>
-      )}
 
       <form
         onSubmit={handleSubmit}
@@ -368,183 +291,102 @@ export default function GoalForm() {
         method="post"
         noValidate
       >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <Input
-              type="text"
-              id="title"
-              name="title"
-              label="Título de la Meta"
-              placeholder="Ej: Aprender React"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={handleTitleBlur}
-              required
-              disabled={loading}
-              error={titleError}
-            />
-          </div>
+        {/* Título */}
+        <Input
+          type="text"
+          id="title"
+          name="title"
+          label="¿Qué querés lograr?"
+          placeholder="Hacer un portfolio"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          onBlur={handleTitleBlur}
+          required
+          disabled={loading}
+          error={titleError}
+          withDivider
+        />
 
-          <div className="md:col-span-2">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-tertiary mb-2"
-            >
-              Descripción
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Describe tu meta en detalle..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={loading}
-            />
-          </div>
+        {/* Descripción */}
+        <TextArea
+          id="description"
+          name="description"
+          label="Contame un poco más"
+          placeholder="Quiero avanzar en mi carrera profesional"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onBlur={handleDescriptionBlur}
+          disabled={loading}
+          error={descriptionError}
+          rows={3}
+          withDivider
+        />
 
-          <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-tertiary mb-2"
-            >
-              Estado
-            </label>
-            <select
+        {/* Reason - ¿Por qué es importante? */}
+        <Input
+          type="text"
+          id="reason"
+          name="reason"
+          label="¿Por qué es importante?"
+          placeholder="Quiero avanzar en mi carrera profesional"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          onBlur={handleReasonBlur}
+          disabled={loading}
+          error={reasonError}
+          withDivider
+        />
+
+        {/* Estado y Prioridad en grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Estado - Solo visible en modo edición */}
+          {isEditMode && (
+            <Select
               id="status"
               name="status"
+              label="Estado"
               value={status}
               onChange={(e) => setStatus(e.target.value as GoalStatus)}
-              disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="active">Activa</option>
-              <option value="paused">Pausada</option>
-              <option value="completed">Completada</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="priority"
-              className="block text-sm font-medium text-tertiary mb-2"
-            >
-              Prioridad
-            </label>
-            <select
-              id="priority"
-              name="priority"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as GoalPriority)}
-              disabled={loading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <option value="low">Baja</option>
-              <option value="medium">Media</option>
-              <option value="high">Alta</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
-            <Input
-              type="date"
-              id="dueDate"
-              name="dueDate"
-              label="Fecha límite"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              options={statusOptions}
               disabled={loading}
             />
-          </div>
+          )}
 
-          <div className="md:col-span-2 mt-6">
-            <h3 className="text-lg font-heading font-semibold text-tertiary mb-2">
-              Criterios SMART
-            </h3>
-            <p className="text-sm text-tertiary opacity-75 mb-4">
-              Si decides completar los criterios SMART, debes llenar todos los
-              campos
-            </p>
-
-            <div className="space-y-4">
-              <Input
-                {...smartSpecific}
-                id="smart-specific"
-                name="smart-specific"
-                label="Específico"
-                placeholder="¿Qué quiero lograr exactamente?"
-                disabled={loading}
-                onBlur={handleSmartSpecificBlur}
-                error={smartSpecificError}
-              />
-
-              <Input
-                {...smartMeasurable}
-                id="smart-measurable"
-                name="smart-measurable"
-                label="Medible"
-                placeholder="¿Cómo voy a medir mi progreso?"
-                disabled={loading}
-                onBlur={handleSmartMeasurableBlur}
-                error={smartMeasurableError}
-              />
-
-              <Input
-                {...smartAchievable}
-                id="smart-achievable"
-                name="smart-achievable"
-                label="Alcanzable"
-                placeholder="¿Es realista con mis recursos?"
-                disabled={loading}
-                onBlur={handleSmartAchievableBlur}
-                error={smartAchievableError}
-              />
-
-              <Input
-                {...smartRelevant}
-                id="smart-relevant"
-                name="smart-relevant"
-                label="Relevante"
-                placeholder="¿Por qué es importante esta meta?"
-                disabled={loading}
-                onBlur={handleSmartRelevantBlur}
-                error={smartRelevantError}
-              />
-
-              <Input
-                {...smartTimeBound}
-                id="smart-timebound"
-                name="smart-timebound"
-                label="Con límite de tiempo"
-                placeholder="¿Cuándo quiero lograrlo?"
-                disabled={loading}
-                onBlur={handleSmartTimeBoundBlur}
-                error={smartTimeBoundError}
-              />
-            </div>
-          </div>
+          {/* Prioridad */}
+          <Select
+            id="priority"
+            name="priority"
+            label="Prioridad"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as GoalPriority)}
+            options={priorityOptions}
+            disabled={loading}
+            className={!isEditMode ? "col-span-2" : ""}
+          />
         </div>
 
-        <div className="flex gap-4 pt-4">
+        {/* Fecha límite */}
+        <Input
+          type="date"
+          id="dueDate"
+          name="dueDate"
+          label="¿Para cuándo te gustaría lograrlo?"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          disabled={loading}
+          withDivider
+        />
+
+        {/* Botón de envío */}
+        <div className="pt-6">
           <Button
             type="submit"
             variant="primary"
             size="lg"
             disabled={loading}
-            className="flex-1"
+            className="w-full"
           >
-            {loading ? loadingButtonText : submitButtonText}
-          </Button>
-
-          <Button
-            type="button"
-            variant="secondary"
-            size="lg"
-            disabled={loading}
-            onClick={() => navigate("/goals")}
-          >
-            Cancelar
+            {loading ? "Guardando..." : "Guardar"}
           </Button>
         </div>
       </form>
@@ -559,6 +401,32 @@ export default function GoalForm() {
         confirmText="Salir"
         cancelText="Quedarse"
         variant="warning"
+        loading={false}
+      />
+
+      {/* Modal de éxito */}
+      <ConfirmModal
+        isOpen={isSuccessModalOpen}
+        onClose={handleSuccessModalClose}
+        onConfirm={handleSuccessModalClose}
+        title="¡Éxito!"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="success"
+        loading={false}
+      />
+
+      {/* Modal de error */}
+      <ConfirmModal
+        isOpen={isErrorModalOpen}
+        onClose={handleErrorModalClose}
+        onConfirm={handleErrorModalClose}
+        title="Error"
+        message={modalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="danger"
         loading={false}
       />
     </section>

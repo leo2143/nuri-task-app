@@ -71,17 +71,19 @@ export default function Input({
   // Estilos del input - Modo Dark
   const darkModeStyles = `
   w-full px-4 py-3 rounded-lg border-2 border-white/20
-  ${value ? "bg-white/10 border-primary/60" : "bg-white/5"}
+  ${value ? "bg-white/10 border-[#3C6973]" : "bg-white/5"}
   focus:bg-white/15
   focus:outline-none
   focus:border-transparent
   disabled:bg-white/5 disabled:cursor-not-allowed disabled:opacity-60
   font-body text-white
   placeholder:text-white/50
-  [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgba(255,255,255,0.1)]
+  [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_rgb(0,56,68)]
   [&:-webkit-autofill]:[-webkit-text-fill-color:rgb(255,255,255)]
-  [&:-webkit-autofill:focus]:shadow-[inset_0_0_0_1000px_rgba(255,255,255,0.15)]
-  [&:-webkit-autofill:active]:shadow-[inset_0_0_0_1000px_rgba(255,255,255,0.15)]
+  [&:-webkit-autofill]:border-[#3C6973]
+  [&:-webkit-autofill:focus]:shadow-[inset_0_0_0_1000px_rgb(0,70,85)]
+  [&:-webkit-autofill:focus]:border-[#3C6973]
+  [&:-webkit-autofill:active]:shadow-[inset_0_0_0_1000px_rgb(0,70,85)]
 `;
 
   // Estilos responsive: Dark en mobile, Light en desktop
@@ -113,9 +115,9 @@ export default function Input({
         ? "!border-red-400 !bg-red-500/20 focus:!border-transparent focus:ring-2 focus:ring-red-400/30"
         : "!border-red-500 !bg-red-50 focus:!border-transparent focus:ring-2 focus:ring-red-500/20"
     : responsiveDarkMode
-      ? "focus:ring-2 focus:ring-white/30 md:focus:ring-primary/50"
+      ? "focus:ring-2 focus:ring-[#3C6973] md:focus:ring-primary/50"
       : darkMode
-        ? "focus:ring-2 focus:ring-white/30"
+        ? "focus:ring-2 focus:ring-[#3C6973]"
         : "focus:ring-2 focus:ring-primary/50";
 
   // Combinar estilos
