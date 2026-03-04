@@ -3,3 +3,4 @@
  */
 
 export * from "./typeGuards";
+export * from "./formatRelativeTime";

@@ -5,12 +5,30 @@ import { GoalCard, TaskCard, ButtonLink, Spinner } from "../components/ui";
 import TabGroup from "../components/ui/TabGroup";
 import { goalService } from "../services/goalService";
 import { todoservice } from "../services/todoService";
-import { useAuth } from "../hooks";
+import { useAuth, useNotifications } from "../hooks";
 import type { IGoal, ITodo } from "../interfaces";
 
 export default function Home() {
   const { user } = useAuth();
+  const { isSupported, permission, isSubscribed, subscribe } = useNotifications();
+  const [pushBannerDismissed, setPushBannerDismissed] = useState(
+    () => sessionStorage.getItem("nuri_push_banner_dismissed") === "true",
+  );
   const [activeTab, setActiveTab] = useState("goals");
+
+  const showPushBanner =
+    isSupported && !isSubscribed && permission !== "denied" && !pushBannerDismissed;
+
+  const handleDismissPushBanner = () => {
+    setPushBannerDismissed(true);
+    sessionStorage.setItem("nuri_push_banner_dismissed", "true");
+  };
+
+  const handleEnablePush = async () => {
+    await subscribe();
+    setPushBannerDismissed(true);
+    sessionStorage.setItem("nuri_push_banner_dismissed", "true");
+  };
 
   // Estado para metas
   const [goals, setGoals] = useState<IGoal[]>([]);
@@ -101,6 +119,34 @@ export default function Home() {
           aria-hidden="true"
         />
       </div>
+
+      {showPushBanner && (
+        <div className="flex items-start gap-3 rounded-xl border border-brand/30 bg-brand/10 p-4">
+          <span className="mt-0.5 text-xl" aria-hidden="true">🔔</span>
+          <div className="flex-1">
+            <p className="font-body text-sm font-semibold text-tertiary">
+              ¡Activá las notificaciones!
+            </p>
+            <p className="font-body text-xs text-gray-700 mt-0.5">
+              Recibí alertas cuando completes tareas, metas y desbloquees logros.
+            </p>
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={handleEnablePush}
+                className="rounded-lg bg-primary px-4 py-1.5 font-body text-xs font-semibold text-white transition-colors hover:bg-primary-dark"
+              >
+                Activar
+              </button>
+              <button
+                onClick={handleDismissPushBanner}
+                className="rounded-lg px-4 py-1.5 font-body text-xs text-gray-500 transition-colors hover:text-gray-700"
+              >
+                Ahora no
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-5">
         <TabGroup

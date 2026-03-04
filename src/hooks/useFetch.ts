@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useHttpError, isNotFoundError } from "./useHttpError";
+import { useHttpError } from "./useHttpError";
 import type { ISuccessResponse } from "../interfaces";
 
 // Hook para traer un recurso por ID
@@ -100,12 +100,8 @@ export function useFetchList<T, F = void>({
       const result = await fetchFn(filters);
       setResponse(result);
     } catch (err) {
-      if (isNotFoundError(err)) {
-        setResponse(null);
-      } else {
-        handleError(err);
-        setResponse(null);
-      }
+      handleError(err);
+      setResponse(null);
     } finally {
       setLoading(false);
     }

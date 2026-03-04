@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
       includeAssets: [
         "favicon/favicon.ico",
@@ -16,7 +19,8 @@ export default defineConfig({
       manifest: {
         name: "Nuri Task App - Gestión de Tareas",
         short_name: "Nuri Task",
-        description: "Gestiona tus tareas de manera eficiente con Nuri Task App",
+        description:
+          "Gestiona tus tareas de manera eficiente con Nuri Task App",
         theme_color: "#2F9685",
         background_color: "#F7F6F2",
         display: "standalone",
@@ -41,32 +45,8 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\/api\/.*/i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "api-cache",
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24,
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "cloudinary-images",
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
-              },
-            },
-          },
-        ],
       },
     }),
   ],

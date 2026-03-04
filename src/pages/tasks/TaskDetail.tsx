@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ButtonLink, Badge, Button } from "../../components/ui";
 import { todoservice } from "../../services/todoService";
-import { useFetchById, useFormatDate } from "../../hooks";
+import { useFetchByIdOffline, useFormatDate } from "../../hooks";
 import type { ITodo } from "../../interfaces";
 import Loading from "../../components/Loading";
 
@@ -12,8 +12,9 @@ export default function TaskDetail() {
     data: task,
     loading,
     errorMessage,
-  } = useFetchById<ITodo>({
+  } = useFetchByIdOffline<ITodo>({
     fetchFn: todoservice.getTodoById,
+    cacheKey: "task",
   });
 
   const createdDate = useFormatDate(task?.createdAt);

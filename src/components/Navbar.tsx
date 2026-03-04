@@ -24,11 +24,13 @@ import {
 import MenuNavItem from "./MenuNavItem";
 import BackButton from "./BackButton";
 import { metricsService } from "../services/metricsService";
+import { notificationApiService } from "../services/notificationApiService";
 
 export default function Navbar() {
   const { logout, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentStreak, setCurrentStreak] = useState<number>(0);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -64,6 +66,19 @@ export default function Navbar() {
   }, [location.pathname]);
 
   useEffect(() => {
+    const loadUnread = () => {
+      notificationApiService
+        .getUnreadCount()
+        .then(setUnreadCount)
+        .catch(() => {});
+    };
+
+    loadUnread();
+    const interval = setInterval(loadUnread, 60_000);
+    return () => clearInterval(interval);
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -91,10 +106,13 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <Link to="/notifications">
-                    <div className="p-4">
-                      <img src={notification} alt="ícono de notificaciones" />
-                    </div>
+                  <Link to="/notifications" className="relative p-4">
+                    <img src={notification} alt="ícono de notificaciones" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-2 right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
                   </Link>
                   <button className="p-4" onClick={handleHamburger}>
                     <img src={hamburger} alt="ícono de menú" />

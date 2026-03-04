@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { IAuthUser } from "../interfaces";
+import { offlineStorage } from "../utils/offlineStorage";
 
 export interface AuthContextType {
   user: IAuthUser | null;
@@ -54,11 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    // Limpiar localStorage
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
+    offlineStorage.clear();
 
-    // Limpiar estado
     setUser(null);
     setIsAuthenticated(false);
   };
