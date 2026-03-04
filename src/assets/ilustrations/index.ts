@@ -15,4 +15,5 @@ export { default as nuriError } from "./nuri-error.svg";
 export { default as nuriWarning } from "./nuri-warning.svg";
 export { default as nuriFireCut } from "./nuri-fire-cut.svg";
 export { default as nuriAlegreCut } from "./nuri-alegre-cut.svg";
+export { default as nuriLentes } from "./nuri-lentes.svg";
 

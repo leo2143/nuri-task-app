@@ -55,8 +55,14 @@ apiClient.interceptors.response.use(
       console.error("Acceso denegado");
     }
 
-    //todo: Generar las vistas de error
     if (error.response?.status === 404) {
+      const isGet = error.config?.method === "get";
+      const isApiResponse =
+        (error.response?.data as Record<string, unknown>)?.success !== undefined;
+
+      if (isGet && isApiResponse) {
+        return error.response;
+      }
       console.error("Recurso no encontrado");
     }
 

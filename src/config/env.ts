@@ -11,3 +11,8 @@ export const API_BASE_URL =
 export const API_TIMEOUT = parseInt(
   import.meta.env.VITE_API_TIMEOUT || "10000",
 );
+
+// Clave pública VAPID para Web Push
+export const VAPID_PUBLIC_KEY: string =
+  import.meta.env.VITE_VAPID_PUBLIC_KEY ||
+  "BK2rwGaLxZj1I734DpT7Ocd9x7mjAy1S-oah86DPfn6Rhb45s2fYaEaq3pKn-iBdyb29KHpnhwq8O8u_-jBw4a4";

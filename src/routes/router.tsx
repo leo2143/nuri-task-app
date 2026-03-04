@@ -11,6 +11,7 @@ import AdminRoute from "./AdminRoute";
 
 // Loading component para Suspense fallback
 import Loading from "../components/Loading";
+import LazyErrorBoundary from "../components/LazyErrorBoundary";
 
 // Páginas públicas - lazy loading
 const Login = lazy(() => import("../pages/user/Login"));
@@ -31,6 +32,7 @@ const AchievementList = lazy(() => import("../pages/achievements/Achievements"))
 const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const Moodboard = lazy(() => import("../pages/moodboards/Moodboard"));
 const Metrics = lazy(() => import("../pages/metrics/Metrics"));
+const Notifications = lazy(() => import("../pages/notifications/Notifications"));
 
 // Páginas admin - lazy loading
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
@@ -45,11 +47,13 @@ const AdminAchievementDetail = lazy(() => import("../pages/admin/achievement/Adm
 const NotFound = lazy(() => import("../pages/status/NotFound"));
 const Forbidden = lazy(() => import("../pages/status/Forbidden"));
 
-// Helper para envolver componentes en Suspense
+// Helper para envolver componentes en Suspense + Error Boundary
 const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>) => (
-  <Suspense fallback={<Loading />}>
-    <Component />
-  </Suspense>
+  <LazyErrorBoundary>
+    <Suspense fallback={<Loading />}>
+      <Component />
+    </Suspense>
+  </LazyErrorBoundary>
 );
 
 export const router = createBrowserRouter([
@@ -145,6 +149,10 @@ export const router = createBrowserRouter([
           {
             path: "metrics",
             element: withSuspense(Metrics),
+          },
+          {
+            path: "notifications",
+            element: withSuspense(Notifications),
           },
         ],
       },

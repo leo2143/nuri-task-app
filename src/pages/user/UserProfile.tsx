@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, ButtonLink, InfoCard } from "../../components/ui";
 import { ImageUploadSlot } from "../../components/ImageUploadSlot";
-import { useAuth, useFetchData, useFormatDate, useCloudinaryUpload } from "../../hooks";
+import { useAuth, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
 import { userService } from "../../services/userService";
 import type { IUserProfile } from "../../interfaces";
 import Loading from "../../components/Loading";
@@ -11,6 +11,7 @@ export default function UserProfile() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { upload, isUploading } = useCloudinaryUpload();
+  const { isSupported, permission, isSubscribed, isLoading: pushLoading, subscribe, unsubscribe } = useNotifications();
   const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: user, loading, refetch } = useFetchData<IUserProfile>({
@@ -116,6 +117,38 @@ export default function UserProfile() {
               <ButtonLink to="/" variant="primary">
                 Suscribirme ahora
               </ButtonLink>
+            </article>
+          )}
+
+          {isSupported && (
+            <article className="w-full bg-white rounded-xl p-5 shadow border border-neutral">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-heading font-semibold text-tertiary text-sm">
+                    Notificaciones push
+                  </h3>
+                  <p className="font-body text-xs text-gray-500 mt-1">
+                    {permission === "denied"
+                      ? "Bloqueadas en el navegador. Habilitá las notificaciones desde la configuración del sitio."
+                      : isSubscribed
+                        ? "Recibirás alertas al completar tareas, metas y logros."
+                        : "Activá para recibir alertas de tareas y logros."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  disabled={pushLoading || permission === "denied"}
+                  onClick={isSubscribed ? unsubscribe : subscribe}
+                  className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${isSubscribed ? "bg-primary" : "bg-gray-300"}`}
+                  role="switch"
+                  aria-checked={isSubscribed}
+                  aria-label="Activar notificaciones push"
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isSubscribed ? "translate-x-5" : "translate-x-0"}`}
+                  />
+                </button>
+              </div>
             </article>
           )}
 

@@ -1,13 +1,14 @@
 import Loading from "../../components/Loading";
 import StateMessage from "../../components/StateMessage";
-import { useFetchList } from "../../hooks";
+import { useFetchListOffline } from "../../hooks";
 import type { IUserAchievement } from "../../interfaces";
 import { userAchievementService } from "../../services/userAchievementService";
 
 export default function AchievementList() {
   const { response, loading, errorMessage, isEmpty } =
-    useFetchList<IUserAchievement>({
+    useFetchListOffline<IUserAchievement>({
       fetchFn: userAchievementService.getAllAchievements,
+      cacheKey: "achievements",
     });
 
   const achievements = response?.data || [];

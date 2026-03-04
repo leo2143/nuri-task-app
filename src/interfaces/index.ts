@@ -19,5 +19,8 @@ export * from "./IAchievement";
 // UserAchievement
 export * from "./IUserAchievement";
 
+// Notification
+export * from "./INotification";
+
 // API Responses
 export * from "./IApiResponse";

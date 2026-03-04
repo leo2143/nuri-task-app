@@ -10,7 +10,7 @@ import {
   TabGroup,
 } from "../../components/ui";
 import type { IGoal, ITodo } from "../../interfaces";
-import { useFetchById, useFormatDate } from "../../hooks";
+import { useFetchByIdOffline, useFormatDate } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { todoservice } from "../../services/todoService"; // Solo para updateTodoState
 import Loading from "../../components/Loading";
@@ -38,8 +38,9 @@ export default function GoalDetail() {
     data: fetchedGoal,
     loading,
     errorMessage,
-  } = useFetchById<IGoal>({
+  } = useFetchByIdOffline<IGoal>({
     fetchFn: goalService.getGoalById,
+    cacheKey: "goal",
   });
 
   // Sincronizar localGoal cuando se obtienen los datos

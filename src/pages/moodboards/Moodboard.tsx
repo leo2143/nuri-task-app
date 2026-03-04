@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { VisualBoard } from '../../components/VisualBoard';
 import type { IMoodboardImage } from '../../interfaces';
 import { moodboardService } from '../../services/moodboardService';
+import { offlineStorage } from '../../utils/offlineStorage';
 import StateMessage from '../../components/StateMessage';
 import { ConfirmModal, Spinner } from '../../components/ui';
 
@@ -22,10 +23,16 @@ export default function Moodboard() {
       const moodboard = await moodboardService.getMoodboard();
       if (moodboard) {
         setImages(moodboard.images || []);
+        offlineStorage.save('moodboard', moodboard.images || []);
       }
     } catch (err) {
-      console.error('Error loading moodboard:', err);
-      setLoadError(true);
+      const cached = offlineStorage.load<IMoodboardImage[]>('moodboard');
+      if (cached) {
+        setImages(cached);
+      } else {
+        console.error('Error loading moodboard:', err);
+        setLoadError(true);
+      }
     } finally {
       if (showLoading) setIsLoading(false);
     }

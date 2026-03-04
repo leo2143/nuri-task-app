@@ -1,7 +1,7 @@
 import { nuriAlegreCut, nuriFireCut } from "../../assets/ilustrations/index";
 import { metricGreen, checkBlue, metricBlue } from "../../assets/svg-icons/index";
 import { MetricCard, StreakCard, ProgressBar } from "../../components/ui";
-import { useFetchData } from "../../hooks";
+import { useFetchDataOffline } from "../../hooks";
 import type { IUserMetrics } from "../../interfaces";
 import { metricsService } from "../../services/metricsService";
 import Loading from "../../components/Loading";
@@ -12,8 +12,9 @@ export default function Metrics() {
     data: stats,
     loading,
     errorMessage,
-  } = useFetchData<IUserMetrics>({
+  } = useFetchDataOffline<IUserMetrics>({
     fetchFn: metricsService.getUserMetrics,
+    cacheKey: "metrics",
   });
 
   if (loading) {
