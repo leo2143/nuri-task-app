@@ -1,23 +1,23 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import type { IAuthUser } from "../interfaces";
 import { offlineStorage } from "../utils/offlineStorage";
+import { subscriptionService } from "../services/subscriptionService";
 
 export interface AuthContextType {
   user: IAuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isPremium: boolean;
 
   login: (user: IAuthUser, token: string) => void;
   logout: () => void;
   updateUser: (user: IAuthUser) => void;
+  refreshSubscription: () => Promise<void>;
 }
-
-//Todo: Roles de usuarios para cuenta gratuita, cuenta con sucripcion y admin
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Exportar el contexto para que pueda ser usado por el hook
 export { AuthContext };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -25,7 +25,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Inicializar desde localStorage al montar
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const userStr = localStorage.getItem("user");
@@ -45,11 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = (userData: IAuthUser, token: string) => {
-    // Guardar en localStorage
     localStorage.setItem("authToken", token);
     localStorage.setItem("user", JSON.stringify(userData));
 
-    // Actualizar estado
     setUser(userData);
     setIsAuthenticated(true);
   };
@@ -64,16 +61,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUser = (userData: IAuthUser) => {
-    // Actualizar localStorage
     localStorage.setItem("user", JSON.stringify(userData));
-
-    // Actualizar estado
     setUser(userData);
   };
 
+  const refreshSubscription = useCallback(async () => {
+    if (!user) return;
+    try {
+      const data = await subscriptionService.getStatus();
+      const updated: IAuthUser = {
+        ...user,
+        subscription: { isActive: data.subscription.isActive },
+      };
+      localStorage.setItem("user", JSON.stringify(updated));
+      setUser(updated);
+    } catch (error) {
+      console.error("Error al refrescar suscripción:", error);
+    }
+  }, [user]);
+
+  const isPremium = !!user?.isAdmin || !!user?.subscription?.isActive;
+
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, isLoading, login, logout, updateUser }}
+      value={{
+        user,
+        isAuthenticated,
+        isLoading,
+        isPremium,
+        login,
+        logout,
+        updateUser,
+        refreshSubscription,
+      }}
     >
       {children}
     </AuthContext.Provider>

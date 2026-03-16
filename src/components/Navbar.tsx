@@ -20,6 +20,8 @@ import {
   iconLogoutBrown,
   profile,
   profileBrown,
+  heartBlue,
+  heart,
 } from "../assets/svg-icons";
 import MenuNavItem from "./MenuNavItem";
 import BackButton from "./BackButton";
@@ -27,7 +29,7 @@ import { metricsService } from "../services/metricsService";
 import { notificationApiService } from "../services/notificationApiService";
 
 export default function Navbar() {
-  const { logout, user } = useAuth();
+  const { logout, user, isPremium } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentStreak, setCurrentStreak] = useState<number>(0);
   const [unreadCount, setUnreadCount] = useState<number>(0);
@@ -189,6 +191,14 @@ export default function Navbar() {
                     icon={metricBrown}
                     iconHover={metrics}
                     label="Métricas"
+                    badge={isPremium ? undefined : "PRO"}
+                  />
+                  <MenuNavItem
+                    to="/moodboard"
+                    icon={heart}
+                    iconHover={heartBlue}
+                    label="Moodboard"
+                    badge={isPremium ? undefined : "PRO"}
                   />
                   <MenuNavItem
                     to="/achievements"
@@ -196,6 +206,15 @@ export default function Navbar() {
                     iconHover={medal}
                     label="Logros"
                   />
+                  {!isPremium && (
+                    <MenuNavItem
+                      to="/subscription"
+                      icon={starBrown}
+                      iconHover={star}
+                      label="Suscripcion"
+                      badge="PRO"
+                    />
+                  )}
                   {user?.isAdmin && (
                     <MenuNavItem
                       to="/admin"
