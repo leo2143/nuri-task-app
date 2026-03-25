@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks";
 import { ButtonLink } from "../../components/ui";
 import Loading from "../../components/Loading";
-import { nuriCorazon, nuriLentes } from "../../assets/ilustrations";
+import { nuriLentes } from "../../assets/ilustrations";
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 3000;

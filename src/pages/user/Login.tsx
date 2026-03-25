@@ -8,7 +8,6 @@ import { useField, useHttpError, useAuth } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
 import GoogleIcon from "../../assets/icons/google.svg";
-import TramaBlue from "../../assets/icons/trama-blue.svg";
 import { nuriConNenu } from "../../assets/ilustrations/index";
 
 export default function Login() {
