@@ -101,6 +101,9 @@ export interface IAuthUser {
   name: string;
   email: string;
   isAdmin: boolean;
+  subscription?: {
+    isActive: boolean;
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }

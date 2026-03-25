@@ -8,7 +8,6 @@ import { useField, useHttpError, useAuth } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
 import GoogleIcon from "../../assets/icons/google.svg";
-import TramaBlue from "../../assets/icons/trama-blue.svg";
 import { nuriConNenu } from "../../assets/ilustrations/index";
 
 export default function Login() {
@@ -83,14 +82,7 @@ export default function Login() {
     <section className="min-h-screen flex flex-col bg-background">
       {loading && <Loading />}
 
-      <div className="relative flex items-center justify-center pt-40 overflow-x-hidden overflow-x-visible">
-        <img
-          src={TramaBlue}
-          alt=""
-          aria-hidden="true"
-          className="absolute left-0 top-1/2 -translate-y-1/2 max-w-none  z-10"
-        />
-
+      <div className= "login-trama-bg relative flex items-center justify-center pt-40 overflow-x-hidden overflow-x-visible">
         <img
           src={nuriConNenu}
           alt="Nuri mascota"

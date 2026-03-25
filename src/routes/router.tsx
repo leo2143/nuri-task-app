@@ -8,6 +8,7 @@ import AdminLayout from "../components/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import AdminRoute from "./AdminRoute";
+import PremiumGate from "../components/PremiumGate";
 
 // Loading component para Suspense fallback
 import Loading from "../components/Loading";
@@ -33,6 +34,9 @@ const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const Moodboard = lazy(() => import("../pages/moodboards/Moodboard"));
 const Metrics = lazy(() => import("../pages/metrics/Metrics"));
 const Notifications = lazy(() => import("../pages/notifications/Notifications"));
+const Subscription = lazy(() => import("../pages/subscription/Subscription"));
+const SubscriptionSuccess = lazy(() => import("../pages/subscription/SubscriptionSuccess"));
+const SubscriptionCallback = lazy(() => import("../pages/subscription/SubscriptionCallback"));
 
 // Páginas admin - lazy loading
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
@@ -52,6 +56,16 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
   <LazyErrorBoundary>
     <Suspense fallback={<Loading />}>
       <Component />
+    </Suspense>
+  </LazyErrorBoundary>
+);
+
+const withPremium = (Component: React.LazyExoticComponent<React.ComponentType>, featureName: string) => (
+  <LazyErrorBoundary>
+    <Suspense fallback={<Loading />}>
+      <PremiumGate featureName={featureName}>
+        <Component />
+      </PremiumGate>
     </Suspense>
   </LazyErrorBoundary>
 );
@@ -144,15 +158,27 @@ export const router = createBrowserRouter([
           },
           {
             path: "moodboard",
-            element: withSuspense(Moodboard),
+            element: withPremium(Moodboard, "Moodboard"),
           },
           {
             path: "metrics",
-            element: withSuspense(Metrics),
+            element: withPremium(Metrics, "Metricas"),
           },
           {
             path: "notifications",
             element: withSuspense(Notifications),
+          },
+          {
+            path: "subscription",
+            element: withSuspense(Subscription),
+          },
+          {
+            path: "subscription/success",
+            element: withSuspense(SubscriptionSuccess),
+          },
+          {
+            path: "subscription/callback",
+            element: withSuspense(SubscriptionCallback),
           },
         ],
       },

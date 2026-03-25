@@ -107,6 +107,14 @@
     background-size: auto 32px;
   }
 
+    /* Patrón de fondo repetible para Home */
+    .login-trama-bg {
+      background-image: url("./assets/icons/trama-blue-black.svg");
+      background-repeat: repeat-x;
+      background-position: -200px 20px ;
+      background-size: auto 120px;
+    }
+
 }
 
 /* Soporte para prefers-reduced-motion (accesibilidad) */

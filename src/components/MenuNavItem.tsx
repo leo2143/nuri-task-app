@@ -9,6 +9,7 @@ interface MenuNavItemProps {
   label?: string;
   whitHover?: boolean;
   whitelabel?: boolean;
+  badge?: string;
 }
 
 export default function MenuNavItem({
@@ -19,6 +20,7 @@ export default function MenuNavItem({
   label,
   whitHover = true,
   whitelabel = true,
+  badge,
 }: MenuNavItemProps) {
   const hoverStyle = whitHover
     ? " hover:bg-brand hover:text-neutral transition-colors duration-200"
@@ -40,6 +42,11 @@ export default function MenuNavItem({
           className={`hidden group-hover:block transition-all ${iconClass}`}
         />
         <span className={labelStyle}>{label}</span>
+        {badge && (
+          <span className="ml-auto text-[10px] font-bold font-heading bg-primary text-white rounded-full px-2 py-0.5">
+            {badge}
+          </span>
+        )}
       </div>
     </Link>
   );

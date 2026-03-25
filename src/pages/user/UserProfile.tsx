@@ -4,26 +4,40 @@ import { Button, ButtonLink, InfoCard } from "../../components/ui";
 import { ImageUploadSlot } from "../../components/ImageUploadSlot";
 import { useAuth, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
 import { userService } from "../../services/userService";
+import { subscriptionService } from "../../services/subscriptionService";
 import type { IUserProfile } from "../../interfaces";
 import Loading from "../../components/Loading";
 
 export default function UserProfile() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, refreshSubscription } = useAuth();
   const { upload, isUploading } = useCloudinaryUpload();
   const { isSupported, permission, isSubscribed, isLoading: pushLoading, subscribe, unsubscribe } = useNotifications();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const { data: user, loading, refetch } = useFetchData<IUserProfile>({
     fetchFn: userService.getProfile,
   });
 
   const subscriptionStartDate = useFormatDate(user?.subscription?.startDate);
-  const subscriptionEndDate = useFormatDate(user?.subscription?.endDate);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const handleCancelSubscription = async () => {
+    try {
+      setIsCancelling(true);
+      await subscriptionService.cancel();
+      await refreshSubscription();
+      await refetch();
+    } catch (error) {
+      console.error("Error al cancelar suscripcion:", error);
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   const handleImageUpload = async (file: File) => {
@@ -89,22 +103,33 @@ export default function UserProfile() {
           />
 
           {hasActiveSubscription ? (
-            <InfoCard
-              items={[
-                {
-                  label: "Estado de suscripción",
-                  value: "Activa",
-                },
-                {
-                  label: "Fecha de inicio",
-                  value: subscriptionStartDate.formatted || "—",
-                },
-                {
-                  label: "Fecha de vencimiento",
-                  value: subscriptionEndDate.formatted || "—",
-                },
-              ]}
-            />
+            <>
+              <InfoCard
+                items={[
+                  {
+                    label: "Estado de suscripción",
+                    value: "Activa",
+                  },
+                  {
+                    label: "Fecha de inicio",
+                    value: subscriptionStartDate.formatted || "—",
+                  },
+                  {
+                    label: "Renovación",
+                    value: "Automática mensual",
+                  },
+                ]}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                fullWidth
+                onClick={handleCancelSubscription}
+                disabled={isCancelling}
+              >
+                {isCancelling ? "Cancelando..." : "Cancelar suscripción"}
+              </Button>
+            </>
           ) : (
             <article className="w-full bg-gradient-to-r from-brand/20 to-primary/20 rounded-xl p-6 text-center">
               <h3 className="text-lg font-heading font-semibold text-tertiary mb-2">
@@ -114,7 +139,7 @@ export default function UserProfile() {
                 Suscríbete para acceder a funciones premium y llevar tu
                 productividad al siguiente nivel.
               </p>
-              <ButtonLink to="/" variant="primary">
+              <ButtonLink to="/subscription" variant="primary">
                 Suscribirme ahora
               </ButtonLink>
             </article>
