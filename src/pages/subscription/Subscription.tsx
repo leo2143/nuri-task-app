@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks";
 import { subscriptionService } from "../../services/subscriptionService";
 import { nuriAlegre } from "../../assets/ilustrations";
@@ -20,19 +19,19 @@ const PREMIUM_FEATURES = [
 ];
 
 export default function Subscription() {
-  const { isPremium, refreshSubscription } = useAuth();
-  const navigate = useNavigate();
+  const { isPremium } = useAuth();
   const [isActivating, setIsActivating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleActivate = async () => {
     try {
       setIsActivating(true);
-      await subscriptionService.activate();
-      await refreshSubscription();
-      navigate("/subscription/success");
-    } catch (error) {
-      console.error("Error al activar suscripcion:", error);
-    } finally {
+      setError(null);
+      const { init_point } = await subscriptionService.activate();
+      window.location.href = init_point;
+    } catch (err) {
+      console.error("Error al iniciar suscripcion:", err);
+      setError("No se pudo iniciar el proceso de pago. Intentá de nuevo.");
       setIsActivating(false);
     }
   };
@@ -109,7 +108,7 @@ export default function Subscription() {
               Ya sos premium
             </p>
           ) : (
-            <div className="mt-5">
+            <div className="mt-5 flex flex-col gap-2">
               <Button
                 type="button"
                 variant="primary"
@@ -117,8 +116,13 @@ export default function Subscription() {
                 onClick={handleActivate}
                 disabled={isActivating}
               >
-                {isActivating ? "Activando..." : "Suscribirme ahora"}
+                {isActivating ? "Redirigiendo a MercadoPago..." : "Suscribirme ahora"}
               </Button>
+              {error && (
+                <p className="text-red-500 text-xs text-center font-body">
+                  {error}
+                </p>
+              )}
             </div>
           )}
         </article>

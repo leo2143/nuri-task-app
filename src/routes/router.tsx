@@ -36,6 +36,7 @@ const Metrics = lazy(() => import("../pages/metrics/Metrics"));
 const Notifications = lazy(() => import("../pages/notifications/Notifications"));
 const Subscription = lazy(() => import("../pages/subscription/Subscription"));
 const SubscriptionSuccess = lazy(() => import("../pages/subscription/SubscriptionSuccess"));
+const SubscriptionCallback = lazy(() => import("../pages/subscription/SubscriptionCallback"));
 
 // Páginas admin - lazy loading
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
@@ -174,6 +175,10 @@ export const router = createBrowserRouter([
           {
             path: "subscription/success",
             element: withSuspense(SubscriptionSuccess),
+          },
+          {
+            path: "subscription/callback",
+            element: withSuspense(SubscriptionCallback),
           },
         ],
       },

@@ -21,7 +21,6 @@ export default function UserProfile() {
   });
 
   const subscriptionStartDate = useFormatDate(user?.subscription?.startDate);
-  const subscriptionEndDate = useFormatDate(user?.subscription?.endDate);
 
   const handleLogout = () => {
     logout();
@@ -116,8 +115,8 @@ export default function UserProfile() {
                     value: subscriptionStartDate.formatted || "—",
                   },
                   {
-                    label: "Fecha de vencimiento",
-                    value: subscriptionEndDate.formatted || "—",
+                    label: "Renovación",
+                    value: "Automática mensual",
                   },
                 ]}
               />

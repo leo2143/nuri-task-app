@@ -10,9 +10,13 @@ interface ISubscriptionData {
   };
 }
 
+interface IActivateResponse {
+  init_point: string;
+}
+
 export const subscriptionService = {
-  activate: async (): Promise<ISubscriptionData> => {
-    const response = await apiClient.post<ISuccessResponse<ISubscriptionData>>(
+  activate: async (): Promise<IActivateResponse> => {
+    const response = await apiClient.post<ISuccessResponse<IActivateResponse>>(
       `${API_BASE_URL}/api/subscription/activate`
     );
     return response.data.data!;
