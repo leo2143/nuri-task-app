@@ -69,7 +69,11 @@ export default function Login() {
 
       login(authResponse.user, authResponse.token);
 
-      navigate("/");
+      if (!authResponse.user.onboardingCompleted) {
+        navigate("/onboarding", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
     } catch (error: unknown) {
       console.error("Error en login:", error);
       handleError(error);
