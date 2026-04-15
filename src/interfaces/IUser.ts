@@ -104,6 +104,7 @@ export interface IAuthUser {
   subscription?: {
     isActive: boolean;
   };
+  onboardingCompleted?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

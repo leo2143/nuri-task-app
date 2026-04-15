@@ -163,6 +163,20 @@ export const userService = {
   },
 
   /**
+   * Marca el onboarding como completado
+   * PUT /api/user/onboarding-complete
+   * @requires validarToken
+   */
+  completeOnboarding: async (): Promise<void> => {
+    try {
+      await apiClient.put(`${API_BASE_URL}/api/user/onboarding-complete`);
+    } catch (error) {
+      console.error("Error completing onboarding:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Actualizar imagen de perfil del usuario autenticado
    * PUT /api/user/profile-image
    * @requires validarToken

@@ -47,6 +47,9 @@ const AdminAchievement = lazy(() => import("../pages/admin/achievement/AdminAchi
 const AdminAchievementForm = lazy(() => import("../pages/admin/achievement/AdminAchievementForm"));
 const AdminAchievementDetail = lazy(() => import("../pages/admin/achievement/AdminAchievementDetail"));
 
+// Onboarding - lazy loading
+const Onboarding = lazy(() => import("../pages/onboarding/Onboarding"));
+
 // Páginas de status - lazy loading
 const NotFound = lazy(() => import("../pages/status/NotFound"));
 const Forbidden = lazy(() => import("../pages/status/Forbidden"));
@@ -96,6 +99,10 @@ export const router = createBrowserRouter([
             element: withSuspense(ResetPassword),
           },
         ],
+      },
+      {
+        path: "/onboarding",
+        element: withSuspense(Onboarding),
       },
     ],
   },
