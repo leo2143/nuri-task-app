@@ -67,27 +67,27 @@ function StepIndicator({ total, current }: { total: number; current: number }) {
 
 function Step1() {
   return (
-    <div className="relative flex flex-col items-center h-full bg-secondary gap-10 overflow-hidden">
-      <div className="onboarding-trama-bg w-full h-32 overflow-x-visible" />
+    <div className="h-full bg-secondary overflow-y-auto">
+      <div className="onboarding-trama-bg w-full h-28 overflow-x-visible" />
 
-      <div className="text-center">
-        <h1 className="text-[40px] leading-tight font-heading font-bold text-neutral">
+      <div className="text-center mt-4">
+        <h1 className="text-[clamp(2rem,8vw,2.5rem)] leading-tight font-heading font-bold text-neutral">
           Bienvenido
         </h1>
-        <h1 className="text-[48px] leading-tight font-heading font-bold text-neutral">
+        <h1 className="text-[clamp(2.5rem,10vw,3rem)] leading-tight font-heading font-bold text-neutral">
           a Nuri Task
         </h1>
       </div>
 
-      <div className="flex items-center justify-center">
+      <div className="flex justify-center pt-4 pr-5">
         <img
           src={nuriCompleto}
           alt="Nuri mascota dándote la bienvenida"
-          className="w-52 h"
+          className="w-52 "
         />
       </div>
 
-      <p className="text-center font-body font-bold text-base text-white px-8">
+      <p className="text-center font-body font-bold text-base text-white px-8 pt-4 pb-2">
         Organizá tus metas, avanzá a tu ritmo y dejá que Nuri te acompañe en
         el camino.
       </p>
@@ -97,23 +97,22 @@ function Step1() {
 
 function Step2() {
   return (
-    <div className="relative flex flex-col items-center min-h-screen bg-neutral overflow-visible">
-      <div className="flex justify-center mb-10">
+    <div className="h-full bg-neutral overflow-y-auto">
+      <div className="flex justify-center">
         <img
           src={plantDecoration}
           alt=""
-          className=""
           aria-hidden="true"
         />
       </div>
 
-      <div className="flex flex-col gap-4 px-5 flex-1 w-full">
+      <div className="flex flex-col gap-5 px-5 pb-4 pt-10">
         {FEATURES.map((feature) => (
           <div
             key={feature.title}
-            className={`${feature.bg} rounded-lg shadow-[0px_4px_5px_0px_rgba(0,0,0,0.25)] overflow-hidden flex items-center h-[138px]`}
+            className={`${feature.bg} rounded-lg shadow-[0px_4px_5px_0px_rgba(0,0,0,0.25)] overflow-hidden flex items-center shrink-0 min-h-[120px]`}
           >
-            <div className="w-[130px] shrink-0 flex items-center justify-center self-stretch">
+            <div className="w-[120px] shrink-0 flex items-center justify-center self-stretch">
               <img
                 src={feature.image}
                 alt={feature.title}
@@ -141,17 +140,18 @@ function Step2() {
 
 function Step3() {
   return (
-    <div className="relative flex flex-col items-center min-h-screen bg-neutral overflow-hidden">
-      <div className="onboarding-trama-bg w-full pt-36 overflow-x-visible" />
-      <div className="relative flex-1 flex flex-col items-center justify-center w-full">
+    <div className="flex flex-col items-center h-full bg-neutral overflow-hidden">
+      <div className="onboarding-trama-bg w-full shrink-0 h-[20%] overflow-x-visible" />
+
+      <div className="relative flex-1 flex flex-col items-center justify-center w-full min-h-0 px-6">
         <img
           src={nenuDeco}
           alt=""
-          className="absolute top-16 right-0"
+          className="absolute top-1 right-0"
           aria-hidden="true"
         />
 
-        <div className="text-center mb-6 px-6">
+        <div className="text-center mb-4">
           <h2 className="text-2xl font-heading font-bold text-tertiary mb-4">
             Ya conocés lo esencial
           </h2>
@@ -163,16 +163,16 @@ function Step3() {
         <img
           src={flowerIcon}
           alt=""
-          className="absolute bottom-14 left-0  "
+          className="absolute bottom-4 left-0"
           aria-hidden="true"
         />
       </div>
 
-      <div className="w-full flex justify-center -mt-8">
+      <div className="w-full flex justify-center shrink-0 max-h-[40%]">
         <img
           src={nuriHappy}
           alt="Nuri feliz celebrando"
-          className="relative bottom-20 w-72 h-auto"
+          className="max-h-full w-auto object-contain"
         />
       </div>
     </div>
@@ -211,18 +211,18 @@ export default function Onboarding() {
   };
 
   return (
-    <section className="relative h-screen flex flex-col overflow-hidden">
+    <section className="relative flex flex-col overflow-hidden h-[100dvh]">
       <div className="flex-1 overflow-hidden min-h-0">
         <CurrentStep />
       </div>
 
       <div
-        className={`sticky bottom-0 px-5 pb-8 pt-4 ${
+        className={`shrink-0 px-5 pb-safe-bottom pt-3 ${
           step === 0 ? "bg-secondary" : "bg-neutral"
         }`}
       >
         <StepIndicator total={STEPS.length} current={step} />
-        <div className="mt-4">
+        <div className="mt-3 pb-4">
           <Button
             variant="primary"
             size="md"
