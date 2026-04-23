@@ -20,3 +20,4 @@ export { default as TabGroup } from "./TabGroup";
 export { GoalCard } from "./GoalCard";
 export { TaskCard } from "./TaskCard";
 export { default as Spinner } from "./Spinner";
+export { default as AchievementCard } from "./AchievementCard";

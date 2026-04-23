@@ -34,6 +34,12 @@ dist-ssr
 .cursor/
 .cursor/**/*
 *.cursor-tutor
+*.cursor-*
+.cursorrules
+.cursorignore
 .aidigestignore
+
+# Documentación interna (no va al repo)
+docs/
 
 .vercel
