@@ -14,6 +14,7 @@ const TYPE_ICONS: Record<NotificationType, IconEntry> = {
   streak_risk: { emoji: "🔥" },
   inactivity: { emoji: "👋" },
   streak_increase: { svg: nuriFireCut, alt: "Racha aumentada" },
+  achievement_completed: { emoji: "🏆" },
 };
 
 function NotificationIcon({ type }: { type: NotificationType }) {

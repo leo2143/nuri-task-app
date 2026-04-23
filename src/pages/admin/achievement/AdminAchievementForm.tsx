@@ -9,6 +9,8 @@ import type {
   IUpdateAchievement,
   IAchievement,
   AchievementType,
+  AchievementTier,
+  AchievementTriggerEvent,
 } from "../../../interfaces";
 import { useHttpError, useCloudinaryUpload, useUnsavedChanges } from "../../../hooks";
 import { achievementService } from "../../../services/achievementService";
@@ -43,6 +45,8 @@ export default function AdminAchievementForm() {
   const [description, setDescription] = useState("");
   const [targetCount, setTargetCount] = useState("");
   const [type, setType] = useState<AchievementType>("task");
+  const [triggerEvent, setTriggerEvent] = useState<AchievementTriggerEvent>("task:completed");
+  const [tier, setTier] = useState<AchievementTier>("basic");
   const [isActive, setIsActive] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
 
@@ -52,6 +56,8 @@ export default function AdminAchievementForm() {
     description: "",
     targetCount: "",
     type: "task" as AchievementType,
+    triggerEvent: "task:completed" as AchievementTriggerEvent,
+    tier: "basic" as AchievementTier,
     isActive: true,
     imageUrl: "",
   });
@@ -62,9 +68,11 @@ export default function AdminAchievementForm() {
     description,
     targetCount,
     type,
+    triggerEvent,
+    tier,
     isActive,
     imageUrl,
-  }), [title, description, targetCount, type, isActive, imageUrl]);
+  }), [title, description, targetCount, type, triggerEvent, tier, isActive, imageUrl]);
 
   // URL de imagen pendiente (nueva imagen que no existía originalmente)
   const pendingImageUrl = imageUrl && imageUrl !== initialValues.imageUrl
@@ -104,6 +112,8 @@ export default function AdminAchievementForm() {
           setDescription(data.description);
           setTargetCount(data.targetCount.toString());
           setType(data.type);
+          setTriggerEvent(data.triggerEvent);
+          setTier(data.tier);
           setIsActive(data.isActive);
           setImageUrl(data.imageUrl);
 
@@ -112,6 +122,8 @@ export default function AdminAchievementForm() {
             description: data.description,
             targetCount: data.targetCount.toString(),
             type: data.type,
+            triggerEvent: data.triggerEvent,
+            tier: data.tier,
             isActive: data.isActive,
             imageUrl: data.imageUrl,
           });
@@ -198,6 +210,8 @@ export default function AdminAchievementForm() {
           description: description.trim(),
           targetCount: parseInt(targetCount, 10),
           type,
+          triggerEvent,
+          tier,
           isActive,
           imageUrl: imageUrl.trim(),
         };
@@ -212,6 +226,8 @@ export default function AdminAchievementForm() {
           description: description.trim(),
           targetCount: parseInt(targetCount, 10),
           type,
+          triggerEvent,
+          tier,
           isActive,
           imageUrl: imageUrl.trim(),
         };
@@ -225,6 +241,8 @@ export default function AdminAchievementForm() {
         setDescription("");
         setTargetCount("");
         setType("task");
+        setTriggerEvent("task:completed");
+        setTier("basic");
         setIsActive(true);
         setImageUrl("");
       }
@@ -370,6 +388,54 @@ export default function AdminAchievementForm() {
             <option value="goal">Meta</option>
             <option value="metric">Métrica</option>
             <option value="streak">Racha</option>
+          </select>
+        </div>
+
+        {/* Trigger Event */}
+        <div className="space-y-2">
+          <label
+            htmlFor="triggerEvent"
+            className="block text-sm font-medium text-tertiary"
+          >
+            Evento que activa el progreso *
+          </label>
+          <select
+            id="triggerEvent"
+            name="triggerEvent"
+            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+            value={triggerEvent}
+            onChange={(e) => setTriggerEvent(e.target.value as AchievementTriggerEvent)}
+            disabled={loading}
+            required
+          >
+            <option value="task:completed">Tarea completada</option>
+            <option value="goal:completed">Meta completada</option>
+            <option value="streak:updated">Racha actualizada</option>
+          </select>
+          <p className="text-xs text-gray-500">
+            Define qué acción del usuario incrementa el contador de este logro
+          </p>
+        </div>
+
+        {/* Tier */}
+        <div className="space-y-2">
+          <label
+            htmlFor="tier"
+            className="block text-sm font-medium text-tertiary"
+          >
+            Nivel de acceso *
+          </label>
+          <select
+            id="tier"
+            name="tier"
+            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+            value={tier}
+            onChange={(e) => setTier(e.target.value as AchievementTier)}
+            disabled={loading}
+            required
+          >
+            <option value="basic">Basic — visible para todos</option>
+            <option value="premium">Premium — solo suscriptores</option>
           </select>
         </div>
 

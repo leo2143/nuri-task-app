@@ -3,20 +3,25 @@
  * Representa plantillas de logros que aplican a todos los usuarios
  */
 
-/**
- * Tipos de logros disponibles
- */
 export type AchievementType = "task" | "goal" | "metric" | "streak";
 
-/**
- * Interface para el modelo de Achievement (Plantilla Global)
- */
+/** Evento que dispara el progreso automático del logro */
+export type AchievementTriggerEvent =
+  | "task:completed"
+  | "goal:completed"
+  | "streak:updated";
+
+/** basic: visible y desbloqueable por todos — premium: solo suscriptores */
+export type AchievementTier = "basic" | "premium";
+
 export interface IAchievement {
   _id?: string;
   title: string;
   description: string;
   targetCount: number;
   type: AchievementType;
+  triggerEvent: AchievementTriggerEvent;
+  tier: AchievementTier;
   isActive: boolean;
   imageUrl: string;
   createdAt?: Date;
@@ -46,6 +51,8 @@ export interface ICreateAchievement {
   description: string;
   targetCount: number;
   type: AchievementType;
+  triggerEvent: AchievementTriggerEvent;
+  tier?: AchievementTier;
   isActive?: boolean;
   imageUrl: string;
 }
@@ -58,6 +65,8 @@ export interface IUpdateAchievement {
   description?: string;
   targetCount?: number;
   type?: AchievementType;
+  triggerEvent?: AchievementTriggerEvent;
+  tier?: AchievementTier;
   isActive?: boolean;
   imageUrl?: string;
 }

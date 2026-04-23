@@ -17,8 +17,11 @@ export interface IUserProgress {
   completedAt: Date;
 }
 /**
- * Interface para el progreso individual de un logro de usuario
+ * Interface para el progreso individual de un logro de usuario.
+ * isAccessible indica si el usuario puede desbloquearlo:
+ * false cuando el logro es premium y el usuario no tiene suscripción activa.
  */
 export interface IUserAchievement extends IAchievement {
   userProgress: IUserProgress;
+  isAccessible: boolean;
 }

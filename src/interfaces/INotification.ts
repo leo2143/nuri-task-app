@@ -1,4 +1,4 @@
-export type NotificationType = "due_task" | "streak_risk" | "inactivity" | "streak_increase";
+export type NotificationType = "due_task" | "streak_risk" | "inactivity" | "streak_increase" | "achievement_completed";
 
 export interface INotification {
   _id: string;
