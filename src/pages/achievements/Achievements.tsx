@@ -12,7 +12,12 @@ export default function AchievementList() {
       cacheKey: "achievements",
     });
 
-  const achievements = response?.data || [];
+  const sortedAchievements = [...(response?.data || [])].sort(
+    (currentAchievement, nextAchievement) => {
+      if (currentAchievement.isAccessible === nextAchievement.isAccessible) return 0;
+      return currentAchievement.isAccessible ? -1 : 1;
+    },
+  );
 
   if (loading) {
     return <Loading />;
@@ -28,7 +33,7 @@ export default function AchievementList() {
         <StateMessage itemName="los logros" variant="error" />
       ) : !isEmpty ? (
         <div className="grid grid-cols-2 gap-4">
-          {achievements.map((achievement) => (
+          {sortedAchievements.map((achievement) => (
             <AchievementCard key={achievement._id} achievement={achievement} />
           ))}
         </div>
