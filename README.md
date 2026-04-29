@@ -215,9 +215,80 @@ src/
 ### Mejoras de UX/UI
 
 - [ ] **Mejoras en el diseño** - Refinamiento visual y animaciones
-- [ ] **Filtros avanzados** - Búsqueda y filtrado mejorado
+- [x] **Filtros avanzados** - Bottom sheet de filtros reutilizable con chips, fechas y toggles
 - [ ] **Notificaciones** - Sistema de notificaciones en tiempo real
 - [ ] **Tema oscuro** - Soporte para dark mode
+
+## 🔍 Sistema de Filtros Avanzados
+
+### Descripcion General
+
+Se implemento un sistema de filtros reutilizable que permite a los usuarios refinar las listas de datos (tareas, metas, usuarios, logros) mediante un **bottom sheet** que se despliega desde la parte inferior de la pantalla al tocar el boton de filtro en la barra de busqueda.
+
+Los filtros funcionan **en conjunto con la busqueda por texto**: si el usuario tiene filtros activos y escribe en la barra de busqueda, ambos criterios se combinan en una sola peticion al backend.
+
+### Arquitectura y Decisiones de Diseno
+
+#### Componentes creados
+
+| Componente | Ubicacion | Responsabilidad |
+|---|---|---|
+| `BottomSheet` | `components/ui/BottomSheet.tsx` | Componente generico de panel deslizable desde abajo. Reutilizable para cualquier contenido (no solo filtros). Incluye overlay oscuro, animacion CSS, cierre con Escape, bloqueo de scroll del body. |
+| `FilterBottomSheet` | `components/ui/FilterBottomSheet.tsx` | Componente especializado que renderiza filtros dentro de un `BottomSheet`. Soporta tres tipos de filtro: chips (seleccion unica), date (selector de fecha) y toggle (booleano). Maneja un estado interno temporal (draft) que solo se aplica al tocar "Aplicar". |
+
+#### Componentes modificados
+
+| Componente | Cambios | Razon |
+|---|---|---|
+| `InputFilter` | Se agrego `onFilterPress` y `activeFilterCount` como props. El boton de filtro ahora ejecuta el callback y muestra un badge con la cantidad de filtros activos. | Para conectar el boton existente (que no tenia funcionalidad) con el nuevo bottom sheet, y dar feedback visual al usuario sobre filtros aplicados. |
+| `FilterableList` | Se agregaron props `filterConfig`, `activeFilters` y `onFiltersChange`. Maneja internamente el estado de apertura del bottom sheet. | Para centralizar la logica de filtros en el componente de lista reutilizable, evitando duplicar codigo en cada vista. |
+| `useFilterableList` | Se agrego estado `activeFilters` y `setActiveFilters`. La firma de `buildFilters` ahora recibe un tercer parametro `activeFilters`. Los filtros activos se incluyen como dependencia del fetch para refetch automatico. | Para que los filtros del bottom sheet se integren con el mismo flujo de datos que ya manejaba la busqueda por texto y la paginacion. |
+
+#### Interfaces creadas
+
+- **`FilterConfig`** (`interfaces/IFilter.ts`): Union type que define la configuracion de cada filtro. Puede ser `ChipFilterConfig` (opciones seleccionables), `DateFilterConfig` (selector de fecha) o `ToggleFilterConfig` (booleano on/off).
+- **`FilterValues`** (`interfaces/IFilter.ts`): `Record<string, string | boolean | undefined>` que representa los valores de filtros activos.
+
+#### Por que un bottom sheet y no un dropdown o sidebar
+
+Se eligio un bottom sheet porque:
+1. La app es **mobile-first** y el bottom sheet es el patron nativo mas natural en moviles.
+2. Permite mostrar multiples secciones de filtros con scroll sin ocupar espacio permanente en la interfaz.
+3. Es consistente con el patron de interaccion de la imagen de referencia proporcionada.
+
+#### Por que filtros configurables por vista
+
+Cada vista define su propio array de `FilterConfig[]` porque:
+1. Los filtros varian por entidad (tareas tienen prioridad, metas tienen estado, usuarios tienen rol admin, etc.).
+2. El backend ya soporta diferentes query params por endpoint.
+3. Mantiene la flexibilidad: agregar o quitar filtros en una vista solo requiere modificar el array de configuracion, sin tocar los componentes compartidos.
+
+#### Por que estado draft en el bottom sheet
+
+El `FilterBottomSheet` mantiene un estado temporal (`draft`) que se sincroniza con los filtros activos al abrir y solo se aplica al tocar "Aplicar". Esto evita peticiones intermedias al backend mientras el usuario esta seleccionando filtros. La sincronizacion del draft se realiza mediante un `useEffect` que detecta el cambio de `isOpen` a `true`, en lugar de hacerlo durante el render, para evitar warnings de React por llamar `setState` durante la fase de render de otro componente.
+
+#### Manejo de estado vacio y mensajes de resultados
+
+Cuando se aplican filtros (con o sin texto de busqueda) y no se encuentran resultados, la interfaz muestra:
+1. Un mensaje contextual que indica la cantidad de resultados junto con los criterios aplicados (ej: "Mostrando 0 resultados para 'texto' con 2 filtros").
+2. El componente `StateMessage` con variante `notFoundList` para comunicar visualmente que no hay datos.
+
+Esto se logra limpiando los datos acumulados (`accumulatedData`) en `useFilterableList` cuando la respuesta de la API es vacia o falla, en lugar de mantener los datos de la consulta anterior. De esta forma, `isEmpty` se evalua correctamente como `true` y el estado vacio se renderiza. Previamente, los datos viejos persistian despues de un cambio de filtros sin resultados, causando que la lista siguiera mostrando datos obsoletos en vez del mensaje de "no encontrado".
+
+### Filtros implementados por vista
+
+| Vista | Filtros disponibles | Query params enviados al backend |
+|---|---|---|
+| **Tareas** (`TaskList`) | Prioridad (baja/media/alta), Fecha desde, Fecha hasta | `priority`, `dueDateFrom`, `dueDateTo` |
+| **Metas** (`GoalList`) | Estado (activa/pausada/completada), Prioridad (baja/media/alta), Fecha desde, Fecha hasta | `status`, `priority`, `dueDateFrom`, `dueDateTo` |
+| **Admin Usuarios** (`AdminUser`) | Administrador (toggle), Suscrito (toggle), Creado desde, Creado hasta | `isAdmin`, `isSubscribed`, `createdFrom`, `createdTo` |
+| **Admin Logros** (`AdminAchievement`) | Tipo (tarea/meta/metrica/racha), Activo (toggle) | `type`, `isActive` |
+
+### Interfaces de filtros actualizadas
+
+Se agregaron campos `dueDateFrom` y `dueDateTo` a `ITodoFilters` e `IGoalFilters` para alinear las interfaces del frontend con los query params que el backend ya soportaba pero no se estaban utilizando. Los servicios `todoService` y `goalService` tambien fueron actualizados para enviar estos parametros.
+
+---
 
 ## 🔌 API Endpoints
 

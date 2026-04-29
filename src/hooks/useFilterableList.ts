@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { ISuccessResponse } from "../interfaces";
+import type { ISuccessResponse, FilterValues } from "../interfaces";
 import { useFetchList } from "./useFetch";
 
 export interface PaginationOptions {
@@ -9,7 +9,11 @@ export interface PaginationOptions {
 
 export interface UseFilterableListOptions<T, F> {
   fetchFn: (filters?: F) => Promise<ISuccessResponse<T[]>>;
-  buildFilters: (searchTerm: string, pagination?: { limit: number; cursor?: string }) => F | undefined;
+  buildFilters: (
+    searchTerm: string,
+    pagination?: { limit: number; cursor?: string },
+    activeFilters?: FilterValues
+  ) => F | undefined;
   debounceMs?: number;
   pagination?: PaginationOptions;
 }
@@ -22,6 +26,8 @@ export interface UseFilterableListResult<T> {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   isFirstLoad: boolean;
+  activeFilters: FilterValues;
+  setActiveFilters: (values: FilterValues) => void;
   // Pagination
   loadMore: () => Promise<void>;
   loadingMore: boolean;
@@ -37,6 +43,7 @@ export function useFilterableList<T, F>({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [activeFilters, setActiveFilters] = useState<FilterValues>({});
 
   // Pagination state
   const [accumulatedData, setAccumulatedData] = useState<T[]>([]);
@@ -45,6 +52,8 @@ export function useFilterableList<T, F>({
   const [hasMore, setHasMore] = useState(false);
 
   const isLoadingMoreRef = useRef(false);
+  const activeFiltersRef = useRef(activeFilters);
+  activeFiltersRef.current = activeFilters;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -55,30 +64,32 @@ export function useFilterableList<T, F>({
   }, [searchTerm, debounceMs]);
 
   const filters = pagination?.enabled
-    ? buildFilters(debouncedSearch, { limit: pagination.limit })
-    : buildFilters(debouncedSearch);
+    ? buildFilters(debouncedSearch, { limit: pagination.limit }, activeFilters)
+    : buildFilters(debouncedSearch, undefined, activeFilters);
 
   const { response, loading, errorMessage } = useFetchList<T, F>({
     fetchFn,
     filters,
-    dependencies: [debouncedSearch],
+    dependencies: [debouncedSearch, activeFilters],
   });
 
   // Sincroniza datos cuando llega la respuesta (carga inicial o cambio de búsqueda)
   useEffect(() => {
-    // Si estamos en medio de "cargar más", NO tocar los datos
     if (isLoadingMoreRef.current) return;
 
     if (response?.data) {
       setAccumulatedData(response.data);
 
-      // Actualizar estado de paginación
       if (pagination?.enabled) {
         setNextCursor(response.meta?.nextCursor || null);
         setHasMore(response.meta?.hasMore || false);
       }
+    } else if (!loading) {
+      setAccumulatedData([]);
+      setNextCursor(null);
+      setHasMore(false);
     }
-  }, [response, pagination?.enabled]);
+  }, [response, pagination?.enabled, loading]);
 
   useEffect(() => {
     if (!loading && isFirstLoad) {
@@ -94,10 +105,11 @@ export function useFilterableList<T, F>({
       isLoadingMoreRef.current = true;
       setLoadingMore(true);
 
-      const moreFilters = buildFilters(debouncedSearch, {
-        limit: pagination.limit,
-        cursor: nextCursor,
-      });
+      const moreFilters = buildFilters(
+        debouncedSearch,
+        { limit: pagination.limit, cursor: nextCursor },
+        activeFiltersRef.current
+      );
       const newResponse = await fetchFn(moreFilters);
 
       if (newResponse?.data) {
@@ -126,6 +138,8 @@ export function useFilterableList<T, F>({
     searchTerm,
     setSearchTerm,
     isFirstLoad,
+    activeFilters,
+    setActiveFilters,
     loadMore,
     loadingMore,
     hasMore,

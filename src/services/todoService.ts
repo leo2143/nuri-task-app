@@ -47,6 +47,8 @@ export const todoservice = {
       if (filters?.completed !== undefined)
         params.append("completed", String(filters.completed));
       if (filters?.priority) params.append("priority", filters.priority);
+      if (filters?.dueDateFrom) params.append("dueDateFrom", filters.dueDateFrom);
+      if (filters?.dueDateTo) params.append("dueDateTo", filters.dueDateTo);
       if (filters?.sortBy) params.append("sortBy", filters.sortBy);
       if (filters?.sortOrder) params.append("sortOrder", filters.sortOrder);
       if (filters?.limit) params.append("limit", String(filters.limit));

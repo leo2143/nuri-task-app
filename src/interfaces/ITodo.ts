@@ -79,6 +79,8 @@ export interface ITodoFilters {
   search?: string;
   completed?: boolean;
   priority?: TodoPriority;
+  dueDateFrom?: string;
+  dueDateTo?: string;
   sortBy?: "createdAt" | "dueDate" | "priority";
   sortOrder?: "asc" | "desc";
   limit?: number;

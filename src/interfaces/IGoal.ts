@@ -104,6 +104,8 @@ export interface IGoalFilters {
   search?: string;
   status?: GoalStatus;
   priority?: GoalPriority;
+  dueDateFrom?: string;
+  dueDateTo?: string;
   sortBy?: "createdAt" | "dueDate" | "priority" | "progress";
   sortOrder?: "asc" | "desc";
   limit?: number;

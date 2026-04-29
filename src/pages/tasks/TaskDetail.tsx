@@ -1,12 +1,18 @@
-import { useNavigate } from "react-router-dom";
-import { ButtonLink, Badge, Button } from "../../components/ui";
+import { useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Badge, CustomCheckbox, ConfirmModal } from "../../components/ui";
+import StateMessage from "../../components/StateMessage";
 import { todoservice } from "../../services/todoService";
 import { useFetchByIdOffline, useFormatDate } from "../../hooks";
 import type { ITodo } from "../../interfaces";
 import Loading from "../../components/Loading";
+import { lapiz, calendar, trash } from "../../assets/svg-icons";
 
 export default function TaskDetail() {
   const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [localCompleted, setLocalCompleted] = useState<boolean | null>(null);
 
   const {
     data: task,
@@ -19,140 +25,133 @@ export default function TaskDetail() {
 
   const createdDate = useFormatDate(task?.createdAt);
   const dueDate = useFormatDate(task?.dueDate);
+  const isCompleted = localCompleted ?? task?.completed ?? false;
+
+  const handleToggleComplete = useCallback(async () => {
+    if (!task?._id) return;
+    const newState = !isCompleted;
+    setLocalCompleted(newState);
+    try {
+      await todoservice.updateTodoState(task._id, newState);
+    } catch {
+      setLocalCompleted(isCompleted);
+    }
+  }, [task?._id, isCompleted]);
 
   const handleDeleteTask = async () => {
-    if (!task?._id) {
-      return;
-    }
+    if (!task?._id) return;
 
-    const confirmed = window.confirm(
-      `¿Estás seguro de que quieres eliminar la tarea "${task.title}"?\n\nEsta acción no se puede deshacer.`,
-    );
-
-    if (!confirmed) return;
-
+    setIsDeleting(true);
     try {
       await todoservice.deleteTodo(task._id);
-
-      // Redirigir a la lista después de eliminar
       navigate("/tasks", {
         replace: true,
         state: { message: "Tarea eliminada exitosamente" },
       });
-    } catch (err) {
-      console.error("Error al eliminar tarea:", err);
-      alert("Error al eliminar la tarea. Por favor, intenta de nuevo.");
+    } catch {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
-  if (loading) {
-    return <Loading />;
-  }
-  if (!task) {
+  if (loading) return <Loading />;
+
+  if (errorMessage) {
     return (
-      <div className="max-w-3xl mx-auto text-center py-12">
-        <h2 className="font-heading font-bold text-tertiary mb-4">
-          Tarea no encontrada
-        </h2>
+      <div className="max-w-4xl mx-auto">
+        <StateMessage itemName="la tarea" variant="error" />
       </div>
     );
   }
-  if (errorMessage) {
+
+  if (!task) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="font-body text-red-600">{errorMessage}</p>
-        </div>
+      <div className="max-w-4xl mx-auto">
+        <StateMessage itemName="tarea" variant="notFound" />
       </div>
     );
   }
 
   return (
-    <section className="max-w-3xl mx-auto">
-      <div className="mb-8">
-        <h2 className="font-heading font-bold text-tertiary mb-2">
-          {task.title}
-        </h2>
-
-        <div className="flex items-center gap-4 text-sm font-body text-tertiary flex-wrap">
-          {createdDate.isValid && (
-            <time
-              dateTime={createdDate.iso}
-              className="flex flex-wrap items-center gap-1"
+    <section className="max-w-4xl mx-auto space-y-4">
+      {/* Card Principal */}
+      <div className="bg-secondary-dark rounded-2xl p-5 text-white">
+        {/* Título y botón editar */}
+        <div className="flex items-start justify-between mb-3">
+          <h2 className="text-xl font-heading font-bold text-brand flex items-center gap-2">
+            {task.title}
+          </h2>
+          <div className="flex items-center gap-1">
+            <Link
+              to={`/tasks/${task._id}/edit`}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              aria-label="Editar tarea"
             >
-              <span className="font-semibold">Creada:</span>
-              <span>{createdDate.formatted}</span>
-            </time>
-          )}
-          <Badge variant="priority" priority={task.priority} />
-          {dueDate.isValid && (
-            <time
-              dateTime={dueDate.iso}
-              className="flex flex-wrap items-center gap-1"
+              <img src={lapiz} alt="" aria-hidden="true" className="w-5 h-5 invert brightness-0" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+              aria-label="Eliminar tarea"
             >
-              <span className="font-semibold">Vence:</span>
-              <span>{dueDate.formatted}</span>
-            </time>
-          )}
+              <img src={trash} alt="" aria-hidden="true" className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      <section className="bg-white p-6 rounded-lg shadow border border-neutral mb-6">
-        <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
-          Descripción
-        </h3>
-        <p className="font-body text-tertiary leading-relaxed">
-          {task.description || (
-            <em className="text-tertiary opacity-60">Sin descripción</em>
-          )}
+        {/* Descripción */}
+        <p className="text-base text-white mb-4 leading-relaxed">
+          {task.description || "Sin descripción"}
         </p>
-      </section>
 
-      <section className="bg-white p-6 rounded-lg shadow border border-neutral mb-6">
-        <h3 className="text-xl font-heading font-semibold text-tertiary mb-4">
-          Estado
-        </h3>
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id="task-completed"
-            checked={task.completed}
-            readOnly
-            className="w-5 h-5 text-primary rounded focus:ring-2 focus:ring-primary cursor-pointer"
-            aria-label="Estado de completitud de la tarea"
-          />
-          <label
-            htmlFor="task-completed"
-            className="text-lg font-body text-tertiary cursor-pointer"
-          >
-            {task.completed ? (
-              <span>
-                <strong className="text-tertiary">Completada</strong> ✓
-              </span>
-            ) : (
-              <span> No completada</span>
+        {/* Fecha y Prioridad */}
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div className="flex items-center gap-3 flex-wrap">
+            {createdDate.isValid && (
+              <div className="flex items-center gap-1.5">
+                <img src={calendar} alt="" aria-hidden="true" className="w-5 h-5" />
+                <time dateTime={createdDate.iso} className="text-sm font-bold text-brand">
+                  {createdDate.formatted}
+                </time>
+              </div>
             )}
-          </label>
+            {dueDate.isValid && (
+              <div className="flex items-center gap-1.5">
+                <img src={calendar} alt="" aria-hidden="true" className="w-5 h-5" />
+                <time dateTime={dueDate.iso} className="text-sm text-brand">
+                  Vence: <span className="font-bold">{dueDate.formatted}</span>
+                </time>
+              </div>
+            )}
+          </div>
+          <Badge variant="priority" priority={task.priority} />
         </div>
-      </section>
 
-      <div className="flex flex-wrap gap-4">
-        <ButtonLink to={`/tasks/${task._id}/edit`} variant="primary" size="md">
-          Editar Tarea
-        </ButtonLink>
-
-        <Button
-          type="button"
-          variant="danger"
-          size="md"
-          onClick={handleDeleteTask}
-        >
-          Eliminar Tarea
-        </Button>
-        <ButtonLink to="/tasks" variant="secondary" size="md">
-          Volver a la Lista
-        </ButtonLink>
+        {/* Estado completado */}
+        <div className="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3">
+          <CustomCheckbox
+            id="task-completed"
+            checked={isCompleted}
+            onChange={handleToggleComplete}
+            ariaLabel="Marcar tarea como completada"
+          />
+          <span className="text-sm font-body font-semibold text-white">
+            {isCompleted ? "Completada" : "Pendiente"}
+          </span>
+        </div>
       </div>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="¿Eliminar tarea?"
+        message={`¿Estás seguro de que quieres eliminar la tarea "${task.title}"? Esta acción no se puede deshacer.`}
+        confirmText="Eliminar"
+        variant="warning"
+        loading={isDeleting}
+        onConfirm={handleDeleteTask}
+        onClose={() => setIsDeleteModalOpen(false)}
+      />
     </section>
   );
 }

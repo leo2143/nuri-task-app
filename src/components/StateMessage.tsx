@@ -1,6 +1,6 @@
 import { nuriTriste, nuriAlegreOjos, nuriError } from "../assets/ilustrations";
 
-type StateVariant = "notFound" | "error" | "notFoundList";
+type StateVariant = "notFound" | "error" | "notFoundList" | "offline";
 
 interface StateMessageProps {
   itemName: string;
@@ -23,13 +23,18 @@ const variantConfig = {
     message: "¡Es el momento perfecto para empezar!",
     image: nuriAlegreOjos,
   },
+  offline: {
+    title: () => "Sin conexión",
+    message: "No se pudo cargar esta página porque no hay conexión a internet.",
+    image: null,
+  },
 };
 
 export default function StateMessage({ itemName, variant }: StateMessageProps) {
   const config = variantConfig[variant];
 
   return (
-    <div className="relative h-80 overflow-hidden text-center py-12 bg-neutral bg-opacity-10 rounded-lg shadow-brand-glow">
+    <div className={`relative overflow-hidden text-center py-12 bg-neutral bg-opacity-10 rounded-lg shadow-brand-glow ${config.image ? "h-80" : ""}`}>
       <span>
         <strong className="text-2xl w-full font-heading">
           {config.title(itemName)}
@@ -38,11 +43,13 @@ export default function StateMessage({ itemName, variant }: StateMessageProps) {
       <p className="text-tertiary font font-heading">
         <strong className="text-2xl text-primary">{config.message}</strong>
       </p>
-      <img
-        className="absolute w-52 top-48 left-1/2 -translate-x-1/2"
-        src={config.image}
-        alt="Nuri"
-      />
+      {config.image && (
+        <img
+          className="absolute w-52 top-48 left-1/2 -translate-x-1/2"
+          src={config.image}
+          alt="Nuri"
+        />
+      )}
     </div>
   );
 }

@@ -22,5 +22,8 @@ export * from "./IUserAchievement";
 // Notification
 export * from "./INotification";
 
+// Filter
+export * from "./IFilter";
+
 // API Responses
 export * from "./IApiResponse";

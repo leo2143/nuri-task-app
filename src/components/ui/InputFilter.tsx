@@ -16,6 +16,8 @@ interface InputFilterProps {
   error?: string;
   className?: string;
   helperText?: string;
+  onFilterPress?: () => void;
+  activeFilterCount?: number;
 }
 
 export default function InputFilter({
@@ -32,6 +34,8 @@ export default function InputFilter({
   error,
   className = "",
   helperText,
+  onFilterPress,
+  activeFilterCount = 0,
 }: InputFilterProps) {
   // Determinar si hay error
   const hasError = !!error;
@@ -89,7 +93,14 @@ export default function InputFilter({
         />
       </div>
 
-      <Button variant="brand" icon="filter" size="ro"></Button>
+      <div className="relative">
+        <Button variant="brand" icon="filter" size="ro" onClick={onFilterPress} />
+        {activeFilterCount > 0 && (
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
+            {activeFilterCount}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
