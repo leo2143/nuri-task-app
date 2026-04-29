@@ -1,5 +1,6 @@
+import { useMemo } from "react";
 import { ButtonLink, GoalCard } from "../../components/ui";
-import type { IGoal, IGoalFilters } from "../../interfaces";
+import type { IGoal, IGoalFilters, FilterConfig } from "../../interfaces";
 import { useFilterableList, useAuth } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import FilterableList from "../../components/FilterableList";
@@ -10,10 +11,42 @@ const FREE_GOALS_LIMIT = 2;
 export default function GoalList() {
   const { isPremium } = useAuth();
 
+  const goalFilterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        key: "status",
+        label: "Estado",
+        type: "chips",
+        options: [
+          { value: "active", label: "Activa" },
+          { value: "paused", label: "Pausada" },
+          { value: "completed", label: "Completada" },
+        ],
+      },
+      {
+        key: "priority",
+        label: "Prioridad",
+        type: "chips",
+        options: [
+          { value: "low", label: "Baja" },
+          { value: "medium", label: "Media" },
+          { value: "high", label: "Alta" },
+        ],
+      },
+      { key: "dueDateFrom", label: "Fecha desde", type: "date" },
+      { key: "dueDateTo", label: "Fecha hasta", type: "date" },
+    ],
+    []
+  );
+
   const filterableList = useFilterableList<IGoal, IGoalFilters>({
     fetchFn: goalService.getAllGoals,
-    buildFilters: (searchTerm, pagination) => ({
+    buildFilters: (searchTerm, pagination, activeFilters) => ({
       search: searchTerm || undefined,
+      status: activeFilters?.status as IGoalFilters["status"],
+      priority: activeFilters?.priority as IGoalFilters["priority"],
+      dueDateFrom: activeFilters?.dueDateFrom as string | undefined,
+      dueDateTo: activeFilters?.dueDateTo as string | undefined,
       limit: pagination?.limit,
       cursor: pagination?.cursor,
     }),
@@ -70,6 +103,9 @@ export default function GoalList() {
         emptyStateName="Metas"
         loadMoreText="Cargar más metas"
         loadingMoreText="Cargando más metas..."
+        filterConfig={goalFilterConfig}
+        activeFilters={filterableList.activeFilters}
+        onFiltersChange={filterableList.setActiveFilters}
       />
     </div>
   );

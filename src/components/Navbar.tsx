@@ -43,7 +43,6 @@ export default function Navbar() {
   };
 
   const handleHamburger = () => {
-    console.log("hamburger");
     setIsMenuOpen(!isMenuOpen);
   };
   const isHome = location.pathname === '/';
@@ -195,8 +194,8 @@ export default function Navbar() {
                   />
                   <MenuNavItem
                     to="/moodboard"
-                    icon={heart}
-                    iconHover={heartBlue}
+                    icon={heartBlue}
+                    iconHover={heart}
                     label="Moodboard"
                     badge={isPremium ? undefined : "PRO"}
                   />

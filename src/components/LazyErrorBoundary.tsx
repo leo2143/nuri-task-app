@@ -1,5 +1,6 @@
 import { Component } from "react";
 import type { ReactNode, ErrorInfo } from "react";
+import StateMessage from "./StateMessage";
 
 interface Props {
   children: ReactNode;
@@ -43,32 +44,26 @@ export default class LazyErrorBoundary extends Component<Props, State> {
     }
 
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
-        <h2 className="font-heading text-xl font-bold text-tertiary">
-          {this.state.isChunkError
-            ? "Sin conexión"
-            : "Algo salió mal"}
-        </h2>
-        <p className="max-w-md font-body text-sm text-gray-700">
-          {this.state.isChunkError
-            ? "No se pudo cargar esta página porque no hay conexión a internet. Conectate y volvé a intentar."
-            : "Ocurrió un error inesperado al cargar esta página."}
-        </p>
-        <div className="flex gap-3">
+      <article className="flex flex-col items-center justify-center h-screen gap-6">
+        <StateMessage
+          itemName="esta página"
+          variant={this.state.isChunkError ? "offline" : "error"}
+        />
+        <div className="flex justify-center gap-4">
           <button
             onClick={this.handleRetry}
-            className="rounded-lg bg-primary px-5 py-2 font-body text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+            className="inline-block px-6 py-3 bg-primary text-white font-body font-medium rounded-lg hover:bg-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors duration-200 shadow-md hover:shadow-lg"
           >
             Reintentar
           </button>
           <button
             onClick={this.handleReload}
-            className="rounded-lg border border-gray-300 px-5 py-2 font-body text-sm text-tertiary transition-colors hover:bg-gray-100"
+            className="inline-block px-6 py-3 border-2 border-secondary text-secondary font-body font-medium rounded-lg hover:bg-secondary hover:text-white focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 transition-colors duration-200"
           >
             Recargar página
           </button>
         </div>
-      </div>
+      </article>
     );
   }
 }

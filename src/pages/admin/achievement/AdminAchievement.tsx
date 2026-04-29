@@ -1,15 +1,36 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Avatar, ButtonLink } from "../../../components/ui";
 import { useFilterableList } from "../../../hooks";
-import type { IAchievement, AchievementFilters } from "../../../interfaces";
+import type { IAchievement, AchievementFilters, FilterConfig } from "../../../interfaces";
 import { achievementService } from "../../../services/achievementService";
 import FilterableList from "../../../components/FilterableList";
 
 export default function AdminAchievement() {
+  const achievementFilterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        key: "type",
+        label: "Tipo",
+        type: "chips",
+        options: [
+          { value: "task", label: "Tarea" },
+          { value: "goal", label: "Meta" },
+          { value: "metric", label: "Métrica" },
+          { value: "streak", label: "Racha" },
+        ],
+      },
+      { key: "isActive", label: "Activo", type: "toggle" },
+    ],
+    []
+  );
+
   const filterableList = useFilterableList<IAchievement, AchievementFilters>({
     fetchFn: achievementService.getAllAchievements,
-    buildFilters: (searchTerm, pagination) => ({
+    buildFilters: (searchTerm, pagination, activeFilters) => ({
       search: searchTerm || undefined,
+      type: activeFilters?.type as AchievementFilters["type"],
+      isActive: activeFilters?.isActive as boolean | undefined,
       sortBy: "title",
       sortOrder: "asc",
       limit: pagination?.limit,
@@ -75,6 +96,9 @@ export default function AdminAchievement() {
         searchPlaceholder="Buscar logros"
         renderItem={renderAchievementItem}
         emptyStateName="Logros"
+        filterConfig={achievementFilterConfig}
+        activeFilters={filterableList.activeFilters}
+        onFiltersChange={filterableList.setActiveFilters}
       />
     </div>
   );

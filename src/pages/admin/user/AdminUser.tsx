@@ -1,15 +1,30 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Avatar, ButtonLink } from "../../../components/ui";
 import { useFilterableList } from "../../../hooks";
-import type { IUser, UserFilters } from "../../../interfaces";
+import type { IUser, UserFilters, FilterConfig } from "../../../interfaces";
 import { userService } from "../../../services/userService";
 import FilterableList from "../../../components/FilterableList";
 
 export default function AdminUser() {
+  const userFilterConfig: FilterConfig[] = useMemo(
+    () => [
+      { key: "isAdmin", label: "Administrador", type: "toggle" },
+      { key: "isSubscribed", label: "Suscrito", type: "toggle" },
+      { key: "createdFrom", label: "Creado desde", type: "date" },
+      { key: "createdTo", label: "Creado hasta", type: "date" },
+    ],
+    []
+  );
+
   const filterableList = useFilterableList<IUser, UserFilters>({
     fetchFn: userService.getAllUsers,
-    buildFilters: (searchTerm, pagination) => ({
+    buildFilters: (searchTerm, pagination, activeFilters) => ({
       search: searchTerm || undefined,
+      isAdmin: activeFilters?.isAdmin as boolean | undefined,
+      isSubscribed: activeFilters?.isSubscribed as boolean | undefined,
+      createdFrom: activeFilters?.createdFrom as string | undefined,
+      createdTo: activeFilters?.createdTo as string | undefined,
       limit: pagination?.limit,
       cursor: pagination?.cursor,
     }),
@@ -67,6 +82,9 @@ export default function AdminUser() {
         searchPlaceholder="Buscar usuario"
         renderItem={renderUserItem}
         emptyStateName="Usuarios"
+        filterConfig={userFilterConfig}
+        activeFilters={filterableList.activeFilters}
+        onFiltersChange={filterableList.setActiveFilters}
       />
     </div>
   );

@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ButtonLink, TaskCard } from "../../components/ui";
-import type { ITodo, ITodoFilters } from "../../interfaces";
+import type { ITodo, ITodoFilters, FilterConfig } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import FilterableList from "../../components/FilterableList";
@@ -12,11 +12,32 @@ export default function TaskList() {
   const [searchParams] = useSearchParams();
   const isCompletedView = searchParams.get("completed") === "true";
 
+  const taskFilterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        key: "priority",
+        label: "Prioridad",
+        type: "chips",
+        options: [
+          { value: "low", label: "Baja" },
+          { value: "medium", label: "Media" },
+          { value: "high", label: "Alta" },
+        ],
+      },
+      { key: "dueDateFrom", label: "Fecha desde", type: "date" },
+      { key: "dueDateTo", label: "Fecha hasta", type: "date" },
+    ],
+    []
+  );
+
   const filterableList = useFilterableList<ITodo, ITodoFilters>({
     fetchFn: todoservice.gettodos,
-    buildFilters: (searchTerm, pagination) => ({
+    buildFilters: (searchTerm, pagination, activeFilters) => ({
       search: searchTerm || undefined,
       completed: isCompletedView ? true : undefined,
+      priority: activeFilters?.priority as ITodoFilters["priority"],
+      dueDateFrom: activeFilters?.dueDateFrom as string | undefined,
+      dueDateTo: activeFilters?.dueDateTo as string | undefined,
       limit: pagination?.limit,
       cursor: pagination?.cursor,
     }),
@@ -97,6 +118,9 @@ export default function TaskList() {
         emptyStateName="Tareas"
         loadMoreText="Cargar más tareas"
         loadingMoreText="Cargando más tareas..."
+        filterConfig={taskFilterConfig}
+        activeFilters={filterableList.activeFilters}
+        onFiltersChange={filterableList.setActiveFilters}
       />
 
       {!isCompletedView && (

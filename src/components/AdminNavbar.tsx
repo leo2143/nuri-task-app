@@ -30,7 +30,6 @@ export default function AdminNavbar() {
   };
 
   const handleHamburger = () => {
-    console.log("hamburger");
     setIsMenuOpen(!isMenuOpen);
   };
 

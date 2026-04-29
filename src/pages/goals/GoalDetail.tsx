@@ -15,7 +15,7 @@ import { goalService } from "../../services/goalService";
 import { todoservice } from "../../services/todoService"; // Solo para updateTodoState
 import Loading from "../../components/Loading";
 import FilterableList from "../../components/FilterableList";
-import { lapiz, calendar } from "../../assets/svg-icons";
+import { lapiz, calendar, trash } from "../../assets/svg-icons";
 
 type TabType = "tasks" | "subgoals";
 
@@ -240,18 +240,23 @@ export default function GoalDetail() {
           <h2 className="text-xl font-heading font-bold text-brand flex items-center gap-2">
             {goal.title}
           </h2>
-          <Link
-            to={`/goals/${goal._id}/edit`}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            aria-label="Editar meta"
-          >
-            <img
-              src={lapiz}
-              alt=""
-              aria-hidden="true"
-              className="w-5 h-5 invert brightness-0"
-            />
-          </Link>
+          <div className="flex items-center gap-1">
+            <Link
+              to={`/goals/${goal._id}/edit`}
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              aria-label="Editar meta"
+            >
+              <img src={lapiz} alt="" aria-hidden="true" className="w-5 h-5 invert brightness-0" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+              aria-label="Eliminar meta"
+            >
+              <img src={trash} alt="" aria-hidden="true" className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Descripción */}

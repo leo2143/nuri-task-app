@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { nuriCorazonCortado } from "../assets/ilustrations";
+import StateMessage from "../components/StateMessage";
 import { GoalCard, TaskCard, ButtonLink, Spinner } from "../components/ui";
 import TabGroup from "../components/ui/TabGroup";
 import { goalService } from "../services/goalService";
@@ -176,9 +177,7 @@ export default function Home() {
                 />
               ))
             ) : (
-              <p className="text-center text-tertiary/60 font-body py-8">
-                No tienes metas aún
-              </p>
+              <StateMessage itemName="metas" variant="notFoundList" />
             )}
             <ButtonLink to="/goals" variant="primary" fullWidth>
               Ver todas las metas
@@ -219,9 +218,7 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-tertiary/60 font-body py-8">
-                No hay tareas recientes
-              </p>
+              <StateMessage itemName="tareas" variant="notFoundList" />
             )}
           </div>
         )}
