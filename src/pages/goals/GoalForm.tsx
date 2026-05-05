@@ -237,7 +237,7 @@ export default function GoalForm() {
           reason: reason.trim() || undefined,
           status,
           priority,
-          dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+          dueDate: dueDate ? `${dueDate}T12:00:00.000Z` : undefined,
         };
         await goalService.updateGoal(id!, updateData);
         setModalMessage("¡Meta actualizada exitosamente!");
@@ -248,7 +248,7 @@ export default function GoalForm() {
           description: description.trim() || undefined,
           reason: reason.trim() || undefined,
           priority,
-          dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+          dueDate: dueDate ? `${dueDate}T12:00:00.000Z` : undefined,
         };
         await goalService.createGoal(createData);
         setModalMessage("¡Meta creada exitosamente!");

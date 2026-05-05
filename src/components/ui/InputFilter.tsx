@@ -71,7 +71,7 @@ export default function InputFilter({
         <img
           src={search}
           alt="icono de búsqueda"
-          className="absolute left-2 top-1/2 -translate-y-1/2 w-30 h-30 pointer-events-none"
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 pointer-events-none"
         />
         <input
           type={type}

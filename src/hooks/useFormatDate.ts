@@ -44,6 +44,7 @@ export function useFormatDate(
 
       const formatted = new Intl.DateTimeFormat("es-ES", {
         dateStyle: "medium",
+        timeZone: "UTC",
       }).format(date);
 
       return {

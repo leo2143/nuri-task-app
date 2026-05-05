@@ -129,7 +129,7 @@ export default function GoalSubGoalForm() {
       </div>
 
       <div className="flex justify-center py-5">
-        <img src={arrowsUpDown} alt="flechas arriba abajo" />
+        <img src={arrowsUpDown} alt="flechas arriba abajo" className="w-10 h-10" />
       </div>
 
       <form onSubmit={handleSubmit} noValidate method="post">

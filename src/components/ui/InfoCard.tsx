@@ -23,7 +23,7 @@ export function InfoCard({ items }: InfoCardProps) {
           className={`p-8 bg-white border-b-2 border-brand ${getPosition(index, items.length)}`}
         >
           <div className="font-semibold text-sm">{item.label}</div>
-          <div>
+          <div className="truncate">
             <strong className="font-bold text-xl">{item.value}</strong>
           </div>
         </div>

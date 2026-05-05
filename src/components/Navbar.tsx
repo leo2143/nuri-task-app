@@ -100,7 +100,7 @@ export default function Navbar() {
             {isHome ? (
               <>
                 <div className="flex items-center gap-2">
-                  <img src={nuriFire} alt="ícono de fuego de Nuri" />
+                  <img src={nuriFire} alt="ícono de fuego de Nuri" className="w-10 h-10" />
                   <span className="font-heading text-tertiary text-4xl font-bold">
                     {currentStreak}
                   </span>
@@ -108,7 +108,7 @@ export default function Navbar() {
 
                 <div className="flex items-center gap-4">
                   <Link to="/notifications" className="relative p-4">
-                    <img src={notification} alt="ícono de notificaciones" />
+                    <img src={notification} alt="ícono de notificaciones" className="w-6 h-6" />
                     {unreadCount > 0 && (
                       <span className="absolute top-2 right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
                         {unreadCount > 99 ? "99+" : unreadCount}
@@ -116,7 +116,7 @@ export default function Navbar() {
                     )}
                   </Link>
                   <button className="p-4" onClick={handleHamburger}>
-                    <img src={hamburger} alt="ícono de menú" />
+                    <img src={hamburger} alt="ícono de menú" className="w-5 h-5" />
                   </button>
                 </div>
               </>
@@ -124,7 +124,7 @@ export default function Navbar() {
               <>
                 <BackButton />
                 <button className="p-4" onClick={handleHamburger}>
-                  <img src={hamburger} alt="ícono de menú" />
+                  <img src={hamburger} alt="ícono de menú" className="w-5 h-5" />
                 </button>
               </>
             )}
