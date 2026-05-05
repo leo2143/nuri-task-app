@@ -24,14 +24,14 @@ export function GoalCard({
   return (
     <Link to={id ? `/goals/${id}` : "#"} className={className}>
       <div className="block bg-white p-5 rounded-lg shadow-brand-glow">
-        <div className={`flex items-center justify-between${description  || progress !== undefined ? " mb-3" : ""}`}>
-          <span className="text-base font-body font-bold text-tertiary">
+        <div className={`flex items-center justify-between gap-2${description  || progress !== undefined ? " mb-3" : ""}`}>
+          <span className="text-base font-body font-bold text-tertiary truncate min-w-0 flex-1">
             {title}
           </span>
           {status && <StatusBadge status={status} />}
         </div>
         {description && (
-          <p className="mb-3 text-sm text-tertiary opacity-75">{description}</p>
+          <p className="mb-3 text-sm text-tertiary opacity-75 line-clamp-2">{description}</p>
         )}
         {progress !== undefined && (
           <ProgressBar

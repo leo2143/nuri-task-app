@@ -72,14 +72,14 @@ export default function AdminNavbar() {
                   </span>
                 </div>
                 <button className="p-4" onClick={handleHamburger}>
-                  <img src={hamburger} alt="ícono de menú" />
+                  <img src={hamburger} alt="ícono de menú" className="w-5 h-5" />
                 </button>
               </>
             ) : (
               <>
                 <BackButton to="/admin" />
                 <button className="p-4" onClick={handleHamburger}>
-                  <img src={hamburger} alt="ícono de menú" />
+                  <img src={hamburger} alt="ícono de menú" className="w-5 h-5" />
                 </button>
               </>
             )}

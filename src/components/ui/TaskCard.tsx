@@ -33,19 +33,17 @@ export function TaskCard({
       className={`flex items-center justify-between bg-white p-5 rounded-lg shadow-brand-glow cursor-pointer ${className}`}
       onClick={handleClick}
     >
-      <div className="flex flex-col gap-1 flex-1 mr-4">
-        <span
-          className={`font-body font-bold text-base text-tertiary"}`}
-        >
+      <div className="flex flex-col gap-1 flex-1 min-w-0 mr-4">
+        <span className="font-body font-bold text-base text-tertiary truncate">
           {title}
         </span>
         {description && (
-          <span className="font-body text-sm text-tertiary/70">
+          <span className="font-body text-sm text-tertiary/70 line-clamp-2">
             {description}
           </span>
         )}
         {goalTitle && (
-          <span className="w-fit mt-2 bg-secondary-dark rounded-lg text-center py-2 px-3 text-xs font-bold text-white">
+          <span className="w-fit mt-2 bg-secondary-dark rounded-lg text-center py-2 px-3 text-xs font-bold text-white truncate max-w-full">
             {goalTitle}
           </span>
         )}

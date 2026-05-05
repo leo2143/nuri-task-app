@@ -171,7 +171,7 @@ export default function TaskForm() {
         title: title.trim(),
         description: description.trim(),
         priority,
-        dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        dueDate: dueDate ? `${dueDate}T12:00:00.000Z` : undefined,
         GoalId: goalId || undefined,
       };
 

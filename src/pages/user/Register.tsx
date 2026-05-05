@@ -284,7 +284,7 @@ export default function Register() {
             size="md"
             fullWidth
           >
-            {loading ? "Creando cuenta" : "Iniciar Sesión"}
+            {loading ? "Creando cuenta" : "Crear Cuenta"}
           </Button>
 
           <div className="text-center mt-4">

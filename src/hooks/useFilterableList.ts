@@ -16,6 +16,7 @@ export interface UseFilterableListOptions<T, F> {
   ) => F | undefined;
   debounceMs?: number;
   pagination?: PaginationOptions;
+  extraDependencies?: unknown[];
 }
 
 export interface UseFilterableListResult<T> {
@@ -39,6 +40,7 @@ export function useFilterableList<T, F>({
   buildFilters,
   debounceMs = 500,
   pagination,
+  extraDependencies = [],
 }: UseFilterableListOptions<T, F>): UseFilterableListResult<T> {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -70,7 +72,7 @@ export function useFilterableList<T, F>({
   const { response, loading, errorMessage } = useFetchList<T, F>({
     fetchFn,
     filters,
-    dependencies: [debouncedSearch, activeFilters],
+    dependencies: [debouncedSearch, activeFilters, ...extraDependencies],
   });
 
   // Sincroniza datos cuando llega la respuesta (carga inicial o cambio de búsqueda)

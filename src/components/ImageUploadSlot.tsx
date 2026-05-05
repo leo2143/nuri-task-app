@@ -136,7 +136,7 @@ export function ImageUploadSlot({
         <img
           src={translusentAdd}
           alt=""
-          className="w-15 h-15 text-primary "
+          className="w-10 h-10 text-primary"
         />
       )}
 

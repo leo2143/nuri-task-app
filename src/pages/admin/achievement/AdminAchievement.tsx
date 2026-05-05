@@ -44,15 +44,15 @@ export default function AdminAchievement() {
       key={achievement._id}
       className="flex w-full gap-4 p-5 justify-between items-center rounded-lg bg-white shadow-brand-glow"
     >
-      <div className="flex gap-5 items-center">
+      <div className="flex gap-5 items-center min-w-0 flex-1">
         <Avatar
           imageUrl={achievement.imageUrl}
           name={achievement.title}
           size="sm"
         />
 
-        <div>
-          <p className="text-tertiary font-semibold text-base">
+        <div className="min-w-0">
+          <p className="text-tertiary font-semibold text-base truncate">
             {achievement.title}
           </p>
           <p className="text-tertiary/70 text-sm line-clamp-1">

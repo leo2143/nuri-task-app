@@ -13,7 +13,7 @@ export default function IconWrapper({
 }: IconWrapperProps) {
   return (
     <div className={`p-4 w-[50px] h-[50px] ${className}`}>
-      <img src={src} alt={alt} />
+      <img src={src} alt={alt} className="w-full h-full object-contain" />
     </div>
   );
 }

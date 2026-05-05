@@ -19,7 +19,7 @@ export default function BackButton({ to, label = 'Atrás' }: BackButtonProps) {
         to={to}
         className="flex items-center gap-2 text-primary font-bold text-2xl hover:opacity-80 transition-opacity"
       >
-        <img src={backArrow} alt="" className="w-30 h-30" />
+        <img src={backArrow} alt="" className="w-7 h-7" />
         <span>{label}</span>
       </Link>
     );
@@ -31,7 +31,7 @@ export default function BackButton({ to, label = 'Atrás' }: BackButtonProps) {
       onClick={handleClick}
       className="flex items-center gap-2 text-primary font-bold text-2xl hover:opacity-80 transition-opacity"
     >
-      <img src={backArrow} alt="" className="w-30 h-30" />
+      <img src={backArrow} alt="" className="w-7 h-7" />
       <span>{label}</span>
     </button>
   );

@@ -34,7 +34,7 @@ export default function TaskList() {
     fetchFn: todoservice.gettodos,
     buildFilters: (searchTerm, pagination, activeFilters) => ({
       search: searchTerm || undefined,
-      completed: isCompletedView ? true : undefined,
+      completed: isCompletedView ? true : false,
       priority: activeFilters?.priority as ITodoFilters["priority"],
       dueDateFrom: activeFilters?.dueDateFrom as string | undefined,
       dueDateTo: activeFilters?.dueDateTo as string | undefined,
@@ -42,6 +42,7 @@ export default function TaskList() {
       cursor: pagination?.cursor,
     }),
     pagination: { enabled: true, limit: ITEMS_PER_PAGE },
+    extraDependencies: [isCompletedView],
   });
 
   // Estado local para optimistic updates del checkbox
