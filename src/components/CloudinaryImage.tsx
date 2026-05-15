@@ -45,6 +45,7 @@ export function CloudinaryImage({
         alt={alt}
         className={className}
         loading="lazy"
+        referrerPolicy="no-referrer"
       />
     );
   }

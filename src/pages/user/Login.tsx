@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
 import { userService } from "../../services/userService";
 import type { ILoginUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
@@ -43,6 +44,32 @@ export default function Login() {
   const handlePasswordBlur = () => {
     setPasswordError(validatePassword(password.value) || "");
   };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (codeResponse) => {
+      clearError();
+      setLoading(true);
+      try {
+        const authResponse = await userService.googleLogin(codeResponse.code);
+        login(authResponse.user, authResponse.token);
+
+        if (!authResponse.user.onboardingCompleted) {
+          navigate("/onboarding", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
+      } catch (error: unknown) {
+        console.error("Error en login con Google:", error);
+        handleError(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      handleError(new Error("Error al iniciar sesión con Google"));
+    },
+    flow: "auth-code",
+  });
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -185,13 +212,18 @@ export default function Login() {
         </div>
 
         <div className="flex items-center justify-center">
-          <div className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer">
+          <button
+            type="button"
+            onClick={() => googleLogin()}
+            disabled={loading}
+            className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <img
               className="w-7 h-7"
               src={GoogleIcon}
               alt="Continuar con Google"
             />
-          </div>
+          </button>
         </div>
       </div>
     </section>

@@ -45,6 +45,29 @@ export const userService = {
   },
 
   /**
+   * Login con Google OAuth
+   * POST /api/auth/google
+   * @public
+   */
+  googleLogin: async (code: string): Promise<IAuthResponse> => {
+    try {
+      const response = await apiClient.post<ISuccessResponse<IAuthResponse>>(
+        `${API_BASE_URL}/api/auth/google`,
+        { code },
+      );
+
+      if (response.data.data?.token) {
+        localStorage.setItem("authToken", response.data.data.token);
+      }
+
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error during Google login:", error);
+      throw error;
+    }
+  },
+
+  /**
    * Crear un nuevo usuario (Registro)
    * POST /api/users
    * @public

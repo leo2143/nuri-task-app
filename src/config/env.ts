@@ -12,6 +12,10 @@ export const API_TIMEOUT = parseInt(
   import.meta.env.VITE_API_TIMEOUT || "10000",
 );
 
+// Google OAuth Client ID
+export const GOOGLE_CLIENT_ID: string =
+  import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
 // Clave pública VAPID para Web Push
 export const VAPID_PUBLIC_KEY: string =
   import.meta.env.VITE_VAPID_PUBLIC_KEY ||
