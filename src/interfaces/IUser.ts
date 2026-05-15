@@ -101,6 +101,8 @@ export interface IAuthUser {
   name: string;
   email: string;
   isAdmin: boolean;
+  googleId?: string;
+  profileImageUrl?: string;
   subscription?: {
     isActive: boolean;
   };
