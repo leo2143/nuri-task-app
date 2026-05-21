@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import Loading from "../../components/Loading";
+import { useAppNavigate } from "../../hooks";
 import StateMessage from "../../components/StateMessage";
 import { notificationApiService } from "../../services/notificationApiService";
 import { formatRelativeTime } from "../../utils";
@@ -26,7 +26,7 @@ function NotificationIcon({ type }: { type: NotificationType }) {
 }
 
 export default function Notifications() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

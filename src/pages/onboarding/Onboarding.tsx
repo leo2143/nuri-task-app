@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui";
-import { useAuth } from "../../hooks";
+import { useAppNavigate, useAuth } from "../../hooks";
 import { userService } from "../../services/userService";
 
 import { nuriCompleto } from "../../assets/ilustrations";
@@ -184,7 +183,7 @@ const STEPS = [Step1, Step2, Step3] as const;
 export default function Onboarding() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { user, updateUser } = useAuth();
 
   const isLastStep = step === STEPS.length - 1;

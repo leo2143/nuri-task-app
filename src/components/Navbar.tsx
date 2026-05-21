@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks";
 import {
   nuriFire,
   hamburger,
   notification,
-  close,
   starBrown,
   star,
   home,
@@ -16,8 +15,6 @@ import {
   metricBrown,
   checkBrown,
   checkBlue,
-  iconLogout,
-  iconLogoutBrown,
   profile,
   profileBrown,
   heartBlue,
@@ -25,26 +22,17 @@ import {
 } from "../assets/svg-icons";
 import MenuNavItem from "./MenuNavItem";
 import BackButton from "./BackButton";
+import SideDrawer from "./SideDrawer";
 import { metricsService } from "../services/metricsService";
 import { notificationApiService } from "../services/notificationApiService";
 
 export default function Navbar() {
-  const { logout, user, isPremium } = useAuth();
+  const { user, isPremium } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentStreak, setCurrentStreak] = useState<number>(0);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const navigate = useNavigate();
 
   const location = useLocation();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
-  const handleHamburger = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
   const isHome = location.pathname === '/';
 
 
@@ -79,17 +67,6 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isMenuOpen]);
 
   return (
     <>
@@ -107,7 +84,7 @@ export default function Navbar() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <Link to="/notifications" className="relative p-4">
+                  <Link to="/notifications" viewTransition className="relative p-4">
                     <img src={notification} alt="ícono de notificaciones" className="w-6 h-6" />
                     {unreadCount > 0 && (
                       <span className="absolute top-2 right-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
@@ -115,7 +92,7 @@ export default function Navbar() {
                       </span>
                     )}
                   </Link>
-                  <button className="p-4" onClick={handleHamburger}>
+                  <button className="p-4" onClick={() => setIsMenuOpen(true)}>
                     <img src={hamburger} alt="ícono de menú" className="w-5 h-5" />
                   </button>
                 </div>
@@ -123,8 +100,8 @@ export default function Navbar() {
             ) : (
               <>
                 <BackButton />
-                <button className="p-4" onClick={handleHamburger}>
-                  <img src={hamburger} alt="ícono de menú" className="w-5 h-5" />
+                <button className="p-4" onClick={() => setIsMenuOpen(true)}>
+                    <img src={hamburger} alt="ícono de menú" className="w-5 h-5" />
                 </button>
               </>
             )}
@@ -132,112 +109,21 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {isMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={() => setIsMenuOpen(false)}
-            aria-hidden="true"
-          />
-
-          <aside className="fixed top-0 right-0 h-full w-full bg-neutral shadow-2xl z-50 md:w-80 overflow-y-auto">
-            <div className="py-6 flex flex-col gap-20 min-h-full">
-              <div>
-                <div className="flex items-center justify-between mb-6 px-6">
-                  <h2 className="font-heading text-tertiary">Menú</h2>
-
-                  <button
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-tertiary hover:text-primary transition-colors duration-200
-                   focus:outline-none focus:ring-2 focus:ring-primary rounded-lg p-2"
-                    aria-label="Cerrar menú"
-                  >
-                    <img
-                      src={close}
-                      alt="ícono de cerrar"
-                      className="h-6 w-6"
-                    />
-                  </button>
-                </div>
-                <div className="flex flex-col gap-2 ">
-                  <MenuNavItem
-                    to="/"
-                    icon={homeBrown}
-                    iconHover={home}
-                    label="Inicio"
-                  />
-                  <MenuNavItem
-                    to="/profile"
-                    icon={profileBrown}
-                    iconHover={profile}
-                    label="Perfil"
-                  />
-                  <MenuNavItem
-                    to="/tasks"
-                    icon={checkBrown}
-                    iconHover={checkBlue}
-                    label="Tareas"
-                  />
-
-                  <MenuNavItem
-                    to="/goals"
-                    icon={starBrown}
-                    iconHover={star}
-                    label="Metas"
-                  />
-                  <MenuNavItem
-                    to="/metrics"
-                    icon={metricBrown}
-                    iconHover={metrics}
-                    label="Métricas"
-                    badge={isPremium ? undefined : "PRO"}
-                  />
-                  <MenuNavItem
-                    to="/moodboard"
-                    icon={heartBlue}
-                    iconHover={heart}
-                    label="Moodboard"
-                    badge={isPremium ? undefined : "PRO"}
-                  />
-                  <MenuNavItem
-                    to="/achievements"
-                    icon={medalBrown}
-                    iconHover={medal}
-                    label="Logros"
-                  />
-                  {!isPremium && (
-                    <MenuNavItem
-                      to="/subscription"
-                      icon={starBrown}
-                      iconHover={star}
-                      label="Suscripcion"
-                      badge="PRO"
-                    />
-                  )}
-                  {user?.isAdmin && (
-                    <MenuNavItem
-                      to="/admin"
-                      icon={profileBrown}
-                      iconHover={profile}
-                      label="Panel Administracion"
-                    />
-                  )}
-                </div>
-              </div>
-              <div>
-                <button className="w-full" onClick={handleLogout}>
-                  <MenuNavItem
-                    to="/"
-                    icon={iconLogoutBrown}
-                    iconHover={iconLogout}
-                    label="cerrar sesión"
-                  />
-                </button>
-              </div>
-            </div>
-          </aside>
-        </>
-      )}
+      <SideDrawer isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} ariaLabel="Menú">
+        <MenuNavItem to="/" icon={homeBrown} iconHover={home} label="Inicio" />
+        <MenuNavItem to="/profile" icon={profileBrown} iconHover={profile} label="Perfil" />
+        <MenuNavItem to="/tasks" icon={checkBrown} iconHover={checkBlue} label="Tareas" />
+        <MenuNavItem to="/goals" icon={starBrown} iconHover={star} label="Metas" />
+        <MenuNavItem to="/metrics" icon={metricBrown} iconHover={metrics} label="Métricas" badge={isPremium ? undefined : "PRO"} />
+        <MenuNavItem to="/moodboard" icon={heartBlue} iconHover={heart} label="Moodboard" badge={isPremium ? undefined : "PRO"} />
+        <MenuNavItem to="/achievements" icon={medalBrown} iconHover={medal} label="Logros" />
+        {!isPremium && (
+          <MenuNavItem to="/subscription" icon={starBrown} iconHover={star} label="Suscripcion" badge="PRO" />
+        )}
+        {user?.isAdmin && (
+          <MenuNavItem to="/admin" icon={profileBrown} iconHover={profile} label="Panel Administracion" />
+        )}
+      </SideDrawer>
     </>
   );
 }

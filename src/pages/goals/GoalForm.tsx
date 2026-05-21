@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import {
@@ -15,13 +15,13 @@ import type {
   GoalPriority,
   IUpdateGoal,
 } from "../../interfaces";
-import { useHttpError, useUnsavedChanges } from "../../hooks";
+import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
-import { validateField, validateMinLength } from "../../utils/validations";
+import { validateMinLength } from "../../utils/validations";
 import Loading from "../../components/Loading";
 
 export default function GoalForm() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { id } = useParams<{ id: string }>();
   const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
@@ -81,6 +81,7 @@ export default function GoalForm() {
   const [titleError, setTitleError] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
   const [reasonError, setReasonError] = useState("");
+  const [dueDateError, setDueDateError] = useState("");
 
   // Opciones para los selects
   const statusOptions = [
@@ -130,7 +131,7 @@ export default function GoalForm() {
         }
       } catch (err) {
         handleError(err);
-        setModalMessage("Error al cargar la meta");
+        setModalMessage("No pudimos cargar la meta, intentá de nuevo");
         setIsErrorModalOpen(true);
       } finally {
         setLoading(false);
@@ -142,22 +143,25 @@ export default function GoalForm() {
 
   // Validaciones
   const handleTitleBlur = () => {
-    const minError = validateMinLength(title, 3, "El título");
+    const minError = validateMinLength(title, 3, "El nombre de tu meta");
     if (minError) {
       setTitleError(minError);
       return;
     }
     if (title.length > 50) {
-      setTitleError("El título no puede exceder 50 caracteres");
+      setTitleError("El nombre no puede superar los 50 caracteres");
       return;
     }
-    const error = validateField("El título", title);
-    setTitleError(error || "");
+    if (!title.trim()) {
+      setTitleError("Dale un nombre a tu meta");
+      return;
+    }
+    setTitleError("");
   };
 
   const handleDescriptionBlur = () => {
     if (description.length > 100) {
-      setDescriptionError("La descripción no puede exceder 100 caracteres");
+      setDescriptionError("La descripción no puede superar los 100 caracteres");
       return;
     }
     setDescriptionError("");
@@ -165,10 +169,18 @@ export default function GoalForm() {
 
   const handleReasonBlur = () => {
     if (reason.length > 50) {
-      setReasonError("Este campo no puede exceder 50 caracteres");
+      setReasonError("Este campo no puede superar los 50 caracteres");
       return;
     }
     setReasonError("");
+  };
+
+  const handleDueDateBlur = () => {
+    if (!dueDate) {
+      setDueDateError("Elegí una fecha para tu meta");
+      return;
+    }
+    setDueDateError("");
   };
 
   // Handlers para modales
@@ -186,32 +198,34 @@ export default function GoalForm() {
     setTitleError("");
     setDescriptionError("");
     setReasonError("");
+    setDueDateError("");
 
-    // Validar título (requerido, min 3, max 50)
-    const minError = validateMinLength(title, 3, "El título");
+    if (!title.trim()) {
+      setTitleError("Dale un nombre a tu meta");
+      return false;
+    }
+    const minError = validateMinLength(title, 3, "El nombre de tu meta");
     if (minError) {
       setTitleError(minError);
       return false;
     }
     if (title.length > 50) {
-      setTitleError("El título no puede exceder 50 caracteres");
-      return false;
-    }
-    const titleValidation = validateField("El título", title);
-    if (titleValidation) {
-      setTitleError(titleValidation);
+      setTitleError("El nombre no puede superar los 50 caracteres");
       return false;
     }
 
-    // Validar descripción (max 100)
     if (description.length > 100) {
-      setDescriptionError("La descripción no puede exceder 100 caracteres");
+      setDescriptionError("La descripción no puede superar los 100 caracteres");
       return false;
     }
 
-    // Validar reason (max 50)
     if (reason.length > 50) {
-      setReasonError("Este campo no puede exceder 50 caracteres");
+      setReasonError("Este campo no puede superar los 50 caracteres");
+      return false;
+    }
+
+    if (!dueDate) {
+      setDueDateError("Elegí una fecha para tu meta");
       return false;
     }
 
@@ -266,7 +280,7 @@ export default function GoalForm() {
       setIsSuccessModalOpen(true);
     } catch (err) {
       handleError(err);
-      setModalMessage("Error al procesar la solicitud. Por favor, intenta de nuevo.");
+      setModalMessage("Algo salió mal, ¿podés intentar de nuevo?");
       setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
@@ -373,7 +387,10 @@ export default function GoalForm() {
           label="¿Para cuándo te gustaría lograrlo?"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
+          onBlur={handleDueDateBlur}
           disabled={loading}
+          error={dueDateError}
+          required
           withDivider
         />
 
@@ -396,10 +413,10 @@ export default function GoalForm() {
         isOpen={isBlocked}
         onClose={handleCancelNavigation}
         onConfirm={handleConfirmNavigation}
-        title="Cambios sin guardar"
-        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        title="Tenés cambios sin guardar"
+        message="Si salís ahora, vas a perder lo que escribiste. ¿Querés salir igual?"
         confirmText="Salir"
-        cancelText="Quedarse"
+        cancelText="Quedarme"
         variant="warning"
         loading={false}
       />
@@ -422,7 +439,7 @@ export default function GoalForm() {
         isOpen={isErrorModalOpen}
         onClose={handleErrorModalClose}
         onConfirm={handleErrorModalClose}
-        title="Error"
+        title="¡Ups!"
         message={modalMessage}
         confirmText="Aceptar"
         cancelText=""

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks";
+import { useAuth, useAppNavigate } from "../../hooks";
 import { ButtonLink } from "../../components/ui";
 import Loading from "../../components/Loading";
 import { nuriLentes } from "../../assets/ilustrations";
@@ -10,7 +9,7 @@ const RETRY_DELAY_MS = 3000;
 
 export default function SubscriptionCallback() {
   const { refreshSubscription, isPremium } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [checking, setChecking] = useState(true);
   const [failed, setFailed] = useState(false);
 

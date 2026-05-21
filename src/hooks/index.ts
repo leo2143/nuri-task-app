@@ -36,3 +36,4 @@ export type {
 } from "./useFetchOffline";
 
 export { useNotifications } from "./useNotifications";
+export { useAppNavigate } from "./useAppNavigate";

@@ -31,7 +31,7 @@ export default function Subscription() {
       window.location.href = init_point;
     } catch (err) {
       console.error("Error al iniciar suscripcion:", err);
-      setError("No se pudo iniciar el proceso de pago. Intentá de nuevo.");
+      setError("No pudimos iniciar el pago, ¿podés intentar de nuevo?");
       setIsActivating(false);
     }
   };

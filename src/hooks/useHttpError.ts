@@ -27,7 +27,7 @@ export function useHttpError() {
    * @returns Mensaje de error formateado
    */
   const handleError = useCallback((err: unknown): string => {
-    let message = "Error inesperado";
+    let message = "Algo salió mal, intentá de nuevo";
 
     // Verificar si es un error de Axios (petición HTTP)
     if (err && typeof err === "object" && "response" in err) {

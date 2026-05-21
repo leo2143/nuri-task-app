@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { userService } from "../../services/userService";
-import { useField, useHttpError } from "../../hooks";
+import { useAppNavigate, useField, useHttpError } from "../../hooks";
 import { Button, ButtonLink, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
@@ -13,7 +13,7 @@ import TramaBlue from "../../assets/icons/trama-blue.svg";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const token = searchParams.get("token");
 
   // Hook para manejar errores HTTP
@@ -39,7 +39,7 @@ export default function ResetPassword() {
       if (!token) {
         handleError(
           new Error(
-            "Token no proporcionado. Por favor, usa el enlace del email.",
+            "El enlace no es válido. Usá el link que te enviamos por email.",
           ),
         );
         setVerifying(false);
@@ -54,7 +54,7 @@ export default function ResetPassword() {
           setUserEmail(response.email || "");
         } else {
           handleError(
-            new Error(response.message || "Token inválido o expirado"),
+            new Error(response.message || "El enlace expiró o ya fue usado"),
           );
         }
       } catch (error: unknown) {
@@ -105,7 +105,7 @@ export default function ResetPassword() {
     event.preventDefault();
 
     if (!token) {
-      handleError(new Error("Token no proporcionado"));
+      handleError(new Error("El enlace no es válido"));
       return;
     }
 
@@ -182,7 +182,7 @@ export default function ResetPassword() {
           </svg>
 
           <h1 className="text-2xl font-heading font-bold text-neutral mb-4 text-center">
-            Token Inválido o Expirado
+            Enlace inválido o expirado
           </h1>
 
           <div className="mb-6 w-full">
@@ -190,8 +190,8 @@ export default function ResetPassword() {
           </div>
 
           <p className="text-neutral/80 font-body mb-8 text-center text-sm">
-            El enlace de recuperación puede haber expirado o ya fue usado. Los
-            enlaces son válidos por 1 hora.
+            El enlace que usaste pudo haber expirado o ya fue utilizado.
+            Los enlaces son válidos por 1 hora.
           </p>
 
           <div className="flex flex-col gap-4 w-full">
@@ -249,7 +249,7 @@ export default function ResetPassword() {
                 disabled={loading}
                 error={newPasswordError}
                 onBlur={handleNewPasswordBlur}
-                helperText="Mínimo 8 caracteres"
+                helperText="Mínimo 5 caracteres"
                 darkMode
               />
 

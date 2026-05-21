@@ -27,9 +27,9 @@ export default function MenuNavItem({
     : "";
   const labelStyle = whitelabel ? "block" : "hidden";
   return (
-    <Link to={to}>
+    <Link to={to} viewTransition>
       <div
-        className={`w-full flex items-center gap-2 text-tertiary rounded-lg p-2 group ${hoverStyle}`}
+        className={`w-full flex items-center gap-2 text-tertiary rounded-2xl p-2 group ${hoverStyle}`}
       >
         <IconWrapper
           src={icon}

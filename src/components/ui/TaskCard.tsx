@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../../hooks";
 import { CustomCheckbox } from "./index";
 
 interface TaskCardProps {
@@ -20,7 +20,7 @@ export function TaskCard({
   onToggleComplete,
   className = "",
 }: TaskCardProps) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const handleClick = () => {
     if (id) {

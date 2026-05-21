@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import Button from "../../../components/ui/Button";
@@ -12,14 +12,14 @@ import type {
   AchievementTier,
   AchievementTriggerEvent,
 } from "../../../interfaces";
-import { useHttpError, useCloudinaryUpload, useUnsavedChanges } from "../../../hooks";
+import { useHttpError, useCloudinaryUpload, useUnsavedChanges, useAppNavigate } from "../../../hooks";
 import { achievementService } from "../../../services/achievementService";
 import { Input } from "../../../components/ui";
 import Loading from "../../../components/Loading";
 import { validateField } from "../../../utils/validations";
 
 export default function AdminAchievementForm() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { id } = useParams<{ id: string }>();
   const { errorMessage, handleError, clearError } = useHttpError();
   const { upload, isUploading: isImageUploading } = useCloudinaryUpload();
@@ -154,13 +154,13 @@ export default function AdminAchievementForm() {
   // Validación del targetCount
   const handleTargetCountBlur = () => {
     if (!targetCount.trim()) {
-      setTargetCountError("El objetivo es requerido");
+      setTargetCountError("Ingresá un objetivo numérico");
       return;
     }
 
     const numericValue = parseInt(targetCount, 10);
     if (isNaN(numericValue) || numericValue <= 0) {
-      setTargetCountError("Debe ser un número mayor a 0");
+      setTargetCountError("El objetivo debe ser mayor a 0");
     } else {
       setTargetCountError("");
     }
@@ -189,12 +189,12 @@ export default function AdminAchievementForm() {
     }
 
     if (!targetCount.trim()) {
-      setTargetCountError("El objetivo es requerido");
+      setTargetCountError("Ingresá un objetivo numérico");
       hasErrors = true;
     } else {
       const numericValue = parseInt(targetCount, 10);
       if (isNaN(numericValue) || numericValue <= 0) {
-        setTargetCountError("Debe ser un número mayor a 0");
+        setTargetCountError("El objetivo debe ser mayor a 0");
         hasErrors = true;
       }
     }
@@ -250,7 +250,7 @@ export default function AdminAchievementForm() {
       handleError(err);
       setModalMessage(
         errorMessage ||
-        "Hubo un error al procesar la solicitud. Por favor, intenta de nuevo.",
+        "Algo salió mal, ¿podés intentar de nuevo?",
       );
       setIsErrorModalOpen(true);
     } finally {
@@ -506,10 +506,10 @@ export default function AdminAchievementForm() {
         isOpen={isBlocked}
         onClose={handleCancelNavigation}
         onConfirm={handleConfirmNavigation}
-        title="Cambios sin guardar"
-        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        title="Tenés cambios sin guardar"
+        message="Si salís ahora, vas a perder lo que escribiste. ¿Querés salir igual?"
         confirmText="Salir"
-        cancelText="Quedarse"
+        cancelText="Quedarme"
         variant="warning"
         loading={false}
       />
@@ -532,7 +532,7 @@ export default function AdminAchievementForm() {
         isOpen={isErrorModalOpen}
         onClose={handleErrorModalClose}
         onConfirm={handleErrorModalClose}
-        title="Error"
+        title="¡Ups!"
         message={modalMessage}
         confirmText="Aceptar"
         cancelText=""

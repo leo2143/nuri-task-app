@@ -17,7 +17,7 @@ export const validateRequired = (
   fieldName: string = "Este campo",
 ): string | null => {
   if (!value.trim()) {
-    return `${fieldName} es obligatorio`;
+    return `${fieldName} no puede estar vacío`;
   }
   return null;
 };
@@ -35,7 +35,7 @@ export const validateMinLength = (
   fieldName: string = "Este campo",
 ): string | null => {
   if (value.trim().length < minLength) {
-    return `${fieldName} debe tener al menos ${minLength} caracteres`;
+    return `${fieldName} necesita al menos ${minLength} caracteres`;
   }
   return null;
 };
@@ -53,7 +53,7 @@ export const validateMaxLength = (
   fieldName: string = "Este campo",
 ): string | null => {
   if (value.trim().length > maxLength) {
-    return `${fieldName} no puede tener más de ${maxLength} caracteres`;
+    return `${fieldName} no puede superar los ${maxLength} caracteres`;
   }
   return null;
 };
@@ -66,12 +66,11 @@ export const isValidEmail = (email: string): boolean => {
  * Valida formato de email
  */
 export const validateEmail = (email: string): string | null => {
-  // Usar validación genérica para campo requerido
   const requiredError = validateRequired(email, "El email");
   if (requiredError) return requiredError;
 
   if (!isValidEmail(email)) {
-    return "El email no es válido";
+    return "Revisá que el email esté bien escrito";
   }
   return null;
 };
@@ -80,11 +79,9 @@ export const validateEmail = (email: string): string | null => {
  * Valida contraseña
  */
 export const validatePassword = (password: string): string | null => {
-  // Usar validación genérica para campo requerido
   const requiredError = validateRequired(password, "La contraseña");
   if (requiredError) return requiredError;
 
-  // Usar validación genérica para longitud mínima
   const minLengthError = validateMinLength(
     password,
     PASSWORD_MIN_LENGTH,
@@ -108,11 +105,9 @@ export const validateField = (
   value: string,
   minLength: number = 0,
 ): string | null => {
-  // Usar validación genérica para campo requerido
   const requiredError = validateRequired(value, fieldMessage);
   if (requiredError) return requiredError;
 
-  // Validar longitud mínima solo si se especifica (mayor a 0)
   if (minLength > 0) {
     const minLengthError = validateMinLength(value, minLength, fieldMessage);
     if (minLengthError) return minLengthError;
@@ -128,15 +123,14 @@ export const validateConfirmPassword = (
   password: string,
   confirmPassword: string,
 ): string | null => {
-  // Usar validación genérica para campo requerido
   const requiredError = validateRequired(
     confirmPassword,
-    "La confirmación de contraseña",
+    "La confirmación",
   );
   if (requiredError) return requiredError;
 
   if (password !== confirmPassword) {
-    return "Las contraseñas no coinciden";
+    return "Las contraseñas no coinciden, revisalas";
   }
   return null;
 };

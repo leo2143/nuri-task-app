@@ -6,7 +6,7 @@ import { Button, Input } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { validateEmail } from "../../utils/validations";
-import TramaBlue from "../../assets/icons/trama-blue.svg";
+
 
 export default function ForgotPassword() {
   // Hook para manejar errores HTTP
@@ -80,19 +80,13 @@ export default function ForgotPassword() {
   };
 
   return (
-    <section className="min-h-screen flex flex-col bg-secondary">
+    <section className="min-h-screen flex flex-col bg-background">
       {loading && <Loading />}
 
-      <div className="relative flex items-center justify-center pt-8 overflow-hidden">
-        <img
-          src={TramaBlue}
-          alt=""
-          aria-hidden="true"
-          className="max-w-none z-10"
-        />
+      <div className="login-trama-bg relative flex items-center justify-center pt-40 overflow-x-hidden">
       </div>
 
-      <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col">
+      <div className="relative flex-1 bg-secondary rounded-t-[2.5rem] px-8 pt-10 pb-10 flex flex-col">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-heading font-bold text-neutral mb-2">
             Recuperar Contraseña
@@ -150,7 +144,7 @@ export default function ForgotPassword() {
           </form>
         ) : (
           <div className="space-y-6">
-            <div className="bg-primary/20 border-2 border-primary text-neutral px-6 py-4 rounded-lg">
+            <div className="bg-neutral/10 border border-neutral/30 text-neutral px-6 py-4 rounded-lg">
               <div className="flex items-start gap-3">
                 <svg
                   className="w-6 h-6 mt-0.5 flex-shrink-0"
@@ -165,7 +159,7 @@ export default function ForgotPassword() {
                   />
                 </svg>
                 <div>
-                  <h2 className="font-heading font-bold text-lg mb-2">
+                  <h2 className="font-heading font-bold text-lg mb-2 text-neutral">
                     ¡Email Enviado!
                   </h2>
                   <p className="font-body text-sm">{successMessage}</p>

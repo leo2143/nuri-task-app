@@ -78,7 +78,7 @@ export default function ButtonLink({
   const linkImageClasses = `w-5 h-5 ${widthImageStyle}`;
 
   return (
-    <Link to={to} className={linkClasses} aria-label={ariaLabel}>
+    <Link to={to} viewTransition className={linkClasses} aria-label={ariaLabel}>
       {icon && (
         <img src={iconMap[icon]} alt={icon} className={linkImageClasses} />
       )}

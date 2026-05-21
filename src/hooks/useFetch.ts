@@ -50,7 +50,7 @@ export function useFetchById<T>({
 
   const fetchData = async () => {
     if (!id) {
-      handleError(new Error("Che, falta el ID"));
+      handleError(new Error("No encontramos lo que buscás"));
       setLoading(false);
       return;
     }
