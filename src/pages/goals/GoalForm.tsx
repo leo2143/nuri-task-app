@@ -17,7 +17,7 @@ import type {
 } from "../../interfaces";
 import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
-import { validateField, validateMinLength } from "../../utils/validations";
+import { validateMinLength } from "../../utils/validations";
 import Loading from "../../components/Loading";
 
 export default function GoalForm() {
