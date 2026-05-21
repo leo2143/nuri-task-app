@@ -21,7 +21,9 @@ export default function SideDrawer({
   useEffect(() => {
     if (isOpen) {
       setIsMounted(true);
-      requestAnimationFrame(() => setIsVisible(true));
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+      });
       document.body.style.overflow = "hidden";
     } else {
       setIsVisible(false);
@@ -40,8 +42,8 @@ export default function SideDrawer({
   return (
     <>
       <div
-        className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
-          isVisible ? "bg-opacity-50" : "bg-opacity-0"
+        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0"
         }`}
         onClick={onClose}
         aria-hidden="true"
