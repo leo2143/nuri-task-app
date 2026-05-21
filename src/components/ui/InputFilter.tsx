@@ -45,7 +45,7 @@ export default function InputFilter({
 
   // Estilos del input - Modo Light con espacio para el icono izquierdo
   const lightModeStyles = `
-  w-4/5 pl-12 pr-4 py-3 rounded-lg  shadow-brand-glow
+  w-4/5 pl-12 pr-4 py-3 rounded-lg shadow-brand-glow
   ${value ? "bg-brand/10 border-brand/50 border-2" : "bg-white"}
   focus:bg-brand/20
   focus:outline-none

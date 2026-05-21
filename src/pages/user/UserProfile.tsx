@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button, ButtonLink, InfoCard } from "../../components/ui";
 import { ImageUploadSlot } from "../../components/ImageUploadSlot";
-import { useAuth, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
+import { useAppNavigate, useAuth, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
 import { userService } from "../../services/userService";
 import { subscriptionService } from "../../services/subscriptionService";
 import type { IUserProfile } from "../../interfaces";
 import Loading from "../../components/Loading";
 
 export default function UserProfile() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { logout, refreshSubscription } = useAuth();
   const { upload, isUploading } = useCloudinaryUpload();
   const { isSupported, permission, isSubscribed, isLoading: pushLoading, subscribe, unsubscribe } = useNotifications();

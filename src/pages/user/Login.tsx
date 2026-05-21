@@ -1,18 +1,18 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { userService } from "../../services/userService";
 import type { ILoginUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
-import { useField, useHttpError, useAuth } from "../../hooks";
+import { useAppNavigate, useField, useHttpError, useAuth } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
 import GoogleIcon from "../../assets/icons/google.svg";
 import { nuriConNenu } from "../../assets/ilustrations/index";
 
 export default function Login() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { login } = useAuth();
 
   const { error, errorMessage, handleError, clearError } = useHttpError();
@@ -66,7 +66,7 @@ export default function Login() {
       }
     },
     onError: () => {
-      handleError(new Error("Error al iniciar sesión con Google"));
+      handleError(new Error("No pudimos conectar con Google, intentá de nuevo"));
     },
     flow: "auth-code",
   });

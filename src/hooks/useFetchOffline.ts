@@ -30,7 +30,7 @@ export function useFetchByIdOffline<T>({
 
   const fetchData = async () => {
     if (!id) {
-      handleError(new Error("Falta el ID"));
+      handleError(new Error("No encontramos lo que buscás"));
       setLoading(false);
       return;
     }

@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import Button from "../../../components/ui/Button";
@@ -9,7 +9,7 @@ import type {
   UpdateAdminUserDto,
   IUser,
 } from "../../../interfaces";
-import { useHttpError, useCloudinaryUpload, useUnsavedChanges } from "../../../hooks";
+import { useHttpError, useCloudinaryUpload, useUnsavedChanges, useAppNavigate } from "../../../hooks";
 import { userService } from "../../../services/userService";
 import { Input } from "../../../components/ui";
 import Loading from "../../../components/Loading";
@@ -21,7 +21,7 @@ import {
 } from "../../../utils/validations";
 
 export default function AdminUserForm() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { id } = useParams<{ id: string }>();
   const { errorMessage, handleError, clearError } = useHttpError();
   const { upload, isUploading: isImageUploading } = useCloudinaryUpload();
@@ -240,7 +240,7 @@ export default function AdminUserForm() {
       handleError(err);
       setModalMessage(
         errorMessage ||
-        "Hubo un error al procesar la solicitud. Por favor, intenta de nuevo.",
+        "Algo salió mal, ¿podés intentar de nuevo?",
       );
       setIsErrorModalOpen(true);
     } finally {
@@ -344,8 +344,8 @@ export default function AdminUserForm() {
           }
           placeholder={
             isEditMode
-              ? "Dejar vacío si no deseas cambiarla"
-              : "Mínimo 6 caracteres"
+              ? "Dejalo vacío si no querés cambiarla"
+              : "Mínimo 5 caracteres"
           }
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -354,7 +354,7 @@ export default function AdminUserForm() {
           disabled={loading}
           error={passwordError}
           helperText={
-            isEditMode ? "Opcional en modo edición" : "Mínimo 6 caracteres"
+            isEditMode ? "Opcional en modo edición" : "Mínimo 5 caracteres"
           }
         />
 
@@ -444,10 +444,10 @@ export default function AdminUserForm() {
         isOpen={isBlocked}
         onClose={handleCancelNavigation}
         onConfirm={handleConfirmNavigation}
-        title="Cambios sin guardar"
-        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        title="Tenés cambios sin guardar"
+        message="Si salís ahora, vas a perder lo que escribiste. ¿Querés salir igual?"
         confirmText="Salir"
-        cancelText="Quedarse"
+        cancelText="Quedarme"
         variant="warning"
         loading={false}
       />
@@ -470,7 +470,7 @@ export default function AdminUserForm() {
         isOpen={isErrorModalOpen}
         onClose={handleErrorModalClose}
         onConfirm={handleErrorModalClose}
-        title="Error"
+        title="¡Ups!"
         message={modalMessage}
         confirmText="Aceptar"
         cancelText=""

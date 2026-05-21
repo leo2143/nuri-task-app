@@ -20,7 +20,7 @@ export default function OfflineBanner() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-yellowCheap px-4 py-2 text-center font-body text-sm font-semibold text-tertiary-dark">
-      Modo offline — mostrando datos guardados
+      Sin conexión — mostrando datos guardados
     </div>
   );
 }

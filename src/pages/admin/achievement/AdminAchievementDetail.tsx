@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Button,
@@ -7,14 +6,14 @@ import {
   ConfirmModal,
   InfoCard,
 } from "../../../components/ui";
-import { useFetchById, useFormatDate } from "../../../hooks";
+import { useFetchById, useFormatDate, useAppNavigate } from "../../../hooks";
 import type { IAchievement } from "../../../interfaces";
 import { achievementService } from "../../../services/achievementService";
 import Loading from "../../../components/Loading";
 import StateMessage from "../../../components/StateMessage";
 
 export default function AdminAchievementDetail() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -46,7 +45,7 @@ export default function AdminAchievementDetail() {
       });
     } catch (err) {
       console.error("Error al eliminar logro:", err);
-      alert("Error al eliminar el logro. Por favor, intenta de nuevo.");
+      alert("No pudimos eliminar el logro, intentá de nuevo.");
     } finally {
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
@@ -126,7 +125,7 @@ export default function AdminAchievementDetail() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteAchievement}
         title="Cuidado"
-        message="¿Estás seguro de que quieres eliminar este logro?"
+        message="¿Querés eliminar este logro? Esta acción no se puede deshacer."
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="warning"

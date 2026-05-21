@@ -1,14 +1,14 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import { Select, Button, ConfirmModal, GoalCard } from "../../components/ui";
 import type { IGoal, IGoalCatalog, IAddSubGoal } from "../../interfaces";
-import { useHttpError, useUnsavedChanges } from "../../hooks";
+import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { arrowsUpDown } from "../../assets/svg-icons";
 
 export default function GoalSubGoalForm() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { id } = useParams<{ id: string }>();
   const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
@@ -85,7 +85,7 @@ export default function GoalSubGoalForm() {
     e.preventDefault();
 
     if (!goalId) {
-      setModalMessage("Debes seleccionar una meta para asociar");
+      setModalMessage("Seleccioná una meta para asociar");
       setIsErrorModalOpen(true);
       return;
     }
@@ -105,7 +105,7 @@ export default function GoalSubGoalForm() {
       setIsSuccessModalOpen(true);
     } catch (err) {
       handleError(err);
-      setModalMessage("Error al asociar las metas. Por favor, intenta de nuevo.");
+      setModalMessage("No pudimos asociar las metas, ¿podés intentar de nuevo?");
       setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
@@ -162,10 +162,10 @@ export default function GoalSubGoalForm() {
         isOpen={isBlocked}
         onClose={handleCancelNavigation}
         onConfirm={handleConfirmNavigation}
-        title="Cambios sin guardar"
-        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        title="Tenés cambios sin guardar"
+        message="Si salís ahora, vas a perder lo que escribiste. ¿Querés salir igual?"
         confirmText="Salir"
-        cancelText="Quedarse"
+        cancelText="Quedarme"
         variant="warning"
         loading={false}
       />
@@ -188,7 +188,7 @@ export default function GoalSubGoalForm() {
         isOpen={isErrorModalOpen}
         onClose={handleErrorModalClose}
         onConfirm={handleErrorModalClose}
-        title="Error"
+        title="¡Ups!"
         message={modalMessage}
         confirmText="Aceptar"
         cancelText=""

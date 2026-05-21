@@ -9,10 +9,10 @@ export default function NotFound() {
             404
           </h2>
           <h3 className="text-3xl font-heading font-semibold text-tertiary mb-4">
-            Página No Encontrada
+            Página no encontrada
           </h3>
           <p className="text-xl font-body text-tertiary mb-8">
-            <em>¡Oops! La página que buscas no existe.</em>
+            <em>¡Ups! La página que buscás no existe.</em>
           </p>
         </div>
 

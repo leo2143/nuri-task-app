@@ -51,7 +51,7 @@ export default function Metrics() {
       <div className="bg-white rounded-lg p-6 shadow-lg shadow-tertiary-dark/25">
         <ProgressBar
           progress={stats?.achievementsProgress?.percentage || 0}
-          label="Progreso Semanal"
+          label="Progreso de Logros"
           height="xl"
           bgColor="bg-[#EDCBB1]"
           color="bg-tertiary"

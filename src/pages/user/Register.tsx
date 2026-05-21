@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { userService } from "../../services/userService";
 import type { ICreateUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
-import { useField, useHttpError } from "../../hooks";
+import { useAppNavigate, useField, useHttpError } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import {
   isConflictResponse,
@@ -20,7 +20,7 @@ import {
 import TramaBlue from "../../assets/icons/trama-blue.svg";
 
 export default function Register() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   // Hook para manejar errores HTTP
   const { error, errorMessage, clearError, setError, setErrorMessage } =
@@ -132,43 +132,34 @@ export default function Register() {
       // 7. MANEJAR errores con type guards
       console.error("Error en registro:", error);
 
-      let mensajeError = "Error al crear la cuenta";
+      let mensajeError = "No pudimos crear tu cuenta, intentá de nuevo";
 
-      // Usar type guards para manejar errores de forma type-safe
       if (error && typeof error === "object" && "response" in error) {
         const axiosError = error as { response?: { data?: unknown } };
         const errorData = axiosError.response?.data;
 
-        // Conflicto (409) - Email o recurso duplicado
         if (isConflictResponse(errorData)) {
           const field = errorData.meta?.conflict.field;
           if (field === "email") {
             mensajeError =
-              "Este email ya está registrado. ¿Deseas iniciar sesión?";
+              "Este email ya tiene una cuenta. ¿Querés iniciar sesión?";
           } else {
-            mensajeError = errorData.message || "El recurso ya existe";
+            mensajeError = errorData.message || "Este registro ya existe";
           }
-        }
-        // Error de validación (400) - Errores de validación del backend
-        else if (isValidationErrorResponse(errorData)) {
+        } else if (isValidationErrorResponse(errorData)) {
           const errors = errorData.meta?.errors;
           if (errors) {
-            // Tomar el primer error de validación
             const firstError = Object.values(errors)[0];
             mensajeError =
-              firstError?.[0] || errorData.message || "Datos inválidos";
+              firstError?.[0] || errorData.message || "Revisá los datos ingresados";
           } else {
-            mensajeError = errorData.message || "Datos inválidos";
+            mensajeError = errorData.message || "Revisá los datos ingresados";
           }
-        }
-        // Solicitud incorrecta (400) - Errores generales de solicitud
-        else if (isBadRequestResponse(errorData)) {
+        } else if (isBadRequestResponse(errorData)) {
           mensajeError =
             errorData.message ||
-            "Datos inválidos. Verifica la información ingresada";
-        }
-        // Mensaje genérico del backend
-        else if (
+            "Revisá la información ingresada";
+        } else if (
           errorData &&
           typeof errorData === "object" &&
           "message" in errorData
@@ -248,7 +239,7 @@ export default function Register() {
             disabled={loading}
             error={passwordError}
             onBlur={handlePasswordBlur}
-            helperText="Mínimo 8 caracteres"
+            helperText="Mínimo 5 caracteres"
             darkMode
           />
 

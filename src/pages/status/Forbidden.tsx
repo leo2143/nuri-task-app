@@ -9,10 +9,10 @@ export default function Forbidden() {
             401
           </h2>
           <h3 className="text-3xl font-heading font-semibold text-tertiary mb-4">
-            No Tienes accesos a esta pagina
+            No tenés acceso a esta página
           </h3>
           <p className="text-xl font-body text-tertiary mb-8">
-            <em>¡Oops! La página que buscas es solo para administradores.</em>
+            <em>¡Ups! Esta sección es solo para administradores.</em>
           </p>
         </div>
 

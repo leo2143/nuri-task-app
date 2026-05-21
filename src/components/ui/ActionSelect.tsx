@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, cloneElement, isValidElement } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAppNavigate } from "../../hooks";
 import { metricWhite, lapizWrite } from "../../assets/svg-icons";
 import type { ReactNode } from "react";
 
@@ -33,7 +33,7 @@ interface ActionSelectProps {
 export default function ActionSelect({ children, options = defaultOptions }: ActionSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

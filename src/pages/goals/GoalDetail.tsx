@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   ButtonLink,
   ProgressBar,
@@ -9,8 +9,8 @@ import {
   StatusSelect,
   TabGroup,
 } from "../../components/ui";
-import type { IGoal, ITodo } from "../../interfaces";
-import { useFetchByIdOffline, useFormatDate } from "../../hooks";
+import type { IGoal, ITodo, FilterConfig, FilterValues } from "../../interfaces";
+import { useAppNavigate, useFetchByIdOffline, useFormatDate } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { todoservice } from "../../services/todoService"; // Solo para updateTodoState
 import Loading from "../../components/Loading";
@@ -20,7 +20,7 @@ import { lapiz, calendar, trash } from "../../assets/svg-icons";
 type TabType = "tasks" | "subgoals";
 
 export default function GoalDetail() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
   const [tasks, setTasks] = useState<ITodo[]>([]);
   const [subGoals, setSubGoals] = useState<IGoal[]>([]);
@@ -30,9 +30,27 @@ export default function GoalDetail() {
   const [isFirstLoadSubGoals, setIsFirstLoadSubGoals] = useState(true);
   const [taskSearchTerm, setTaskSearchTerm] = useState("");
   const [subGoalSearchTerm, setSubGoalSearchTerm] = useState("");
+  const [activeTaskFilters, setActiveTaskFilters] = useState<FilterValues>({});
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [localGoal, setLocalGoal] = useState<IGoal | null>(null);
+
+  const taskFilterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        key: "priority",
+        label: "Prioridad",
+        type: "chips",
+        options: [
+          { value: "low", label: "Baja" },
+          { value: "medium", label: "Media" },
+          { value: "high", label: "Alta" },
+        ],
+      },
+      { key: "completed", label: "Completadas", type: "toggle" },
+    ],
+    []
+  );
 
   const {
     data: fetchedGoal,
@@ -113,16 +131,31 @@ export default function GoalDetail() {
     [],
   );
 
-  // Filtrar tareas localmente
+  // Filtrar tareas localmente (búsqueda + filtros)
   const filteredTasks = useMemo(() => {
-    if (!taskSearchTerm) return tasks;
-    const searchLower = taskSearchTerm.toLowerCase();
-    return tasks.filter(
-      (task) =>
-        task.title.toLowerCase().includes(searchLower) ||
-        task.description?.toLowerCase().includes(searchLower),
-    );
-  }, [tasks, taskSearchTerm]);
+    let result = tasks;
+
+    if (taskSearchTerm) {
+      const searchLower = taskSearchTerm.toLowerCase();
+      result = result.filter(
+        (task) =>
+          task.title.toLowerCase().includes(searchLower) ||
+          task.description?.toLowerCase().includes(searchLower),
+      );
+    }
+
+    if (activeTaskFilters.priority) {
+      result = result.filter(
+        (task) => task.priority === activeTaskFilters.priority,
+      );
+    }
+
+    if (activeTaskFilters.completed !== undefined && activeTaskFilters.completed !== "") {
+      result = result.filter((task) => task.completed === true);
+    }
+
+    return result;
+  }, [tasks, taskSearchTerm, activeTaskFilters]);
 
   // Filtrar submetas localmente
   const filteredSubGoals = useMemo(() => {
@@ -345,6 +378,9 @@ export default function GoalDetail() {
           renderItem={renderTaskItem}
           emptyStateName="Tareas"
           isFirstLoad={isFirstLoadTasks}
+          filterConfig={taskFilterConfig}
+          activeFilters={activeTaskFilters}
+          onFiltersChange={setActiveTaskFilters}
         />
       )}
 
@@ -368,7 +404,7 @@ export default function GoalDetail() {
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         title="¿Eliminar meta?"
-        message={`¿Estás seguro de que quieres eliminar la meta "${goal.title}"? Esta acción no se puede deshacer.`}
+        message={`¿Querés eliminar la meta "${goal.title}"? Esta acción no se puede deshacer.`}
         confirmText="Eliminar"
         variant="danger"
         onConfirm={handleDeleteGoal}

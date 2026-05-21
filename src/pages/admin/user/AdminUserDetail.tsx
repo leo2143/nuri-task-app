@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Avatar,
   Button,
@@ -7,14 +6,14 @@ import {
   ConfirmModal,
   InfoCard,
 } from "../../../components/ui";
-import { useFetchById, useFormatDate } from "../../../hooks";
+import { useFetchById, useFormatDate, useAppNavigate } from "../../../hooks";
 import type { IUser } from "../../../interfaces";
 import { userService } from "../../../services/userService";
 import Loading from "../../../components/Loading";
 import StateMessage from "../../../components/StateMessage";
 
 export default function AdminUserDetail() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -47,7 +46,7 @@ export default function AdminUserDetail() {
       });
     } catch (err) {
       console.error("Error al eliminar usuario:", err);
-      alert("Error al eliminar el usuario. Por favor, intenta de nuevo.");
+      alert("No pudimos eliminar el usuario, intentá de nuevo.");
     } finally {
       setIsDeleting(false);
       setIsDeleteModalOpen(false);
@@ -131,7 +130,7 @@ export default function AdminUserDetail() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteUser}
         title="Cuidado"
-        message="¿Estás seguro de que quieres eliminar el usuario?"
+        message="¿Querés eliminar este usuario? Esta acción no se puede deshacer."
         confirmText="Eliminar"
         cancelText="Cancelar"
         variant="warning"

@@ -9,13 +9,13 @@ interface StateMessageProps {
 
 const variantConfig = {
   notFound: {
-    title: (itemName: string) => `No se encontró el ${itemName}`,
-    message: "Por favor, verifica el ID o intenta nuevamente.",
+    title: (itemName: string) => `No encontramos ${itemName}`,
+    message: "Revisá el enlace o volvé a intentar.",
     image: nuriTriste,
   },
   error: {
-    title: (itemName: string) => `Lo siento, no pude cargar ${itemName}`,
-    message: "Por favor, espera unos segundos y vuelve a intentarlo.",
+    title: (itemName: string) => `No pudimos cargar ${itemName}`,
+    message: "Esperá unos segundos y volvé a intentarlo.",
     image: nuriError,
   },
   notFoundList: {
@@ -25,7 +25,7 @@ const variantConfig = {
   },
   offline: {
     title: () => "Sin conexión",
-    message: "No se pudo cargar esta página porque no hay conexión a internet.",
+    message: "No podemos cargar esta página sin internet. Conectate y volvé a intentar.",
     image: null,
   },
 };

@@ -93,7 +93,7 @@ export default function TaskList() {
   );
 
   return (
-    <div className="flex flex-col gap-11 justify-center">
+    <div className="flex flex-col gap-11 justify-center pt-6">
       <div className="flex flex-col gap-6 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           {isCompletedView ? "Tareas Realizadas" : "Mis Tareas"}

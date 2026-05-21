@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import Button from "../../components/ui/Button";
@@ -9,14 +9,15 @@ import type {
   ITodo,
   TodoPriority,
 } from "../../interfaces";
-import { useHttpError, useUnsavedChanges } from "../../hooks";
+import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import { Input, Select, TextArea } from "../../components/ui";
 import Loading from "../../components/Loading";
 import { goalService } from "../../services/goalService";
+import { validateMinLength, validateMaxLength } from "../../utils/validations";
 
 export default function TaskForm() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { id } = useParams<{ id: string }>();
   const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
@@ -123,7 +124,7 @@ export default function TaskForm() {
         }
       } catch (err) {
         handleError(err);
-        setModalMessage("Error al cargar la tarea");
+        setModalMessage("No pudimos cargar la tarea, intentá de nuevo");
         setIsErrorModalOpen(true);
       } finally {
         setLoading(false);
@@ -134,13 +135,17 @@ export default function TaskForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  // Validación del título
+  const validateTitle = (value: string): string => {
+    if (!value.trim()) return "Dale un nombre a tu tarea";
+    const minError = validateMinLength(value, 3, "El nombre");
+    if (minError) return minError;
+    const maxError = validateMaxLength(value, 50, "El nombre");
+    if (maxError) return maxError;
+    return "";
+  };
+
   const handleTitleBlur = () => {
-    if (!title.trim()) {
-      setTitleError("El título es requerido");
-    } else {
-      setTitleError("");
-    }
+    setTitleError(validateTitle(title));
   };
 
   // Handlers para modales
@@ -158,9 +163,9 @@ export default function TaskForm() {
     e.preventDefault();
     clearError();
 
-    // Validación
-    if (!title.trim()) {
-      setTitleError("El título es requerido");
+    const titleValidationError = validateTitle(title);
+    if (titleValidationError) {
+      setTitleError(titleValidationError);
       return;
     }
 
@@ -193,7 +198,7 @@ export default function TaskForm() {
       setIsSuccessModalOpen(true);
     } catch (err) {
       handleError(err);
-      setModalMessage("Error al procesar la solicitud. Por favor, intenta de nuevo.");
+      setModalMessage("Algo salió mal, ¿podés intentar de nuevo?");
       setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
@@ -303,10 +308,10 @@ export default function TaskForm() {
         isOpen={isBlocked}
         onClose={handleCancelNavigation}
         onConfirm={handleConfirmNavigation}
-        title="Cambios sin guardar"
-        message="Tienes cambios sin guardar. Si sales, se perderán. ¿Deseas continuar?"
+        title="Tenés cambios sin guardar"
+        message="Si salís ahora, vas a perder lo que escribiste. ¿Querés salir igual?"
         confirmText="Salir"
-        cancelText="Quedarse"
+        cancelText="Quedarme"
         variant="warning"
         loading={false}
       />
@@ -329,7 +334,7 @@ export default function TaskForm() {
         isOpen={isErrorModalOpen}
         onClose={handleErrorModalClose}
         onConfirm={handleErrorModalClose}
-        title="Error"
+        title="¡Ups!"
         message={modalMessage}
         confirmText="Aceptar"
         cancelText=""

@@ -68,7 +68,7 @@ export default function GoalList() {
   );
 
   return (
-    <div className="flex flex-col gap-11 justify-center">
+    <div className="flex flex-col gap-11 justify-center pt-6">
       <div className="flex flex-col gap-6 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           Mis Metas
@@ -77,7 +77,7 @@ export default function GoalList() {
         {reachedFreeLimit ? (
           <div className="flex flex-col gap-3 rounded-xl bg-brand/10 border border-brand/30 p-4 text-center">
             <p className="text-sm text-tertiary font-body">
-              Alcanzaste el limite de <strong>{FREE_GOALS_LIMIT} metas</strong> del plan gratuito.
+              Llegaste al límite de <strong>{FREE_GOALS_LIMIT} metas</strong> del plan gratuito.
             </p>
             <ButtonLink to="/subscription" variant="primary" fullWidth>
               Desbloquear metas ilimitadas

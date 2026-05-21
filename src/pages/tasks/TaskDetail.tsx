@@ -1,15 +1,15 @@
 import { useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Badge, CustomCheckbox, ConfirmModal } from "../../components/ui";
 import StateMessage from "../../components/StateMessage";
 import { todoservice } from "../../services/todoService";
-import { useFetchByIdOffline, useFormatDate } from "../../hooks";
+import { useAppNavigate, useFetchByIdOffline, useFormatDate } from "../../hooks";
 import type { ITodo } from "../../interfaces";
 import Loading from "../../components/Loading";
 import { lapiz, calendar, trash } from "../../assets/svg-icons";
 
 export default function TaskDetail() {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [localCompleted, setLocalCompleted] = useState<boolean | null>(null);

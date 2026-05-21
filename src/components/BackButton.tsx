@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAppNavigate } from '../hooks';
 import { backArrow } from '../assets/svg-icons';
 
 interface BackButtonProps {
@@ -7,7 +8,7 @@ interface BackButtonProps {
 }
 
 export default function BackButton({ to, label = 'Atrás' }: BackButtonProps) {
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const handleClick = () => {
     navigate(-1);
@@ -17,6 +18,7 @@ export default function BackButton({ to, label = 'Atrás' }: BackButtonProps) {
     return (
       <Link
         to={to}
+        viewTransition
         className="flex items-center gap-2 text-primary font-bold text-2xl hover:opacity-80 transition-opacity"
       >
         <img src={backArrow} alt="" className="w-7 h-7" />

@@ -48,7 +48,7 @@ export default function Moodboard() {
       await loadMoodboard(false);
     } catch (err) {
       console.error('Error adding image:', err);
-      setOperationError('Error al agregar la imagen. Por favor, intenta de nuevo.');
+      setOperationError('No pudimos agregar la imagen, intentá de nuevo.');
     }
   };
 
@@ -62,7 +62,7 @@ export default function Moodboard() {
       await loadMoodboard(false);
     } catch (err) {
       console.error('Error updating image:', err);
-      setOperationError('Error al actualizar la imagen. Por favor, intenta de nuevo.');
+      setOperationError('No pudimos actualizar la imagen, intentá de nuevo.');
     }
   };
 
@@ -72,7 +72,7 @@ export default function Moodboard() {
       await loadMoodboard(false);
     } catch (err) {
       console.error('Error removing image:', err);
-      setOperationError('Error al eliminar la imagen. Por favor, intenta de nuevo.');
+      setOperationError('No pudimos eliminar la imagen, intentá de nuevo.');
     }
   };
 
@@ -90,7 +90,7 @@ export default function Moodboard() {
         isOpen={!!operationError}
         onClose={() => setOperationError(null)}
         onConfirm={() => setOperationError(null)}
-        title="Error"
+        title="¡Ups!"
         message={operationError || ''}
         confirmText="Cerrar"
         variant="danger"

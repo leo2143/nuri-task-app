@@ -41,7 +41,7 @@ export default function AdminCard({
 
   if (to) {
     return (
-      <Link to={to} className={cardClasses}>
+      <Link to={to} viewTransition className={cardClasses}>
         {content}
       </Link>
     );

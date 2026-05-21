@@ -22,7 +22,7 @@ export function GoalCard({
   className = "",
 }: GoalCardProps) {
   return (
-    <Link to={id ? `/goals/${id}` : "#"} className={className}>
+    <Link to={id ? `/goals/${id}` : "#"} viewTransition className={className}>
       <div className="block bg-white p-5 rounded-lg shadow-brand-glow">
         <div className={`flex items-center justify-between gap-2${description  || progress !== undefined ? " mb-3" : ""}`}>
           <span className="text-base font-body font-bold text-tertiary truncate min-w-0 flex-1">
