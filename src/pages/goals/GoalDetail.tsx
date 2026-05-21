@@ -265,7 +265,7 @@ export default function GoalDetail() {
   }
 
   return (
-    <section className="max-w-4xl mx-auto space-y-4">
+    <section className="max-w-4xl mx-auto space-y-4 pt-6">
       {/* Card Principal */}
       <div className="bg-secondary-dark rounded-2xl p-5 text-white">
         {/* Título y botón editar */}
