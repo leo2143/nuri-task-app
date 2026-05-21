@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, cloneElement, isValidElement } from "react";
+import { useState, useRef, useEffect, useCallback, cloneElement, isValidElement } from "react";
 import { useAppNavigate } from "../../hooks";
 import { metricWhite, lapizWrite } from "../../assets/svg-icons";
 import type { ReactNode } from "react";
@@ -32,13 +32,31 @@ interface ActionSelectProps {
 
 export default function ActionSelect({ children, options = defaultOptions }: ActionSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
   const navigate = useAppNavigate();
+
+  const open = useCallback(() => {
+    setIsOpen(true);
+    setIsMounted(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setIsVisible(true));
+    });
+  }, []);
+
+  const close = useCallback(() => {
+    setIsVisible(false);
+    setTimeout(() => {
+      setIsMounted(false);
+      setIsOpen(false);
+    }, 200);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        close();
       }
     };
 
@@ -49,15 +67,19 @@ export default function ActionSelect({ children, options = defaultOptions }: Act
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, close]);
 
   const handleActionClick = (path: string) => {
-    navigate(path);
-    setIsOpen(false);
+    close();
+    setTimeout(() => navigate(path), 200);
   };
 
   const handleTriggerClick = () => {
-    setIsOpen(!isOpen);
+    if (isOpen) {
+      close();
+    } else {
+      open();
+    }
   };
 
   const triggerElement = isValidElement(children) ? (
@@ -79,8 +101,15 @@ export default function ActionSelect({ children, options = defaultOptions }: Act
   return (
     <div ref={selectRef} className="relative inline-block">
       {triggerElement}
-      {isOpen && (
-        <div className="fixed bottom-[5.2rem] left-0 right-0 mx-5 bg-primary-dark rounded-2xl overflow-hidden shadow-lg z-50">
+      {isMounted && (
+        <div
+          className={`fixed bottom-[5.2rem] left-0 right-0 mx-5 bg-primary-dark rounded-2xl overflow-hidden shadow-lg z-50
+            transition-all duration-200 ease-out origin-bottom ${
+            isVisible
+              ? "opacity-100 scale-100 translate-y-0"
+              : "opacity-0 scale-95 translate-y-2"
+          }`}
+        >
           {options.map((option, index) => (
             <div key={option.id}>
               {index > 0 && <div className="h-px bg-white/20" />}
