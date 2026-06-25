@@ -34,6 +34,8 @@ export default function GoalDetail() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [localGoal, setLocalGoal] = useState<IGoal | null>(null);
+  const [taskToConfirm, setTaskToConfirm] = useState<ITodo | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const taskFilterConfig: FilterConfig[] = useMemo(
     () => [
@@ -115,21 +117,34 @@ export default function GoalDetail() {
   }, [goal?._id, activeTab]);
 
   const handleToggleTaskComplete = useCallback(
-    async (taskId: string, currentCompleted: boolean) => {
-      try {
-        const newStatus = !currentCompleted;
-        await todoservice.updateTodoState(taskId, newStatus);
-        setTasks((prev) =>
-          prev.map((task) =>
-            task._id === taskId ? { ...task, completed: newStatus } : task,
-          ),
-        );
-      } catch (error) {
-        console.error("Error toggling task:", error);
+    (taskId: string, currentCompleted: boolean) => {
+      if (!currentCompleted) {
+        const task = tasks.find((t) => t._id === taskId);
+        if (task) setTaskToConfirm(task);
       }
     },
-    [],
+    [tasks],
   );
+
+  const handleConfirmTaskComplete = useCallback(async () => {
+    if (!taskToConfirm?._id) return;
+    setIsConfirming(true);
+    try {
+      await todoservice.updateTodoState(taskToConfirm._id, true);
+      setTasks((prev) =>
+        prev.map((task) =>
+          task._id === taskToConfirm._id
+            ? { ...task, completed: true, isLocked: true }
+            : task,
+        ),
+      );
+    } catch (error) {
+      console.error("Error al completar tarea:", error);
+    } finally {
+      setIsConfirming(false);
+      setTaskToConfirm(null);
+    }
+  }, [taskToConfirm]);
 
   // Filtrar tareas localmente (búsqueda + filtros)
   const filteredTasks = useMemo(() => {
@@ -178,6 +193,7 @@ export default function GoalDetail() {
         description={task.description}
         goalTitle={goal?.title}
         completed={task.completed}
+        isLocked={task.isLocked}
         onToggleComplete={handleToggleTaskComplete}
       />
     ),
@@ -409,6 +425,18 @@ export default function GoalDetail() {
         variant="danger"
         onConfirm={handleDeleteGoal}
         onClose={() => setIsDeleteModalOpen(false)}
+      />
+
+      <ConfirmModal
+        isOpen={!!taskToConfirm}
+        onClose={() => setTaskToConfirm(null)}
+        onConfirm={handleConfirmTaskComplete}
+        title="¡Genial!"
+        message="¿Completaste esta tarea? ¡Eso es un gran paso!"
+        confirmText="¡Sí, la hice!"
+        cancelText="Todavía no"
+        variant="success"
+        loading={isConfirming}
       />
     </section>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ButtonLink, TaskCard } from "../../components/ui";
+import { ButtonLink, TaskCard, ConfirmModal } from "../../components/ui";
 import type { ITodo, ITodoFilters, FilterConfig } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
@@ -45,40 +45,48 @@ export default function TaskList() {
     extraDependencies: [isCompletedView],
   });
 
-  // Estado local para optimistic updates del checkbox
   const [localTaskStates, setLocalTaskStates] = useState<
     Record<string, boolean>
   >({});
+  const [lockedTasks, setLockedTasks] = useState<Record<string, boolean>>({});
+  const [taskToConfirm, setTaskToConfirm] = useState<ITodo | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
 
-  // Reset local states cuando cambian los datos
   useEffect(() => {
     setLocalTaskStates({});
   }, [filterableList.data]);
 
   const handleToggleComplete = useCallback(
-    async (taskId: string, currentCompleted: boolean) => {
-      // Optimistic update
-      setLocalTaskStates((prev) => ({
-        ...prev,
-        [taskId]: !currentCompleted,
-      }));
-
-      try {
-        await todoservice.updateTodoState(taskId, !currentCompleted);
-      } catch (err) {
-        // Revert on error
-        setLocalTaskStates((prev) => ({
-          ...prev,
-          [taskId]: currentCompleted,
-        }));
-        console.error("Error al actualizar estado de tarea:", err);
+    (taskId: string, currentCompleted: boolean) => {
+      if (!currentCompleted) {
+        const task = filterableList.data.find((t) => t._id === taskId);
+        if (task) setTaskToConfirm(task);
       }
     },
-    [],
+    [filterableList.data],
   );
+
+  const handleConfirmComplete = useCallback(async () => {
+    if (!taskToConfirm?._id) return;
+    setIsConfirming(true);
+    try {
+      await todoservice.updateTodoState(taskToConfirm._id, true);
+      setLocalTaskStates((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
+      setLockedTasks((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
+    } catch (err) {
+      console.error("Error al completar tarea:", err);
+    } finally {
+      setIsConfirming(false);
+      setTaskToConfirm(null);
+    }
+  }, [taskToConfirm]);
 
   const getTaskCompleted = (task: ITodo): boolean => {
     return localTaskStates[task._id!] ?? task.completed;
+  };
+
+  const getTaskLocked = (task: ITodo): boolean => {
+    return lockedTasks[task._id!] ?? task.isLocked ?? false;
   };
 
   const renderTaskItem = (task: ITodo) => (
@@ -88,6 +96,7 @@ export default function TaskList() {
       title={task.title}
       goalTitle={task.goalTitle}
       completed={getTaskCompleted(task)}
+      isLocked={getTaskLocked(task)}
       onToggleComplete={handleToggleComplete}
     />
   );
@@ -133,6 +142,18 @@ export default function TaskList() {
           Ver Historial de Tareas Realizadas
         </ButtonLink>
       )}
+
+      <ConfirmModal
+        isOpen={!!taskToConfirm}
+        onClose={() => setTaskToConfirm(null)}
+        onConfirm={handleConfirmComplete}
+        title="¡Genial!"
+        message="¿Completaste esta tarea? ¡Eso es un gran paso!"
+        confirmText="¡Sí, la hice!"
+        cancelText="Todavía no"
+        variant="success"
+        loading={isConfirming}
+      />
     </div>
   );
 }

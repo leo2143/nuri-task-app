@@ -7,6 +7,7 @@ interface TaskCardProps {
   description?: string;
   goalTitle?: string | null;
   completed: boolean;
+  isLocked?: boolean;
   onToggleComplete: (id: string, currentCompleted: boolean) => void;
   className?: string;
 }
@@ -17,6 +18,7 @@ export function TaskCard({
   description,
   goalTitle,
   completed,
+  isLocked = false,
   onToggleComplete,
   className = "",
 }: TaskCardProps) {
@@ -48,18 +50,37 @@ export function TaskCard({
           </span>
         )}
       </div>
-      <CustomCheckbox
-        id={`task-${id}`}
-        checked={completed}
-        onChange={(e) => {
-          e.stopPropagation();
-          if (id) {
-            onToggleComplete(id, completed);
-          }
-        }}
-        onClick={(e) => e.stopPropagation()}
-        ariaLabel={`Marcar tarea "${title}" como ${completed ? "incompleta" : "completa"}`}
-      />
+      {isLocked ? (
+        <div
+          className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 shrink-0"
+          onClick={(e) => e.stopPropagation()}
+          aria-label="Tarea completada"
+        >
+          <svg
+            className="w-4 h-4 text-primary"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={3}
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      ) : (
+        <CustomCheckbox
+          id={`task-${id}`}
+          checked={completed}
+          onChange={(e) => {
+            e.stopPropagation();
+            if (id) {
+              onToggleComplete(id, completed);
+            }
+          }}
+          onClick={(e) => e.stopPropagation()}
+          ariaLabel={`Marcar tarea "${title}" como ${completed ? "incompleta" : "completa"}`}
+        />
+      )}
     </article>
   );
 }
