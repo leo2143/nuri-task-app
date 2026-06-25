@@ -22,7 +22,6 @@ import TramaBlue from "../../assets/icons/trama-blue.svg";
 export default function Register() {
   const navigate = useAppNavigate();
 
-  // Hook para manejar errores HTTP
   const { error, errorMessage, clearError, setError, setErrorMessage } =
     useHttpError();
 
@@ -120,14 +119,11 @@ export default function Register() {
         password: password.value,
       };
 
-      // 4. LLAMAR al servicio de registro
-      const newUser = await userService.createUser(userData);
+      await userService.createUser(userData);
 
-      // 5. Registro exitoso
-      console.log("Usuario creado exitosamente:", newUser);
-
-      // 6. Redirigir al login
-      navigate("/login");
+      navigate("/login", {
+        state: { message: "¡Cuenta creada! Revisá tu email para verificarla antes de iniciar sesión." },
+      });
     } catch (error: unknown) {
       // 7. MANEJAR errores con type guards
       console.error("Error en registro:", error);

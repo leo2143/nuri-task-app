@@ -9,6 +9,10 @@ export default function ProtectedRoute() {
   if (isLoading) return <Loading />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
+  if (!user?.emailVerified && location.pathname !== "/verify-email-pending") {
+    return <Navigate to="/verify-email-pending" replace />;
+  }
+
   if (!user?.onboardingCompleted && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
   }

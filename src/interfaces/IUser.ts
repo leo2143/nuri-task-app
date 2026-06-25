@@ -90,6 +90,9 @@ export interface IUserProfile {
     endDate: string | null;
   };
   profileImageUrl: string | null;
+  googleId?: string;
+  emailVerified?: boolean;
+  hasPassword?: boolean;
 }
 
 /**
@@ -107,6 +110,8 @@ export interface IAuthUser {
     isActive: boolean;
   };
   onboardingCompleted?: boolean;
+  emailVerified?: boolean;
+  hasPassword?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

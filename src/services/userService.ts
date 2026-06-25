@@ -387,4 +387,42 @@ export const userService = {
       throw error;
     }
   },
+
+  verifyEmail: async (token: string): Promise<{ message: string }> => {
+    try {
+      const response = await apiClient.get<ISuccessResponse<null>>(
+        `${API_BASE_URL}/api/users/verify-email/${token}`,
+      );
+      return { message: response.data.message || "Email verificado" };
+    } catch (error) {
+      console.error("Error verifying email:", error);
+      throw error;
+    }
+  },
+
+  resendVerification: async (email: string): Promise<{ message: string }> => {
+    try {
+      const response = await apiClient.post<ISuccessResponse<null>>(
+        `${API_BASE_URL}/api/users/resend-verification`,
+        { email },
+      );
+      return { message: response.data.message || "Email reenviado" };
+    } catch (error) {
+      console.error("Error resending verification:", error);
+      throw error;
+    }
+  },
+
+  setPassword: async (newPassword: string): Promise<{ message: string }> => {
+    try {
+      const response = await apiClient.put<ISuccessResponse<null>>(
+        `${API_BASE_URL}/api/users/set-password`,
+        { newPassword },
+      );
+      return { message: response.data.message || "Contraseña establecida" };
+    } catch (error) {
+      console.error("Error setting password:", error);
+      throw error;
+    }
+  },
 };
