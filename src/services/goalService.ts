@@ -8,6 +8,7 @@ import type {
   IAddSubGoal,
   IGoalFilters,
   ITodo,
+  ITodoFilters,
 } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
@@ -137,16 +138,31 @@ export const goalService = {
   },
 
   /**
-   * Obtener las submetas de una meta padre
-   * GET /api/goals/:id/parent
+   * Obtener las submetas de una meta padre con filtros opcionales y paginación
+   * GET /api/goals/:id/parent?search=&status=&priority=&dueDateFrom=&dueDateTo=&limit=&cursor=
    * @requires Bearer Token
    */
-  getSubGoals: async (parentGoalId: string): Promise<IGoal[]> => {
+  getSubGoals: async (
+    parentGoalId: string,
+    filters?: IGoalFilters,
+  ): Promise<ISuccessResponse<IGoal[]>> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<IGoal[]>>(
-        `${API_BASE_URL}/api/goals/${parentGoalId}/parent`,
-      );
-      return response.data.data || [];
+      const params = new URLSearchParams();
+      if (filters?.search) params.append("search", filters.search);
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.priority) params.append("priority", filters.priority);
+      if (filters?.dueDateFrom) params.append("dueDateFrom", filters.dueDateFrom);
+      if (filters?.dueDateTo) params.append("dueDateTo", filters.dueDateTo);
+      if (filters?.limit) params.append("limit", String(filters.limit));
+      if (filters?.cursor) params.append("cursor", filters.cursor);
+
+      const queryString = params.toString();
+      const url = queryString
+        ? `${API_BASE_URL}/api/goals/${parentGoalId}/parent?${queryString}`
+        : `${API_BASE_URL}/api/goals/${parentGoalId}/parent`;
+
+      const response = await apiClient.get<ISuccessResponse<IGoal[]>>(url);
+      return response.data;
     } catch (error) {
       console.error(`Error fetching subgoals for goal ${parentGoalId}:`, error);
       throw error;
@@ -154,16 +170,30 @@ export const goalService = {
   },
 
   /**
-   * Obtener las tareas de una meta
-   * GET /api/goals/:id/todos
+   * Obtener las tareas de una meta con filtros opcionales y paginación
+   * GET /api/goals/:id/todos?search=&priority=&dueDateFrom=&dueDateTo=&limit=&cursor=
    * @requires Bearer Token
    */
-  getGoalTodos: async (goalId: string): Promise<ITodo[]> => {
+  getGoalTodos: async (
+    goalId: string,
+    filters?: ITodoFilters,
+  ): Promise<ISuccessResponse<ITodo[]>> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<ITodo[]>>(
-        `${API_BASE_URL}/api/goals/${goalId}/todos`,
-      );
-      return response.data.data || [];
+      const params = new URLSearchParams();
+      if (filters?.search) params.append("search", filters.search);
+      if (filters?.priority) params.append("priority", filters.priority);
+      if (filters?.dueDateFrom) params.append("dueDateFrom", filters.dueDateFrom);
+      if (filters?.dueDateTo) params.append("dueDateTo", filters.dueDateTo);
+      if (filters?.limit) params.append("limit", String(filters.limit));
+      if (filters?.cursor) params.append("cursor", filters.cursor);
+
+      const queryString = params.toString();
+      const url = queryString
+        ? `${API_BASE_URL}/api/goals/${goalId}/todos?${queryString}`
+        : `${API_BASE_URL}/api/goals/${goalId}/todos`;
+
+      const response = await apiClient.get<ISuccessResponse<ITodo[]>>(url);
+      return response.data;
     } catch (error) {
       console.error(`Error fetching todos for goal ${goalId}:`, error);
       throw error;

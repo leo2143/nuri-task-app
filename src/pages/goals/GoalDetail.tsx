@@ -9,10 +9,10 @@ import {
   StatusSelect,
   TabGroup,
 } from "../../components/ui";
-import type { IGoal, ITodo } from "../../interfaces";
-import { useFetchByIdOffline, useFormatDate } from "../../hooks";
+import type { IGoal, ITodo, ITodoFilters, IGoalFilters, FilterConfig, ISuccessResponse } from "../../interfaces";
+import { useFetchByIdOffline, useFormatDate, useFilterableList } from "../../hooks";
 import { goalService } from "../../services/goalService";
-import { todoservice } from "../../services/todoService"; // Solo para updateTodoState
+import { todoservice } from "../../services/todoService";
 import Loading from "../../components/Loading";
 import FilterableList from "../../components/FilterableList";
 import { lapiz, calendar, trash } from "../../assets/svg-icons";
@@ -22,14 +22,7 @@ type TabType = "tasks" | "subgoals";
 export default function GoalDetail() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
-  const [tasks, setTasks] = useState<ITodo[]>([]);
-  const [subGoals, setSubGoals] = useState<IGoal[]>([]);
-  const [loadingTasks, setLoadingTasks] = useState(false);
-  const [loadingSubGoals, setLoadingSubGoals] = useState(false);
-  const [isFirstLoadTasks, setIsFirstLoadTasks] = useState(true);
-  const [isFirstLoadSubGoals, setIsFirstLoadSubGoals] = useState(true);
-  const [taskSearchTerm, setTaskSearchTerm] = useState("");
-  const [subGoalSearchTerm, setSubGoalSearchTerm] = useState("");
+
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [localGoal, setLocalGoal] = useState<IGoal | null>(null);
@@ -54,86 +47,126 @@ export default function GoalDetail() {
 
   const dueDate = useFormatDate(goal?.dueDate);
 
-  // Cargar tareas relacionadas
+  const taskFilterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        key: "priority",
+        label: "Prioridad",
+        type: "chips",
+        options: [
+          { value: "low", label: "Baja" },
+          { value: "medium", label: "Media" },
+          { value: "high", label: "Alta" },
+        ],
+      },
+      { key: "dueDateFrom", label: "Fecha desde", type: "date" },
+      { key: "dueDateTo", label: "Fecha hasta", type: "date" },
+    ],
+    [],
+  );
+
+  const filterableList = useFilterableList<ITodo, ITodoFilters>({
+    fetchFn: useCallback(
+      async (filters?: ITodoFilters) => {
+        if (!goal?._id) {
+          return { data: [], meta: null, success: true, status: 200, message: null } as ISuccessResponse<ITodo[]>;
+        }
+        return goalService.getGoalTodos(goal._id, filters);
+      },
+      [goal?._id],
+    ),
+    buildFilters: (searchTerm, pagination, activeFilters) => ({
+      search: searchTerm || undefined,
+      priority: activeFilters?.priority as ITodoFilters["priority"],
+      dueDateFrom: activeFilters?.dueDateFrom as string | undefined,
+      dueDateTo: activeFilters?.dueDateTo as string | undefined,
+      limit: pagination?.limit,
+      cursor: pagination?.cursor,
+    }),
+    pagination: { enabled: true, limit: 5 },
+    extraDependencies: [goal?._id],
+  });
+
+  const [localTaskStates, setLocalTaskStates] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      if (!goal?._id) return;
-      setLoadingTasks(true);
-      try {
-        const tasksData = await goalService.getGoalTodos(goal._id);
-        setTasks(tasksData);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      } finally {
-        setLoadingTasks(false);
-        setIsFirstLoadTasks(false);
-      }
-    };
+    setLocalTaskStates({});
+  }, [filterableList.data]);
 
-    if (activeTab === "tasks" && goal?._id) {
-      fetchTasks();
-    }
-  }, [goal?._id, activeTab]);
+  const subGoalFilterConfig: FilterConfig[] = useMemo(
+    () => [
+      {
+        key: "status",
+        label: "Estado",
+        type: "chips",
+        options: [
+          { value: "active", label: "Activa" },
+          { value: "paused", label: "Pausada" },
+          { value: "completed", label: "Completada" },
+        ],
+      },
+      {
+        key: "priority",
+        label: "Prioridad",
+        type: "chips",
+        options: [
+          { value: "low", label: "Baja" },
+          { value: "medium", label: "Media" },
+          { value: "high", label: "Alta" },
+        ],
+      },
+      { key: "dueDateFrom", label: "Fecha desde", type: "date" },
+      { key: "dueDateTo", label: "Fecha hasta", type: "date" },
+    ],
+    [],
+  );
 
-  // Cargar submetas
-  useEffect(() => {
-    const fetchSubGoals = async () => {
-      if (!goal?._id) return;
-      setLoadingSubGoals(true);
-      try {
-        const subGoalsData = await goalService.getSubGoals(goal._id);
-        setSubGoals(subGoalsData);
-      } catch (error) {
-        console.error("Error fetching subgoals:", error);
-      } finally {
-        setLoadingSubGoals(false);
-        setIsFirstLoadSubGoals(false);
-      }
-    };
-
-    if (activeTab === "subgoals" && goal?._id) {
-      fetchSubGoals();
-    }
-  }, [goal?._id, activeTab]);
+  const subFilterableList = useFilterableList<IGoal, IGoalFilters>({
+    fetchFn: useCallback(
+      async (filters?: IGoalFilters) => {
+        if (!goal?._id) {
+          return { data: [], meta: null, success: true, status: 200, message: null } as ISuccessResponse<IGoal[]>;
+        }
+        return goalService.getSubGoals(goal._id, filters);
+      },
+      [goal?._id],
+    ),
+    buildFilters: (searchTerm, pagination, activeFilters) => ({
+      search: searchTerm || undefined,
+      status: activeFilters?.status as IGoalFilters["status"],
+      priority: activeFilters?.priority as IGoalFilters["priority"],
+      dueDateFrom: activeFilters?.dueDateFrom as string | undefined,
+      dueDateTo: activeFilters?.dueDateTo as string | undefined,
+      limit: pagination?.limit,
+      cursor: pagination?.cursor,
+    }),
+    pagination: { enabled: true, limit: 5 },
+    extraDependencies: [goal?._id],
+  });
 
   const handleToggleTaskComplete = useCallback(
     async (taskId: string, currentCompleted: boolean) => {
+      setLocalTaskStates((prev) => ({
+        ...prev,
+        [taskId]: !currentCompleted,
+      }));
+
       try {
-        const newStatus = !currentCompleted;
-        await todoservice.updateTodoState(taskId, newStatus);
-        setTasks((prev) =>
-          prev.map((task) =>
-            task._id === taskId ? { ...task, completed: newStatus } : task,
-          ),
-        );
-      } catch (error) {
-        console.error("Error toggling task:", error);
+        await todoservice.updateTodoState(taskId, !currentCompleted);
+      } catch (err) {
+        setLocalTaskStates((prev) => ({
+          ...prev,
+          [taskId]: currentCompleted,
+        }));
+        console.error("Error toggling task:", err);
       }
     },
     [],
   );
 
-  // Filtrar tareas localmente
-  const filteredTasks = useMemo(() => {
-    if (!taskSearchTerm) return tasks;
-    const searchLower = taskSearchTerm.toLowerCase();
-    return tasks.filter(
-      (task) =>
-        task.title.toLowerCase().includes(searchLower) ||
-        task.description?.toLowerCase().includes(searchLower),
-    );
-  }, [tasks, taskSearchTerm]);
-
-  // Filtrar submetas localmente
-  const filteredSubGoals = useMemo(() => {
-    if (!subGoalSearchTerm) return subGoals;
-    const searchLower = subGoalSearchTerm.toLowerCase();
-    return subGoals.filter(
-      (subGoal) =>
-        subGoal.title.toLowerCase().includes(searchLower) ||
-        subGoal.description?.toLowerCase().includes(searchLower),
-    );
-  }, [subGoals, subGoalSearchTerm]);
+  const getTaskCompleted = (task: ITodo): boolean => {
+    return localTaskStates[task._id!] ?? task.completed;
+  };
 
   // Render functions para FilterableList
   const renderTaskItem = useCallback(
@@ -144,11 +177,11 @@ export default function GoalDetail() {
         title={task.title}
         description={task.description}
         goalTitle={goal?.title}
-        completed={task.completed}
+        completed={getTaskCompleted(task)}
         onToggleComplete={handleToggleTaskComplete}
       />
     ),
-    [handleToggleTaskComplete, goal?.title],
+    [handleToggleTaskComplete, goal?.title, localTaskStates],
   );
 
   const renderSubGoalItem = useCallback(
@@ -335,31 +368,31 @@ export default function GoalDetail() {
       {/* Contenido de Tabs */}
       {activeTab === "tasks" && (
         <FilterableList
-          data={filteredTasks}
-          loading={loadingTasks}
-          errorMessage=""
-          isEmpty={filteredTasks.length === 0}
-          searchTerm={taskSearchTerm}
-          onSearchChange={setTaskSearchTerm}
+          {...filterableList}
+          onSearchChange={filterableList.setSearchTerm}
           searchPlaceholder="Buscar tarea..."
           renderItem={renderTaskItem}
           emptyStateName="Tareas"
-          isFirstLoad={isFirstLoadTasks}
+          loadMoreText="Cargar más tareas"
+          loadingMoreText="Cargando más tareas..."
+          filterConfig={taskFilterConfig}
+          activeFilters={filterableList.activeFilters}
+          onFiltersChange={filterableList.setActiveFilters}
         />
       )}
 
       {activeTab === "subgoals" && (
         <FilterableList
-          data={filteredSubGoals}
-          loading={loadingSubGoals}
-          errorMessage=""
-          isEmpty={filteredSubGoals.length === 0}
-          searchTerm={subGoalSearchTerm}
-          onSearchChange={setSubGoalSearchTerm}
+          {...subFilterableList}
+          onSearchChange={subFilterableList.setSearchTerm}
           searchPlaceholder="Buscar meta..."
           renderItem={renderSubGoalItem}
           emptyStateName="Metas"
-          isFirstLoad={isFirstLoadSubGoals}
+          loadMoreText="Cargar más metas"
+          loadingMoreText="Cargando más metas..."
+          filterConfig={subGoalFilterConfig}
+          activeFilters={subFilterableList.activeFilters}
+          onFiltersChange={subFilterableList.setActiveFilters}
         />
       )}
 
