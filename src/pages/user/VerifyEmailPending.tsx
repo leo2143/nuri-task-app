@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "../../components/ui";
 import { useAuth } from "../../hooks";
 import { userService } from "../../services/userService";
@@ -10,6 +10,25 @@ export default function VerifyEmailPending() {
   const [cooldown, setCooldown] = useState(0);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
+  const hasSentInitial = useRef(false);
+
+  useEffect(() => {
+    if (!user?.email || hasSentInitial.current) return;
+    hasSentInitial.current = true;
+
+    const sendInitial = async () => {
+      setSending(true);
+      try {
+        await userService.resendVerification(user.email);
+        setCooldown(60);
+      } catch {
+        // El email ya fue enviado durante el registro
+      } finally {
+        setSending(false);
+      }
+    };
+    sendInitial();
+  }, [user?.email]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -22,7 +41,7 @@ export default function VerifyEmailPending() {
     setSending(true);
     setMessage("");
     try {
-      await userService.resendVerification(user.email);
+      await userService.resendVerification(user.email, true);
       setMessage("¡Email reenviado! Revisá tu casilla.");
       setCooldown(60);
     } catch {

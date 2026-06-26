@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "../../components/ui";
-import { useAppNavigate } from "../../hooks";
+import { useAppNavigate, useAuth } from "../../hooks";
 import { userService } from "../../services/userService";
 import { nuriAlegre, nuriTriste } from "../../assets/ilustrations";
 import TramaBlue from "../../assets/icons/trama-blue.svg";
@@ -11,10 +11,14 @@ type VerifyState = "loading" | "success" | "error";
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useAppNavigate();
+  const { login } = useAuth();
   const [state, setState] = useState<VerifyState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const hasVerified = useRef(false);
 
   useEffect(() => {
+    if (hasVerified.current) return;
+
     const token = searchParams.get("token");
     if (!token) {
       setState("error");
@@ -22,9 +26,14 @@ export default function VerifyEmail() {
       return;
     }
 
+    hasVerified.current = true;
+
     const verify = async () => {
       try {
-        await userService.verifyEmail(token);
+        const result = await userService.verifyEmail(token);
+        if (result.token && result.user) {
+          login(result.user, result.token);
+        }
         setState("success");
       } catch (error: unknown) {
         setState("error");
@@ -40,7 +49,7 @@ export default function VerifyEmail() {
     };
 
     verify();
-  }, [searchParams]);
+  }, [searchParams, login]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
@@ -72,15 +81,14 @@ export default function VerifyEmail() {
               ¡Email verificado!
             </h1>
             <p className="text-lg font-body text-tertiary/80">
-              Tu cuenta está activa. Ya podés iniciar sesión y empezar a usar
-              Nuri Task.
+              Tu cuenta está activa. ¡Bienvenido a Nuri Task!
             </p>
             <Button
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/", { replace: true })}
               variant="primary"
               fullWidth
             >
-              Ir a iniciar sesión
+              Empezar a usar Nuri
             </Button>
           </>
         )}

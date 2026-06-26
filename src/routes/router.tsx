@@ -109,6 +109,10 @@ export const router = createBrowserRouter([
         element: withSuspense(VerifyEmail),
       },
       {
+        path: "/verify-email-pending",
+        element: withSuspense(VerifyEmailPending),
+      },
+      {
         path: "/onboarding",
         element: withSuspense(Onboarding),
       },
@@ -123,10 +127,6 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
-          {
-            path: "verify-email-pending",
-            element: withSuspense(VerifyEmailPending),
-          },
           {
             index: true,
             element: withSuspense(Home),

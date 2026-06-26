@@ -388,23 +388,27 @@ export const userService = {
     }
   },
 
-  verifyEmail: async (token: string): Promise<{ message: string }> => {
+  verifyEmail: async (token: string): Promise<{ message: string; token?: string; user?: IAuthResponse["user"] }> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<null>>(
+      const response = await apiClient.get<ISuccessResponse<{ token: string; user: IAuthResponse["user"] }>>(
         `${API_BASE_URL}/api/users/verify-email/${token}`,
       );
-      return { message: response.data.message || "Email verificado" };
+      return {
+        message: response.data.message || "Email verificado",
+        token: response.data.data?.token,
+        user: response.data.data?.user,
+      };
     } catch (error) {
       console.error("Error verifying email:", error);
       throw error;
     }
   },
 
-  resendVerification: async (email: string): Promise<{ message: string }> => {
+  resendVerification: async (email: string, force = false): Promise<{ message: string }> => {
     try {
       const response = await apiClient.post<ISuccessResponse<null>>(
         `${API_BASE_URL}/api/users/resend-verification`,
-        { email },
+        { email, force },
       );
       return { message: response.data.message || "Email reenviado" };
     } catch (error) {

@@ -4,7 +4,7 @@ import { userService } from "../../services/userService";
 import type { ICreateUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
-import { useAppNavigate, useField, useHttpError } from "../../hooks";
+import { useAppNavigate, useAuth, useField, useHttpError } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import {
   isConflictResponse,
@@ -21,6 +21,7 @@ import TramaBlue from "../../assets/icons/trama-blue.svg";
 
 export default function Register() {
   const navigate = useAppNavigate();
+  const { login: authLogin } = useAuth();
 
   const { error, errorMessage, clearError, setError, setErrorMessage } =
     useHttpError();
@@ -121,9 +122,12 @@ export default function Register() {
 
       await userService.createUser(userData);
 
-      navigate("/login", {
-        state: { message: "¡Cuenta creada! Revisá tu email para verificarla antes de iniciar sesión." },
+      const authResponse = await userService.login({
+        email: email.value,
+        password: password.value,
       });
+      authLogin(authResponse.user, authResponse.token);
+      navigate("/", { replace: true });
     } catch (error: unknown) {
       // 7. MANEJAR errores con type guards
       console.error("Error en registro:", error);
