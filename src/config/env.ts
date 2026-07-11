@@ -20,3 +20,7 @@ export const GOOGLE_CLIENT_ID: string =
 export const VAPID_PUBLIC_KEY: string =
   import.meta.env.VITE_VAPID_PUBLIC_KEY ||
   "BK2rwGaLxZj1I734DpT7Ocd9x7mjAy1S-oah86DPfn6Rhb45s2fYaEaq3pKn-iBdyb29KHpnhwq8O8u_-jBw4a4";
+
+// Precio de suscripción (sincronizar con MP_SUBSCRIPTION_AMOUNT del backend)
+export const SUBSCRIPTION_PRICE: string =
+  import.meta.env.VITE_SUBSCRIPTION_PRICE || "15";

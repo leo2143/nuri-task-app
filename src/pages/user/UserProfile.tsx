@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Button, ButtonLink, InfoCard } from "../../components/ui";
+import { Button, ButtonLink, InfoCard, Input } from "../../components/ui";
 import { ImageUploadSlot } from "../../components/ImageUploadSlot";
 import { useAppNavigate, useAuth, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
 import { userService } from "../../services/userService";
 import { subscriptionService } from "../../services/subscriptionService";
 import type { IUserProfile } from "../../interfaces";
 import Loading from "../../components/Loading";
+import { validatePassword, validateConfirmPassword } from "../../utils/validations";
 
 export default function UserProfile() {
   const navigate = useAppNavigate();
@@ -176,6 +177,10 @@ export default function UserProfile() {
             </article>
           )}
 
+          {user.googleId && !user.hasPassword && (
+            <SetPasswordSection onSuccess={refetch} />
+          )}
+
           <div className="w-full max-w-md">
             <Button
               type="button"
@@ -189,5 +194,90 @@ export default function UserProfile() {
         </div>
       </div>
     </section>
+  );
+}
+
+function SetPasswordSection({ onSuccess }: { onSuccess: () => void }) {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmError, setConfirmError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+    setConfirmError("");
+    setErrorMessage("");
+
+    const passErr = validatePassword(newPassword);
+    const confirmErr = validateConfirmPassword(newPassword, confirmPassword);
+    if (passErr) { setPasswordError(passErr); return; }
+    if (confirmErr) { setConfirmError(confirmErr); return; }
+
+    setLoading(true);
+    try {
+      const result = await userService.setPassword(newPassword);
+      setSuccessMessage(result.message);
+      setNewPassword("");
+      setConfirmPassword("");
+      onSuccess();
+    } catch {
+      setErrorMessage("No pudimos establecer la contraseña, intentá de nuevo");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (successMessage) {
+    return (
+      <article className="w-full bg-primary/10 rounded-xl p-5 border border-primary/30">
+        <p className="text-sm font-body font-semibold text-primary text-center">
+          {successMessage}
+        </p>
+      </article>
+    );
+  }
+
+  return (
+    <article className="w-full bg-white rounded-xl p-5 shadow border border-neutral">
+      <h3 className="font-heading font-semibold text-tertiary text-sm mb-3">
+        Agregar contraseña
+      </h3>
+      <p className="font-body text-xs text-gray-500 mb-4">
+        Tu cuenta usa Google. Agregá una contraseña para también poder iniciar sesión con email.
+      </p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <Input
+          id="set-new-password"
+          name="newPassword"
+          type="password"
+          label="Nueva contraseña"
+          placeholder="Mínimo 5 caracteres"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          error={passwordError}
+          helperText="Mínimo 5 caracteres"
+        />
+        <Input
+          id="set-confirm-password"
+          name="confirmPassword"
+          type="password"
+          label="Confirmar contraseña"
+          placeholder="Repetí la contraseña"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          error={confirmError}
+        />
+        {errorMessage && (
+          <p className="text-xs text-red-500 font-body">{errorMessage}</p>
+        )}
+        <Button type="submit" variant="primary" fullWidth loading={loading} disabled={loading}>
+          Guardar contraseña
+        </Button>
+      </form>
+    </article>
   );
 }

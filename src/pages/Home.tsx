@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { nuriCorazonCortado } from "../assets/ilustrations";
 import StateMessage from "../components/StateMessage";
-import { GoalCard, TaskCard, ButtonLink, Spinner } from "../components/ui";
+import { GoalCard, TaskCard, ButtonLink, Spinner, ConfirmModal } from "../components/ui";
 import TabGroup from "../components/ui/TabGroup";
 import { goalService } from "../services/goalService";
 import { todoservice } from "../services/todoService";
@@ -39,6 +39,9 @@ export default function Home() {
   const [recentTasks, setRecentTasks] = useState<ITodo[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [localTaskStates, setLocalTaskStates] = useState<Record<string, boolean>>({});
+  const [lockedTasks, setLockedTasks] = useState<Record<string, boolean>>({});
+  const [taskToConfirm, setTaskToConfirm] = useState<ITodo | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   // Fetch metas (max 5)
   useEffect(() => {
@@ -85,21 +88,36 @@ export default function Home() {
     });
   }, [recentTasks]);
 
-  // Toggle completado con optimistic update
   const handleToggleComplete = useCallback(
-    async (taskId: string, currentCompleted: boolean) => {
-      setLocalTaskStates((prev) => ({ ...prev, [taskId]: !currentCompleted }));
-      try {
-        await todoservice.updateTodoState(taskId, !currentCompleted);
-      } catch {
-        setLocalTaskStates((prev) => ({ ...prev, [taskId]: currentCompleted }));
+    (taskId: string, currentCompleted: boolean) => {
+      if (!currentCompleted) {
+        const task = recentTasks.find((t) => t._id === taskId);
+        if (task) setTaskToConfirm(task);
       }
     },
-    [],
+    [recentTasks],
   );
+
+  const handleConfirmComplete = useCallback(async () => {
+    if (!taskToConfirm?._id) return;
+    setIsConfirming(true);
+    try {
+      await todoservice.updateTodoState(taskToConfirm._id, true);
+      setLocalTaskStates((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
+      setLockedTasks((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
+    } catch {
+      console.error("Error al completar tarea");
+    } finally {
+      setIsConfirming(false);
+      setTaskToConfirm(null);
+    }
+  }, [taskToConfirm]);
 
   const getTaskCompleted = (task: ITodo): boolean =>
     localTaskStates[task._id!] ?? task.completed;
+
+  const getTaskLocked = (task: ITodo): boolean =>
+    lockedTasks[task._id!] ?? task.isLocked ?? false;
 
   return (
     <section className="max-w-4xl mx-auto py-12 flex flex-col gap-8">
@@ -213,6 +231,7 @@ export default function Home() {
                     title={task.title}
                     goalTitle={task.goalTitle}
                     completed={getTaskCompleted(task)}
+                    isLocked={getTaskLocked(task)}
                     onToggleComplete={handleToggleComplete}
                   />
                 ))}
@@ -223,6 +242,18 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={!!taskToConfirm}
+        onClose={() => setTaskToConfirm(null)}
+        onConfirm={handleConfirmComplete}
+        title="¡Genial!"
+        message="¿Completaste esta tarea? ¡Eso es un gran paso!"
+        confirmText="¡Sí, la hice!"
+        cancelText="Todavía no"
+        variant="success"
+        loading={isConfirming}
+      />
     </section>
   );
 }

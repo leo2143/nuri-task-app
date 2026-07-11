@@ -21,5 +21,6 @@ export { GoalCard } from "./GoalCard";
 export { TaskCard } from "./TaskCard";
 export { default as Spinner } from "./Spinner";
 export { default as AchievementCard } from "./AchievementCard";
+export { default as SubscriptionPlan } from "./SubscriptionPlan";
 export { default as BottomSheet } from "./BottomSheet";
 export { default as FilterBottomSheet } from "./FilterBottomSheet";

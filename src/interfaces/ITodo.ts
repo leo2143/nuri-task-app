@@ -32,6 +32,7 @@ export interface ITodo {
   description?: string;
   comments: ITodoComment[];
   completed: boolean;
+  isLocked?: boolean;
   userId: string | ITodoUser;
   GoalId?: string | null;
   goalTitle?: string | null;

@@ -4,7 +4,7 @@ import { userService } from "../../services/userService";
 import type { ICreateUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
-import { useAppNavigate, useField, useHttpError } from "../../hooks";
+import { useAppNavigate, useAuth, useField, useHttpError } from "../../hooks";
 import { Button, Input } from "../../components/ui";
 import {
   isConflictResponse,
@@ -21,8 +21,8 @@ import TramaBlue from "../../assets/icons/trama-blue.svg";
 
 export default function Register() {
   const navigate = useAppNavigate();
+  const { login: authLogin } = useAuth();
 
-  // Hook para manejar errores HTTP
   const { error, errorMessage, clearError, setError, setErrorMessage } =
     useHttpError();
 
@@ -120,14 +120,14 @@ export default function Register() {
         password: password.value,
       };
 
-      // 4. LLAMAR al servicio de registro
-      const newUser = await userService.createUser(userData);
+      await userService.createUser(userData);
 
-      // 5. Registro exitoso
-      console.log("Usuario creado exitosamente:", newUser);
-
-      // 6. Redirigir al login
-      navigate("/login");
+      const authResponse = await userService.login({
+        email: email.value,
+        password: password.value,
+      });
+      authLogin(authResponse.user, authResponse.token);
+      navigate("/", { replace: true });
     } catch (error: unknown) {
       // 7. MANEJAR errores con type guards
       console.error("Error en registro:", error);

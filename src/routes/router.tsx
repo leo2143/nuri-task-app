@@ -19,6 +19,7 @@ const Login = lazy(() => import("../pages/user/Login"));
 const Register = lazy(() => import("../pages/user/Register"));
 const ForgotPassword = lazy(() => import("../pages/user/ForgotPassword"));
 const ResetPassword = lazy(() => import("../pages/user/ResetPassword"));
+const VerifyEmail = lazy(() => import("../pages/user/VerifyEmail"));
 
 // Páginas protegidas - lazy loading
 const Home = lazy(() => import("../pages/Home"));
@@ -46,6 +47,9 @@ const AdminUserForm = lazy(() => import("../pages/admin/user/AdminUserForm"));
 const AdminAchievement = lazy(() => import("../pages/admin/achievement/AdminAchievement"));
 const AdminAchievementForm = lazy(() => import("../pages/admin/achievement/AdminAchievementForm"));
 const AdminAchievementDetail = lazy(() => import("../pages/admin/achievement/AdminAchievementDetail"));
+
+// Verificación de email - lazy loading
+const VerifyEmailPending = lazy(() => import("../pages/user/VerifyEmailPending"));
 
 // Onboarding - lazy loading
 const Onboarding = lazy(() => import("../pages/onboarding/Onboarding"));
@@ -99,6 +103,14 @@ export const router = createBrowserRouter([
             element: withSuspense(ResetPassword),
           },
         ],
+      },
+      {
+        path: "/verify-email",
+        element: withSuspense(VerifyEmail),
+      },
+      {
+        path: "/verify-email-pending",
+        element: withSuspense(VerifyEmailPending),
       },
       {
         path: "/onboarding",

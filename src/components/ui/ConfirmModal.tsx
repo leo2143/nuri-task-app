@@ -149,7 +149,7 @@ export default function ConfirmModal({
               {confirmText}
             </Button>
 
-            {cancelText && variant === "warning" && (
+            {cancelText && (variant === "warning" || variant === "success") && (
               <Button
                 onClick={onClose}
                 disabled={loading}
