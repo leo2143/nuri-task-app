@@ -117,9 +117,6 @@ export default function Navbar() {
         <MenuNavItem to="/metrics" icon={metricBrown} iconHover={metrics} label="Métricas" badge={isPremium ? undefined : "PRO"} />
         <MenuNavItem to="/moodboard" icon={heartBlue} iconHover={heart} label="Moodboard" badge={isPremium ? undefined : "PRO"} />
         <MenuNavItem to="/achievements" icon={medalBrown} iconHover={medal} label="Logros" />
-        {!isPremium && (
-          <MenuNavItem to="/subscription" icon={starBrown} iconHover={star} label="Suscripcion" badge="PRO" />
-        )}
         {user?.isAdmin && (
           <MenuNavItem to="/admin" icon={profileBrown} iconHover={profile} label="Panel Administracion" />
         )}

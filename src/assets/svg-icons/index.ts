@@ -40,5 +40,6 @@ export { default as calendar } from "./calendar.svg";
 export { default as calendarBrand } from "./calendar-brand.svg";
 export { default as lapizWrite } from "./lapiz-write.svg";
 export { default as metricWhite } from "./metric-white.svg";
-
+export { default as flowerCutRight } from "./flower-cut-right.svg";
+export { default as checkGreen } from "./check-green.svg";
 
