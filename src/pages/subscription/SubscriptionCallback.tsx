@@ -4,8 +4,8 @@ import { ButtonLink } from "../../components/ui";
 import Loading from "../../components/Loading";
 import { nuriLentes } from "../../assets/ilustrations";
 
-const MAX_RETRIES = 5;
-const RETRY_DELAY_MS = 3000;
+const MAX_RETRIES = 10;
+const RETRY_DELAY_MS = 5000;
 
 export default function SubscriptionCallback() {
   const { refreshSubscription, isPremium } = useAuth();

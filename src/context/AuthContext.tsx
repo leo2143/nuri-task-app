@@ -66,19 +66,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshSubscription = useCallback(async () => {
-    if (!user) return;
     try {
       const data = await subscriptionService.getStatus();
-      const updated: IAuthUser = {
-        ...user,
-        subscription: { isActive: data.subscription.isActive },
-      };
-      localStorage.setItem("user", JSON.stringify(updated));
-      setUser(updated);
+      setUser((prevUser) => {
+        if (!prevUser) return prevUser;
+        const updated: IAuthUser = {
+          ...prevUser,
+          subscription: { isActive: data.subscription.isActive },
+        };
+        localStorage.setItem("user", JSON.stringify(updated));
+        return updated;
+      });
     } catch (error) {
       console.error("Error al refrescar suscripción:", error);
     }
-  }, [user]);
+  }, []);
 
   const isPremium = !!user?.isAdmin || !!user?.subscription?.isActive;
 
