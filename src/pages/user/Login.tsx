@@ -6,10 +6,9 @@ import type { ILoginUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { useAppNavigate, useField, useHttpError, useAuth } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import { Button, Input, TramaHeader } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
 import GoogleIcon from "../../assets/icons/google.svg";
-import { nuriConNenu } from "../../assets/ilustrations/index";
 
 export default function Login() {
   const navigate = useAppNavigate();
@@ -66,7 +65,9 @@ export default function Login() {
       }
     },
     onError: () => {
-      handleError(new Error("No pudimos conectar con Google, intentá de nuevo"));
+      handleError(
+        new Error("No pudimos conectar con Google, intentá de nuevo"),
+      );
     },
     flow: "auth-code",
   });
@@ -113,16 +114,9 @@ export default function Login() {
     <section className="min-h-screen flex flex-col bg-background">
       {loading && <Loading />}
 
-      <div className= "login-trama-bg relative flex items-center justify-center pt-40 overflow-x-hidden overflow-x-visible">
-        <img
-          src={nuriConNenu}
-          alt="Nuri mascota"
-          className="absolute w-52 h-auto z-10 top-5  mx-auto"
-        />
-      </div>
+      <TramaHeader variant="white" />
 
       <div className="relative flex-1 bg-secondary rounded-t-[2.5rem] px-8 pt-20 pb-10 flex flex-col">
-
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-heading font-bold text-neutral mb-2">
             Iniciar Sesión
@@ -207,7 +201,9 @@ export default function Login() {
 
         <div className="flex items-center justify-center gap-3 my-4">
           <div className="bg-primary h-1 flex-1 rounded"></div>
-          <p className="text-neutral font-bold font-body text-sm">O continúa con</p>
+          <p className="text-neutral font-bold font-body text-sm">
+            O continúa con
+          </p>
           <div className="bg-primary h-1 flex-1 rounded"></div>
         </div>
 

@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { userService } from "../../services/userService";
 import { useField, useHttpError } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import { Button, Input, TramaHeader } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { validateEmail } from "../../utils/validations";
-
 
 export default function ForgotPassword() {
   // Hook para manejar errores HTTP
@@ -80,11 +79,10 @@ export default function ForgotPassword() {
   };
 
   return (
-    <section className="min-h-screen flex flex-col bg-background">
+    <section className="min-h-screen flex flex-col bg-secondary">
       {loading && <Loading />}
 
-      <div className="login-trama-bg relative flex items-center justify-center pt-40 overflow-x-hidden">
-      </div>
+      <TramaHeader />
 
       <div className="relative flex-1 bg-secondary rounded-t-[2.5rem] px-8 pt-10 pb-10 flex flex-col">
         <div className="mb-6 text-center">
@@ -92,7 +90,8 @@ export default function ForgotPassword() {
             Recuperar Contraseña
           </h1>
           <p className="text-neutral font-bold text-sm">
-            Ingresa tu email para recibir las instrucciones para recuperar tu contraseña
+            Ingresa tu email para recibir las instrucciones para recuperar tu
+            contraseña
           </p>
         </div>
 
@@ -143,57 +142,58 @@ export default function ForgotPassword() {
             </div>
           </form>
         ) : (
-          <div className="space-y-6">
-            <div className="bg-neutral/10 border border-neutral/30 text-neutral px-6 py-4 rounded-lg">
-              <div className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 mt-0.5 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <div>
-                  <h2 className="font-heading font-bold text-lg mb-2 text-neutral">
-                    ¡Email Enviado!
-                  </h2>
-                  <p className="font-body text-sm">{successMessage}</p>
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-4">
+              <div className="bg-neutral/10 border border-neutral/30 text-neutral px-6 py-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <svg
+                    className="w-6 h-6 mt-0.5 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div className="flex flex-col gap-2">
+                    <h2 className="font-heading font-bold text-lg text-neutral">
+                      ¡Email Enviado!
+                    </h2>
+                    <p className="font-body text-sm">{successMessage}</p>
+                  </div>
                 </div>
+              </div>
+
+              <div className="bg-neutral/10 border border-neutral/30 p-4 rounded-lg flex flex-col gap-2">
+                <h3 className="font-heading font-semibold text-neutral">
+                  📬 Revisa tu bandeja de entrada
+                </h3>
+                <ul className="font-body text-sm text-neutral/80 space-y-1 list-disc list-inside">
+                  <li>El email puede tardar unos minutos en llegar</li>
+                  <li>Revisa tu carpeta de spam o correo no deseado</li>
+                  <li>El enlace es válido por 1 hora</li>
+                </ul>
               </div>
             </div>
 
-            <div className="bg-neutral/10 border border-neutral/30 p-4 rounded-lg">
-              <h3 className="font-heading font-semibold text-neutral mb-2">
-                📬 Revisa tu bandeja de entrada
-              </h3>
-              <ul className="font-body text-sm text-neutral/80 space-y-1 list-disc list-inside">
-                <li>El email puede tardar unos minutos en llegar</li>
-                <li>Revisa tu carpeta de spam o correo no deseado</li>
-                <li>El enlace es válido por 1 hora</li>
-              </ul>
-            </div>
-
-            <Button
-              type="button"
-              onClick={() => setSuccess(false)}
-              variant="primary"
-              size="md"
-              fullWidth
-            >
-              Enviar Otro Email
-            </Button>
-
-            <div className="text-center mt-4">
+            <div className="flex flex-col gap-4 items-center">
+              <Button
+                type="button"
+                onClick={() => setSuccess(false)}
+                variant="primary"
+                size="md"
+                fullWidth
+              >
+                Enviar Otro Email
+              </Button>
               <Link
                 to="/login"
                 className="text-primary font-bold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
               >
-                ← Volver al Login
+                Volver al Login
               </Link>
             </div>
           </div>

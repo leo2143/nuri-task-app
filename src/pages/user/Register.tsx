@@ -5,7 +5,7 @@ import type { ICreateUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { useAppNavigate, useAuth, useField, useHttpError } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import { Button, Input, TramaHeader } from "../../components/ui";
 import {
   isConflictResponse,
   isBadRequestResponse,
@@ -17,8 +17,6 @@ import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
-import TramaBlue from "../../assets/icons/trama-blue.svg";
-
 export default function Register() {
   const navigate = useAppNavigate();
   const { login: authLogin } = useAuth();
@@ -151,14 +149,14 @@ export default function Register() {
           if (errors) {
             const firstError = Object.values(errors)[0];
             mensajeError =
-              firstError?.[0] || errorData.message || "Revisá los datos ingresados";
+              firstError?.[0] ||
+              errorData.message ||
+              "Revisá los datos ingresados";
           } else {
             mensajeError = errorData.message || "Revisá los datos ingresados";
           }
         } else if (isBadRequestResponse(errorData)) {
-          mensajeError =
-            errorData.message ||
-            "Revisá la información ingresada";
+          mensajeError = errorData.message || "Revisá la información ingresada";
         } else if (
           errorData &&
           typeof errorData === "object" &&
@@ -180,14 +178,7 @@ export default function Register() {
     <section className="min-h-screen flex flex-col bg-secondary">
       {loading && <Loading />}
 
-      <div className="relative flex items-center justify-center pt-8 overflow-hidden">
-        <img
-          src={TramaBlue}
-          alt=""
-          aria-hidden="true"
-          className="max-w-none z-10"
-        />
-      </div>
+      <TramaHeader />
 
       <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col">
         <div className="mb-6 text-center">
