@@ -5,24 +5,24 @@ import StateMessage from "../../components/StateMessage";
 import { notificationApiService } from "../../services/notificationApiService";
 import { formatRelativeTime } from "../../utils";
 import type { INotification, NotificationType } from "../../interfaces";
-import { nuriFireCut } from "../../assets/ilustrations";
 
-type IconEntry = { emoji: string } | { svg: string; alt: string };
-
-const TYPE_ICONS: Record<NotificationType, IconEntry> = {
-  due_task: { emoji: "📋" },
-  streak_risk: { emoji: "🔥" },
-  inactivity: { emoji: "👋" },
-  streak_increase: { svg: nuriFireCut, alt: "Racha aumentada" },
-  achievement_completed: { emoji: "🏆" },
+const TYPE_ICONS: Record<NotificationType, string> = {
+  due_task: "/notifications/due-task.svg",
+  streak_risk: "/notifications/nuri-fire.svg",
+  inactivity: "/notifications/nuri-happy.svg",
+  streak_increase: "/notifications/nuri-fire.svg",
+  achievement_completed: "/notifications/crown.svg",
 };
 
 function NotificationIcon({ type }: { type: NotificationType }) {
-  const entry = TYPE_ICONS[type];
-  if ("emoji" in entry) {
-    return <span className="text-2xl mt-0.5" aria-hidden="true">{entry.emoji}</span>;
-  }
-  return <img src={entry.svg} alt={entry.alt} className="w-8 h-8 mt-0.5 shrink-0" />;
+  return (
+    <img
+      src={TYPE_ICONS[type]}
+      alt=""
+      aria-hidden="true"
+      className="w-9 h-9 shrink-0 object-contain"
+    />
+  );
 }
 
 export default function Notifications() {
@@ -104,7 +104,7 @@ export default function Notifications() {
                 <button
                   type="button"
                   onClick={() => handleNotificationClick(notif)}
-                  className={`w-full text-left flex items-start gap-3 rounded-xl border p-4 transition-colors ${
+                  className={`w-full text-left flex items-center gap-3 rounded-xl border p-4 transition-colors ${
                     notif.read
                       ? "border-neutral bg-white"
                       : "border-primary/30 bg-primary/5"
@@ -112,16 +112,11 @@ export default function Notifications() {
                 >
                   <NotificationIcon type={notif.type} />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3
-                        className={`font-body text-sm truncate ${!notif.read ? "font-bold text-tertiary" : "font-medium text-gray-600"}`}
-                      >
-                        {notif.title}
-                      </h3>
-                      {!notif.read && (
-                        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-primary" />
-                      )}
-                    </div>
+                    <h3
+                      className={`font-body text-sm truncate ${!notif.read ? "font-bold text-tertiary" : "font-medium text-gray-600"}`}
+                    >
+                      {notif.title}
+                    </h3>
                     <p className="font-body text-sm text-gray-500 mt-0.5 line-clamp-2">
                       {notif.body}
                     </p>

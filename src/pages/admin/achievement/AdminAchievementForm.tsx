@@ -1,8 +1,14 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
-import Button from "../../../components/ui/Button";
-import { ConfirmModal } from "../../../components/ui";
+import {
+  Button,
+  ConfirmModal,
+  CustomCheckbox,
+  Input,
+  Select,
+  TextArea,
+} from "../../../components/ui";
 import { ImageUploadSlot } from "../../../components/ImageUploadSlot";
 import type {
   ICreateAchievement,
@@ -14,9 +20,26 @@ import type {
 } from "../../../interfaces";
 import { useHttpError, useCloudinaryUpload, useUnsavedChanges, useAppNavigate } from "../../../hooks";
 import { achievementService } from "../../../services/achievementService";
-import { Input } from "../../../components/ui";
 import Loading from "../../../components/Loading";
 import { validateField } from "../../../utils/validations";
+
+const ACHIEVEMENT_TYPE_OPTIONS = [
+  { id: "task", title: "Tarea" },
+  { id: "goal", title: "Meta" },
+  { id: "metric", title: "Métrica" },
+  { id: "streak", title: "Racha" },
+];
+
+const ACHIEVEMENT_TRIGGER_OPTIONS = [
+  { id: "task:completed", title: "Tarea completada" },
+  { id: "goal:completed", title: "Meta completada" },
+  { id: "streak:updated", title: "Racha actualizada" },
+];
+
+const ACHIEVEMENT_TIER_OPTIONS = [
+  { id: "basic", title: "Basic — visible para todos" },
+  { id: "premium", title: "Premium — solo suscriptores" },
+];
 
 export default function AdminAchievementForm() {
   const navigate = useAppNavigate();
@@ -326,30 +349,19 @@ export default function AdminAchievementForm() {
           helperText="Campo obligatorio"
         />
 
-        {/* Descripción */}
-        <div className="space-y-2">
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium text-tertiary"
-          >
-            Descripción *
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            rows={4}
-            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
-            placeholder="Describe el logro..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            onBlur={handleDescriptionBlur}
-            disabled={loading}
-            required
-          />
-          {descriptionError && (
-            <p className="text-sm text-red-600">{descriptionError}</p>
-          )}
-        </div>
+        <TextArea
+          id="description"
+          name="description"
+          label="Descripción"
+          rows={4}
+          placeholder="Describe el logro..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          onBlur={handleDescriptionBlur}
+          required
+          disabled={loading}
+          error={descriptionError}
+        />
 
         {/* Target Count */}
         <Input
@@ -367,77 +379,41 @@ export default function AdminAchievementForm() {
           helperText="Número de veces que debe completarse para obtener el logro"
         />
 
-        {/* Tipo */}
-        <div className="space-y-2">
-          <label
-            htmlFor="type"
-            className="block text-sm font-medium text-tertiary"
-          >
-            Tipo de Logro *
-          </label>
-          <select
-            id="type"
-            name="type"
-            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            value={type}
-            onChange={(e) => setType(e.target.value as AchievementType)}
-            disabled={loading}
-            required
-          >
-            <option value="task">Tarea</option>
-            <option value="goal">Meta</option>
-            <option value="metric">Métrica</option>
-            <option value="streak">Racha</option>
-          </select>
-        </div>
+        <Select
+          id="type"
+          name="type"
+          label="Tipo de Logro"
+          value={type}
+          onChange={(e) => setType(e.target.value as AchievementType)}
+          options={ACHIEVEMENT_TYPE_OPTIONS}
+          required
+          disabled={loading}
+        />
 
-        {/* Trigger Event */}
-        <div className="space-y-2">
-          <label
-            htmlFor="triggerEvent"
-            className="block text-sm font-medium text-tertiary"
-          >
-            Evento que activa el progreso *
-          </label>
-          <select
-            id="triggerEvent"
-            name="triggerEvent"
-            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            value={triggerEvent}
-            onChange={(e) => setTriggerEvent(e.target.value as AchievementTriggerEvent)}
-            disabled={loading}
-            required
-          >
-            <option value="task:completed">Tarea completada</option>
-            <option value="goal:completed">Meta completada</option>
-            <option value="streak:updated">Racha actualizada</option>
-          </select>
-          <p className="text-xs text-gray-500">
-            Define qué acción del usuario incrementa el contador de este logro
-          </p>
-        </div>
+        <Select
+          id="triggerEvent"
+          name="triggerEvent"
+          label="Evento que activa el progreso"
+          value={triggerEvent}
+          onChange={(e) =>
+            setTriggerEvent(e.target.value as AchievementTriggerEvent)
+          }
+          options={ACHIEVEMENT_TRIGGER_OPTIONS}
+          required
+          disabled={loading}
+          helperText="Define qué acción del usuario incrementa el contador de este logro"
+        />
 
-        {/* Tier */}
-        <div className="space-y-2">
-          <label
-            htmlFor="tier"
-            className="block text-sm font-medium text-tertiary"
-          >
-            Nivel de acceso *
-          </label>
-          <select
-            id="tier"
-            name="tier"
-            className="w-full px-4 py-2 border border-neutral rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
-            value={tier}
-            onChange={(e) => setTier(e.target.value as AchievementTier)}
-            disabled={loading}
-            required
-          >
-            <option value="basic">Basic — visible para todos</option>
-            <option value="premium">Premium — solo suscriptores</option>
-          </select>
-        </div>
+        <Select
+          id="tier"
+          name="tier"
+          label="Nivel de acceso"
+          value={tier}
+          onChange={(e) => setTier(e.target.value as AchievementTier)}
+          options={ACHIEVEMENT_TIER_OPTIONS}
+          required
+          disabled={loading}
+        />
 
         {/* Achievement Image */}
         <div className="space-y-2">
@@ -458,16 +434,13 @@ export default function AdminAchievementForm() {
           </p>
         </div>
 
-        {/* IsActive - Checkbox */}
         <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
+          <CustomCheckbox
             id="isActive"
-            name="isActive"
             checked={isActive}
             onChange={(e) => setIsActive(e.target.checked)}
             disabled={loading}
-            className="w-5 h-5 text-primary bg-neutral border-tertiary rounded focus:ring-primary focus:ring-2 cursor-pointer disabled:cursor-not-allowed"
+            ariaLabel="Logro Activo"
           />
           <label
             htmlFor="isActive"

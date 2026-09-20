@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import Button from "../../../components/ui/Button";
-import { ConfirmModal } from "../../../components/ui";
+import { ConfirmModal, CustomCheckbox } from "../../../components/ui";
 import { ImageUploadSlot } from "../../../components/ImageUploadSlot";
 import type {
   CreateAdminUserDto,
@@ -358,16 +358,13 @@ export default function AdminUserForm() {
           }
         />
 
-        {/* IsAdmin - Checkbox */}
         <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
+          <CustomCheckbox
             id="isAdmin"
-            name="isAdmin"
             checked={isAdmin}
             onChange={(e) => setIsAdmin(e.target.checked)}
             disabled={loading}
-            className="w-5 h-5 text-primary bg-neutral border-tertiary rounded focus:ring-primary focus:ring-2 cursor-pointer disabled:cursor-not-allowed"
+            ariaLabel="Usuario Administrador"
           />
           <label
             htmlFor="isAdmin"
@@ -377,16 +374,13 @@ export default function AdminUserForm() {
           </label>
         </div>
 
-        {/* IsSubscribed - Checkbox */}
         <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
+          <CustomCheckbox
             id="isSubscribed"
-            name="isSubscribed"
             checked={isSubscribed}
             onChange={(e) => setIsSubscribed(e.target.checked)}
             disabled={loading}
-            className="w-5 h-5 text-primary bg-neutral border-tertiary rounded focus:ring-primary focus:ring-2 cursor-pointer disabled:cursor-not-allowed"
+            ariaLabel="Usuario con Suscripción Activa"
           />
           <label
             htmlFor="isSubscribed"

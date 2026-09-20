@@ -30,7 +30,9 @@ export { default as nenufar } from "./nenufar.svg";
 export { default as flower } from "./flower.svg";
 export { default as add } from "./add.svg";
 export { default as lapiz } from "./lapiz.svg";
+export { default as lapizBlue } from "./lapiz-blue.svg";
 export { default as trash } from "./trash.svg";
+export { default as trashBlue } from "./trash-blue.svg";
 export { default as check } from "./check.svg";
 
 export { default as translusentAdd } from "./translusent_add.svg";
@@ -42,4 +44,7 @@ export { default as lapizWrite } from "./lapiz-write.svg";
 export { default as metricWhite } from "./metric-white.svg";
 export { default as flowerCutRight } from "./flower-cut-right.svg";
 export { default as checkGreen } from "./check-green.svg";
+export { default as alert } from "./alert.svg";
+export { default as crown } from "./crown.svg";
+
 

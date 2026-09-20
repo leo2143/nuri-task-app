@@ -2,14 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { userService } from "../../services/userService";
-import type { ILoginUser } from "../../interfaces/IUser";
+import type { IAuthUser, ILoginUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { useAppNavigate, useField, useHttpError, useAuth } from "../../hooks";
-import { Button, Input } from "../../components/ui";
+import { Button, Input, TramaHeader } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
 import GoogleIcon from "../../assets/icons/google.svg";
-import { nuriConNenu } from "../../assets/ilustrations/index";
 
 export default function Login() {
   const navigate = useAppNavigate();
@@ -24,6 +23,11 @@ export default function Login() {
 
   const email = useField("email");
   const password = useField("password");
+
+  const handleSuccessfulLogin = (user: IAuthUser) => {
+    const destination = user.onboardingCompleted ? "/" : "/onboarding";
+    navigate(destination, { replace: true });
+  };
 
   const validar = (): { email?: string; password?: string } | null => {
     const errors: { email?: string; password?: string } = {};
@@ -52,12 +56,7 @@ export default function Login() {
       try {
         const authResponse = await userService.googleLogin(codeResponse.code);
         login(authResponse.user, authResponse.token);
-
-        if (!authResponse.user.onboardingCompleted) {
-          navigate("/onboarding", { replace: true });
-        } else {
-          navigate("/", { replace: true });
-        }
+        handleSuccessfulLogin(authResponse.user);
       } catch (error: unknown) {
         console.error("Error en login con Google:", error);
         handleError(error);
@@ -66,7 +65,9 @@ export default function Login() {
       }
     },
     onError: () => {
-      handleError(new Error("No pudimos conectar con Google, intentá de nuevo"));
+      handleError(
+        new Error("No pudimos conectar con Google, intentá de nuevo"),
+      );
     },
     flow: "auth-code",
   });
@@ -93,14 +94,8 @@ export default function Login() {
         password: password.value,
       };
       const authResponse = await userService.login(loginData);
-
       login(authResponse.user, authResponse.token);
-
-      if (!authResponse.user.onboardingCompleted) {
-        navigate("/onboarding", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
+      handleSuccessfulLogin(authResponse.user);
     } catch (error: unknown) {
       console.error("Error en login:", error);
       handleError(error);
@@ -113,16 +108,9 @@ export default function Login() {
     <section className="min-h-screen flex flex-col bg-background">
       {loading && <Loading />}
 
-      <div className= "login-trama-bg relative flex items-center justify-center pt-40 overflow-x-hidden overflow-x-visible">
-        <img
-          src={nuriConNenu}
-          alt="Nuri mascota"
-          className="absolute w-52 h-auto z-10 top-5  mx-auto"
-        />
-      </div>
+      <TramaHeader variant="white" />
 
       <div className="relative flex-1 bg-secondary rounded-t-[2.5rem] px-8 pt-20 pb-10 flex flex-col">
-
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-heading font-bold text-neutral mb-2">
             Iniciar Sesión
@@ -132,16 +120,12 @@ export default function Login() {
           </p>
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="space-y-5 w-full"
-          method="post"
-          noValidate
-        >
+        <form onSubmit={onSubmit} className="space-y-5 w-full" noValidate>
           <Input
             {...email}
             id="email"
             name="email"
+            type="email"
             label="Correo electrónico"
             placeholder="tuemail@email.com"
             required
@@ -156,6 +140,7 @@ export default function Login() {
             {...password}
             id="password"
             name="password"
+            type="password"
             label="Contraseña"
             placeholder="**********"
             required
@@ -206,9 +191,17 @@ export default function Login() {
         </div>
 
         <div className="flex items-center justify-center gap-3 my-4">
-          <div className="bg-primary h-1 flex-1 rounded"></div>
-          <p className="text-neutral font-bold font-body text-sm">O continúa con</p>
-          <div className="bg-primary h-1 flex-1 rounded"></div>
+          <hr
+            className="flex-1 h-1 m-0 border-0 bg-primary rounded"
+            aria-hidden="true"
+          />
+          <p className="text-neutral font-bold font-body text-sm">
+            O continúa con
+          </p>
+          <hr
+            className="flex-1 h-1 m-0 border-0 bg-primary rounded"
+            aria-hidden="true"
+          />
         </div>
 
         <div className="flex items-center justify-center">
@@ -216,13 +209,10 @@ export default function Login() {
             type="button"
             onClick={() => googleLogin()}
             disabled={loading}
+            aria-label="Iniciar sesión con Google"
             className="flex items-center justify-center rounded-full bg-white shadow-lg w-14 h-14 hover:shadow-xl transition-shadow duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <img
-              className="w-7 h-7"
-              src={GoogleIcon}
-              alt="Continuar con Google"
-            />
+            <img className="w-7 h-7" src={GoogleIcon} alt="" />
           </button>
         </div>
       </div>

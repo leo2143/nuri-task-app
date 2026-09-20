@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Button } from "../../components/ui";
+import { Button, TramaHeader } from "../../components/ui";
 import { useAppNavigate, useAuth } from "../../hooks";
 import { userService } from "../../services/userService";
 import { nuriAlegre, nuriTriste } from "../../assets/ilustrations";
-import TramaBlue from "../../assets/icons/trama-blue.svg";
 
 type VerifyState = "loading" | "success" | "error";
 
@@ -13,7 +12,6 @@ export default function VerifyEmail() {
   const navigate = useAppNavigate();
   const { login } = useAuth();
   const [state, setState] = useState<VerifyState>("loading");
-  const [errorMessage, setErrorMessage] = useState("");
   const hasVerified = useRef(false);
 
   useEffect(() => {
@@ -22,7 +20,6 @@ export default function VerifyEmail() {
     const token = searchParams.get("token");
     if (!token) {
       setState("error");
-      setErrorMessage("No se encontró el token de verificación");
       return;
     }
 
@@ -35,16 +32,8 @@ export default function VerifyEmail() {
           login(result.user, result.token);
         }
         setState("success");
-      } catch (error: unknown) {
+      } catch {
         setState("error");
-        if (error && typeof error === "object" && "response" in error) {
-          const axiosError = error as { response?: { data?: { message?: string } } };
-          setErrorMessage(
-            axiosError.response?.data?.message || "Token inválido o expirado",
-          );
-        } else {
-          setErrorMessage("Ocurrió un error al verificar tu email");
-        }
       }
     };
 
@@ -52,19 +41,14 @@ export default function VerifyEmail() {
   }, [searchParams, login]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <img
-        src={TramaBlue}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
-      />
+    <section className="min-h-screen flex flex-col bg-secondary">
+      <TramaHeader />
 
-      <div className="relative z-10 flex flex-col items-center text-center max-w-md w-full gap-6">
+      <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col items-center justify-center gap-5">
         {state === "loading" && (
           <>
             <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="text-lg font-body text-tertiary">
+            <p className="font-body text-sm text-neutral/80 text-center">
               Verificando tu email...
             </p>
           </>
@@ -77,19 +61,24 @@ export default function VerifyEmail() {
               alt="Nuri alegre"
               className="w-40 h-40 object-contain"
             />
-            <h1 className="text-3xl font-heading font-bold text-tertiary">
-              ¡Email verificado!
-            </h1>
-            <p className="text-lg font-body text-tertiary/80">
-              Tu cuenta está activa. ¡Bienvenido a Nuri Task!
-            </p>
-            <Button
-              onClick={() => navigate("/", { replace: true })}
-              variant="primary"
-              fullWidth
-            >
-              Empezar a usar Nuri
-            </Button>
+            <div className="flex flex-col gap-4">
+              <h1 className="text-2xl font-heading font-bold text-neutral text-center">
+                ?Email verificado!
+              </h1>
+              <p className="text-neutral/80 font-body text-center text-sm">
+                Tu cuenta est? activa. ?Bienvenido a Nuri Task!
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 w-full">
+              <Button
+                onClick={() => navigate("/", { replace: true })}
+                variant="primary"
+                size="md"
+                fullWidth
+              >
+                Empezar a usar Nuri
+              </Button>
+            </div>
           </>
         )}
 
@@ -100,22 +89,28 @@ export default function VerifyEmail() {
               alt="Nuri triste"
               className="w-40 h-40 object-contain"
             />
-            <h1 className="text-3xl font-heading font-bold text-tertiary">
-              No pudimos verificar
-            </h1>
-            <p className="text-lg font-body text-tertiary/80">
-              {errorMessage}
-            </p>
-            <Button
-              onClick={() => navigate("/login")}
-              variant="primary"
-              fullWidth
-            >
-              Volver al inicio
-            </Button>
+            <div className="flex flex-col gap-4">
+              <h1 className="text-2xl font-heading font-bold text-neutral text-center">
+                Este enlace ya no es v?lido
+              </h1>
+              <p className="text-neutral/80 font-body text-center text-sm">
+                El enlace de verificaci?n expir? o ya fue usado. Son v?lidos por
+                1 hora. Ped? uno nuevo e intent? otra vez.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 w-full">
+              <Button
+                onClick={() => navigate("/login")}
+                variant="primary"
+                size="md"
+                fullWidth
+              >
+                Volver al inicio
+              </Button>
+            </div>
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 }

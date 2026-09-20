@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { userService } from "../../services/userService";
 import { useAppNavigate, useField, useHttpError } from "../../hooks";
-import { Button, ButtonLink, Input } from "../../components/ui";
+import { Button, ButtonLink, Input, TramaHeader } from "../../components/ui";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import {
   validatePassword,
   validateConfirmPassword,
 } from "../../utils/validations";
-import TramaBlue from "../../assets/icons/trama-blue.svg";
+import { nuriAlegreOjos, nuriError } from "../../assets/ilustrations";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -136,7 +136,6 @@ export default function ResetPassword() {
       console.log("Contraseña reseteada exitosamente:", response);
       setSuccess(true);
 
-      // Redirigir al login después de 3 segundos
       setTimeout(() => {
         navigate("/login");
       }, 3000);
@@ -156,51 +155,41 @@ export default function ResetPassword() {
   if (!tokenValid) {
     return (
       <section className="min-h-screen flex flex-col bg-secondary">
-        <div className="relative flex items-center justify-center pt-8 overflow-hidden">
-          <img
-            src={TramaBlue}
-            alt=""
-            aria-hidden="true"
-            className="max-w-none z-10"
-          />
-        </div>
+        <TramaHeader />
 
-        <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col items-center justify-center">
-          <svg
-            className="w-20 h-20 mx-auto text-danger mb-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
+        <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col items-center justify-center gap-5">
+          <img src={nuriError} alt="nuri con cartel de error" />
 
-          <h1 className="text-2xl font-heading font-bold text-neutral mb-4 text-center">
-            Enlace inválido o expirado
-          </h1>
+          <div className="flex flex-col gap-4">
+            <h1 className="text-2xl font-heading font-bold text-neutral text-center">
+              Enlace inválido o expirado
+            </h1>
 
-          <div className="mb-6 w-full">
-            <Alert msg={errorMessage} />
+            <p className="text-neutral/80 font-body text-center text-sm">
+              El enlace que usaste pudo haber expirado o ya fue utilizado. Los
+              enlaces son válidos por{" "}
+              <strong className="text-neutral"> 1 hora.</strong>
+            </p>
           </div>
 
-          <p className="text-neutral/80 font-body mb-8 text-center text-sm">
-            El enlace que usaste pudo haber expirado o ya fue utilizado.
-            Los enlaces son válidos por 1 hora.
-          </p>
-
           <div className="flex flex-col gap-4 w-full">
-            <ButtonLink to="/forgot-password" variant="primary" size="md" fullWidth>
+            <ButtonLink
+              to="/forgot-password"
+              variant="primary"
+              size="md"
+              fullWidth
+            >
               Solicitar Nuevo Enlace
             </ButtonLink>
-            <ButtonLink to="/login" variant="secondary" size="md" fullWidth>
-              Volver al Login
-            </ButtonLink>
+
+            <div className="text-center">
+              <Link
+                to="/login"
+                className="text-primary font-bold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+              >
+                Volver al Login
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -211,14 +200,7 @@ export default function ResetPassword() {
     <section className="min-h-screen flex flex-col bg-secondary">
       {loading && <Loading />}
 
-      <div className="relative flex items-center justify-center pt-8 overflow-hidden">
-        <img
-          src={TramaBlue}
-          alt=""
-          aria-hidden="true"
-          className="max-w-none z-10"
-        />
-      </div>
+      <TramaHeader />
 
       <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col">
         {!success ? (
@@ -286,40 +268,25 @@ export default function ResetPassword() {
             </form>
           </>
         ) : (
-          <div className="space-y-6 text-center">
-            <svg
-              className="w-20 h-20 mx-auto text-primary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+          <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col items-center justify-center gap-5">
+            <img src={nuriAlegreOjos} alt="Nuri alegre" className="max-w-48" />
 
-            <h2 className="font-heading font-bold text-neutral text-2xl">
-              ¡Contraseña Actualizada!
-            </h2>
+            <div className="flex flex-col gap-4">
+              <h1 className="text-2xl font-heading font-bold text-neutral  text-center">
+                ¡Contraseña Actualizada!
+              </h1>
 
-            <p className="text-neutral/80 font-body">
-              Tu contraseña ha sido cambiada exitosamente. Ahora puedes
-              iniciar sesión con tu nueva contraseña.
-            </p>
-
-            <div className="bg-neutral/10 border border-neutral/30 p-4 rounded-lg">
-              <p className="font-body text-sm text-neutral/80">
-                Serás redirigido al login en unos segundos...
+              <p className="text-neutral/80 font-body  text-center text-sm">
+                Tu contraseña ha sido cambiada exitosamente. Ahora podés iniciar
+                sesión con tu nueva contraseña.
               </p>
             </div>
 
-            <ButtonLink to="/login" variant="primary" size="md" fullWidth>
-              Ir al Login Ahora
-            </ButtonLink>
+            <div className="flex flex-col gap-4 w-full">
+              <ButtonLink to="/login" variant="primary" size="md" fullWidth>
+                Ir al Login Ahora
+              </ButtonLink>
+            </div>
           </div>
         )}
       </div>

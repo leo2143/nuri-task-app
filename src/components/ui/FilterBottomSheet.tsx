@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { FilterConfig, FilterValues } from "../../interfaces";
 import BottomSheet from "./BottomSheet";
 import Button from "./Button";
+import Input from "./Input";
 
 interface FilterBottomSheetProps {
   isOpen: boolean;
@@ -98,13 +99,16 @@ export default function FilterBottomSheet({
             )}
 
             {filterCfg.type === "date" && (
-              <input
+              <Input
                 type="date"
+                id={`filter-${filterCfg.key}`}
+                name={filterCfg.key}
+                label={filterCfg.label}
+                hideLabel
                 value={(draft[filterCfg.key] as string) || ""}
                 onChange={(e) =>
                   handleDateChange(filterCfg.key, e.target.value)
                 }
-                className="w-full px-4 py-3 rounded-lg bg-white border border-brand/30 font-body text-tertiary text-sm focus:outline-none focus:border-brand shadow-brand-glow"
               />
             )}
 

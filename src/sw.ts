@@ -49,9 +49,10 @@ self.addEventListener("push", (event) => {
     url?: string;
   };
 
+  const iconPath = data.icon || "/favicon/android-chrome-192x192.png";
   const options: NotificationOptions = {
     body: data.body,
-    icon: data.icon || "/favicon/android-chrome-192x192.png",
+    icon: new URL(iconPath, self.location.origin).href,
     badge: "/favicon/favicon-32x32.png",
     data: { url: data.url || "/" },
   };

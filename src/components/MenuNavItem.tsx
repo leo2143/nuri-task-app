@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { IconWrapper } from "./ui";
+import { crown } from "../assets/svg-icons";
 
 interface MenuNavItemProps {
   to: string;
@@ -9,7 +10,7 @@ interface MenuNavItemProps {
   label?: string;
   whitHover?: boolean;
   whitelabel?: boolean;
-  badge?: string;
+  showCrown?: boolean;
 }
 
 export default function MenuNavItem({
@@ -20,7 +21,7 @@ export default function MenuNavItem({
   label,
   whitHover = true,
   whitelabel = true,
-  badge,
+  showCrown = false,
 }: MenuNavItemProps) {
   const hoverStyle = whitHover
     ? " hover:bg-brand hover:text-neutral transition-colors duration-200"
@@ -42,9 +43,10 @@ export default function MenuNavItem({
           className={`hidden group-hover:block transition-all ${iconClass}`}
         />
         <span className={labelStyle}>{label}</span>
-        {badge && (
-          <span className="ml-auto text-[10px] font-bold font-heading bg-primary text-white rounded-full px-2 py-0.5">
-            {badge}
+        {showCrown && (
+          <span className="ml-auto flex items-center">
+            <img src={crown} alt="" className="w-5 h-auto" />
+            <span className="sr-only">Premium</span>
           </span>
         )}
       </div>

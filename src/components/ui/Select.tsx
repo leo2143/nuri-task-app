@@ -1,29 +1,27 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useId } from "react";
+import type { ComponentProps } from "react";
 import { chevronDown } from "../../assets/svg-icons";
 
-interface SelectOption {
+export interface SelectOption {
   id?: string;
   title: string;
 }
 
-interface SelectProps {
-  id: string;
+export interface SelectProps
+  extends Omit<ComponentProps<"select">, "size"> {
   name: string;
   label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: SelectOption[];
   placeholder?: string;
-  disabled?: boolean;
-  required?: boolean;
   error?: string;
   helperText?: string;
-  className?: string;
+  darkMode?: boolean;
   withDivider?: boolean;
+  hideLabel?: boolean;
 }
 
 export default function Select({
-  id,
+  id: externalId,
   name,
   label,
   value,
@@ -31,82 +29,127 @@ export default function Select({
   options,
   placeholder = "Selecciona una opción",
   disabled = false,
-  required = false,
+  required,
   error = "",
   helperText = "",
   className = "",
+  darkMode = false,
   withDivider = false,
+  hideLabel = false,
+  ref,
+  ...rest
 }: SelectProps) {
+  const autoId = useId();
+  const id = externalId ?? autoId;
   const [isOpen, setIsOpen] = useState(false);
-  const selectRef = useRef<HTMLDivElement>(null);
-  const hiddenSelectRef = useRef<HTMLSelectElement>(null);
-
+  const containerRef = useRef<HTMLDivElement>(null);
   const hasError = !!error;
 
-  // Encontrar la opción seleccionada
   const selectedOption = options.find((opt) => opt.id === value);
   const displayValue = selectedOption?.title || placeholder;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
-  // selección de opción
   const handleOptionClick = (optionId: string) => {
     const syntheticEvent = {
       target: { value: optionId, name },
     } as React.ChangeEvent<HTMLSelectElement>;
 
-    onChange(syntheticEvent);
+    onChange?.(syntheticEvent);
     setIsOpen(false);
   };
 
-  const labelStyles = "block text-base font-medium text-tertiary font-body";
+  const sharedButtonStyles = `
+    w-full px-4 py-3 pr-12 border-2
+    text-left outline-none
+    font-body text-sm
+    ${isOpen ? "rounded-t-lg border-b-transparent" : "rounded-lg"}
+    ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}
+  `;
 
-  const buttonStyles = `
-    w-full px-4 py-3 pr-12 border-2 border-brand/50
-    text-left cursor-pointer outline-none
+  const lightModeStyles = `
+    border-brand/50
     ${value ? "bg-white font-bold" : "bg-white"}
-    ${isOpen ? "rounded-t-lg border-b-transparent" : "rounded-lg shadow-brand-glow"}
-    ${disabled ? "bg-brand/5 cursor-not-allowed opacity-60" : ""}
-    ${hasError ? "!border-red-500 !bg-red-50" : ""}
-    font-body text-sm
+    ${!isOpen ? "shadow-brand-glow" : ""}
+    disabled:bg-brand/5
   `;
 
-  const dropdownStyles = `
-    absolute z-50 w-full -mt-0.5
-    bg-white border-2 border-t-transparent border-brand/50 rounded-b-lg shadow-brand-glow
-    max-h-60 overflow-auto
+  const darkModeStyles = `
+    border-white/20
+    ${value ? "bg-white/10 border-[#3C6973] font-bold" : "bg-white/5"}
+    disabled:bg-white/5
   `;
 
-  const optionStyles = (isSelected: boolean) => `
-    px-4 py-3 cursor-pointer
-    font-body text-sm
-    ${isSelected ? "bg-brand/10 font-bold text-tertiary" : "text-tertiary"}
-    hover:bg-brand/5
-    transition-colors duration-150
-  `;
+  const stateStyles = hasError
+    ? darkMode
+      ? "!border-red-400 !bg-red-500/20"
+      : "!border-red-500 !bg-red-50"
+    : "";
 
-  const helperTextStyles = "text-xs text-tertiary mt-1";
-  const errorStyles = "text-xs text-red-500 font-medium mt-1 flex items-center gap-1";
+  const buttonClasses = [
+    sharedButtonStyles,
+    darkMode ? darkModeStyles : lightModeStyles,
+    stateStyles,
+  ]
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const dropdownStyles = darkMode
+    ? "absolute z-50 w-full -mt-0.5 bg-white/10 border-2 border-t-transparent border-white/20 rounded-b-lg max-h-60 overflow-auto"
+    : "absolute z-50 w-full -mt-0.5 bg-white border-2 border-t-transparent border-brand/50 rounded-b-lg shadow-brand-glow max-h-60 overflow-auto";
+
+  const optionStyles = (isSelected: boolean) =>
+    darkMode
+      ? `px-4 py-3 cursor-pointer font-body text-sm text-white ${isSelected ? "bg-white/10 font-bold" : ""} hover:bg-white/5 transition-colors duration-150`
+      : `px-4 py-3 cursor-pointer font-body text-sm ${isSelected ? "bg-brand/10 font-bold text-tertiary" : "text-tertiary"} hover:bg-brand/5 transition-colors duration-150`;
+
+  const labelStyles = darkMode
+    ? "block text-base font-medium text-white font-body"
+    : "block text-base font-medium text-tertiary font-body";
+
+  const helperTextStyles = darkMode
+    ? "text-xs text-white/70 mt-1"
+    : "text-xs text-tertiary mt-1";
+
+  const errorStyles = darkMode
+    ? "text-xs text-red-400 font-medium mt-1 flex items-center gap-1"
+    : "text-xs text-red-500 font-medium mt-1 flex items-center gap-1";
 
   return (
     <>
-      <div className={`space-y-2 ${className}`} ref={selectRef}>
-        <label htmlFor={id} className={labelStyles}>
+      <div className={`space-y-2 ${className}`} ref={containerRef}>
+        <label
+          htmlFor={id}
+          id={`${id}-label`}
+          className={hideLabel ? "sr-only" : labelStyles}
+        >
           {label}
           {required && <span className="ml-1">*</span>}
         </label>
 
         <select
-          ref={hiddenSelectRef}
+          ref={ref}
           id={id}
           name={name}
           value={value}
@@ -116,6 +159,7 @@ export default function Select({
           className="sr-only"
           aria-hidden="true"
           tabIndex={-1}
+          {...rest}
         >
           <option value="">{placeholder}</option>
           {options.map((option, index) => (
@@ -130,17 +174,27 @@ export default function Select({
             type="button"
             onClick={() => !disabled && setIsOpen(!isOpen)}
             disabled={disabled}
-            className={buttonStyles}
+            className={buttonClasses}
             aria-haspopup="listbox"
             aria-expanded={isOpen}
             aria-labelledby={`${id}-label`}
             aria-required={required}
             aria-invalid={hasError}
             aria-describedby={
-              error ? `${id}-error` : helperText ? `${id}-helper` : undefined
+              hasError ? `${id}-error` : helperText ? `${id}-helper` : undefined
             }
           >
-            <span className={value ? "text-tertiary" : "text-brand"}>
+            <span
+              className={
+                value
+                  ? darkMode
+                    ? "text-white"
+                    : "text-tertiary"
+                  : darkMode
+                    ? "text-white/50"
+                    : "text-brand"
+              }
+            >
               {displayValue}
             </span>
           </button>
@@ -150,7 +204,7 @@ export default function Select({
             alt=""
             aria-hidden="true"
             className={`
-              absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none
+              absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none
               transition-transform duration-200
               ${isOpen ? "rotate-180" : ""}
             `}
@@ -186,13 +240,13 @@ export default function Select({
           )}
         </div>
 
-        {helperText && !error && (
+        {helperText && !hasError && (
           <p id={`${id}-helper`} className={helperTextStyles}>
             {helperText}
           </p>
         )}
 
-        {error && (
+        {hasError && (
           <p id={`${id}-error`} className={errorStyles} role="alert">
             <svg
               className="w-4 h-4"

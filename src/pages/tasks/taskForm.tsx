@@ -101,6 +101,11 @@ export default function TaskForm() {
         const data = await todoservice.getTodoById(id!);
 
         if (data) {
+          if (data.completed || data.isLocked) {
+            navigate("/tasks");
+            return;
+          }
+
           setTask(data);
           setTitle(data.title);
           setDescription(data.description || "");

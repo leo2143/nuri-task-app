@@ -107,8 +107,16 @@
     background-size: auto 32px;
   }
 
-    /* Patrón de fondo repetible para Home */
-    .login-trama-bg {
+    /* Trama blanca — solo Login */
+    .trama-white-bg {
+      background-image: url("./assets/icons/trama-blue-white.svg");
+      background-repeat: repeat-x;
+      background-position: -200px 20px ;
+      background-size: auto 120px;
+    }
+
+    /* Trama negra — default de TramaHeader */
+    .trama-black-bg {
       background-image: url("./assets/icons/trama-blue-black.svg");
       background-repeat: repeat-x;
       background-position: -200px 20px ;

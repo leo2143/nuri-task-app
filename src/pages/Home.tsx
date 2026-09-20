@@ -210,7 +210,7 @@ export default function Home() {
                 Lista de Tareas
               </Link>
               <Link to="/tasks?completed=true" className="flex-1 py-20 rounded-lg bg-secondary text-white font-heading font-bold text-center">
-                Tareas Finalizadas
+                Tareas Completadas
               </Link>
             </div>
 
@@ -229,10 +229,18 @@ export default function Home() {
                     key={task._id}
                     id={task._id}
                     title={task.title}
+                    description={task.description}
                     goalTitle={task.goalTitle}
+                    dueDate={task.dueDate}
+                    priority={task.priority}
                     completed={getTaskCompleted(task)}
                     isLocked={getTaskLocked(task)}
                     onToggleComplete={handleToggleComplete}
+                    onDeleted={(taskId) =>
+                      setRecentTasks((prev) =>
+                        prev.filter((item) => item._id !== taskId),
+                      )
+                    }
                   />
                 ))}
               </div>
