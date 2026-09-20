@@ -1,4 +1,5 @@
 import ProgressBar from "./ProgressBar";
+import { Avatar } from "./Avatar";
 import type { IUserAchievement } from "../../interfaces";
 
 interface AchievementCardProps {
@@ -47,11 +48,7 @@ export default function AchievementCard({ achievement }: AchievementCardProps) {
       )}
 
       <div className="flex flex-col gap-1 items-center">
-        <img
-          className="w-[80px] h-[80px] rounded-full"
-          src={imageUrl}
-          alt={title}
-        />
+        <Avatar imageUrl={imageUrl} name={title} size="md" />
         <h3 className="text-base text-center">{title}</h3>
       </div>
 

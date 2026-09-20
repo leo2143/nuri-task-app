@@ -1,98 +1,127 @@
-import React from "react";
+import { useId } from "react";
+import type { ComponentProps } from "react";
 
-interface TextAreaProps {
-  id: string;
+export interface TextAreaProps extends ComponentProps<"textarea"> {
   name: string;
   label: string;
-  value?: string;
-  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  onBlur?: () => void;
-  placeholder?: string;
-  rows?: number;
-  required?: boolean;
-  disabled?: boolean;
   error?: string;
-  className?: string;
   helperText?: string;
-  resize?: boolean;
+  darkMode?: boolean;
   withDivider?: boolean;
+  hideLabel?: boolean;
+  resize?: boolean;
 }
 
 export default function TextArea({
-  id,
+  id: externalId,
   name,
   label,
   value,
-  onChange,
-  onBlur,
-  placeholder,
-  rows = 4,
-  required = false,
-  disabled = false,
   error,
   className = "",
   helperText,
-  resize = false,
+  darkMode = false,
   withDivider = false,
+  hideLabel = false,
+  resize = false,
+  disabled,
+  required,
+  rows = 4,
+  ref,
+  ...rest
 }: TextAreaProps) {
+  const autoId = useId();
+  const id = externalId ?? autoId;
   const hasError = !!error;
 
-  const labelStyles = "block text-base font-medium text-tertiary font-body";
-
-  const textareaStyles = `
-    w-full px-4 py-3 rounded-lg border-2 shadow-brand-glow
-    ${value ? "bg-white border-brand/50 font-bold" : "bg-white"}
-    focus:bg-white
-    focus:outline-none
-    focus:border-transparent
-    focus:ring-2 focus:ring-primary/50
-    disabled:bg-brand/5 disabled:cursor-not-allowed disabled:opacity-60
-    font-body text-tertiary text-sm
-    placeholder:text-brand placeholder:font-semibold
-    transition-colors duration-200
+  const sharedStyles = `
+    w-full px-4 py-3 rounded-lg border-2
+    focus:outline-none focus:border-transparent
+    disabled:cursor-not-allowed disabled:opacity-60
+    font-body text-sm
     ${!resize ? "resize-none" : ""}
-    ${hasError ? "!border-red-500 !bg-red-50 focus:!border-transparent focus:ring-2 focus:ring-red-500/20" : ""}
   `;
 
-  // Estilos del texto de ayuda
-  const helperTextStyles = "text-xs text-tertiary mt-1";
+  const lightModeStyles = `
+    shadow-brand-glow
+    ${value ? "bg-white border-brand/50 font-bold" : "bg-white"}
+    focus:bg-white
+    disabled:bg-brand/5
+    text-tertiary
+    placeholder:text-brand placeholder:font-semibold
+  `;
 
-  // Estilos del mensaje de error
-  const errorStyles = "text-xs text-red-500 font-medium mt-1 flex items-center gap-1";
+  const darkModeStyles = `
+    border-white/20
+    ${value ? "bg-white/10 border-[#3C6973]" : "bg-white/5"}
+    focus:bg-white/15
+    disabled:bg-white/5
+    text-white
+    placeholder:text-white/50
+  `;
+
+  const stateStyles = hasError
+    ? darkMode
+      ? "!border-red-400 !bg-red-500/20 focus:!border-transparent focus:ring-2 focus:ring-red-400/30"
+      : "!border-red-500 !bg-red-50 focus:!border-transparent focus:ring-2 focus:ring-red-500/20"
+    : darkMode
+      ? "focus:ring-2 focus:ring-[#3C6973]"
+      : "focus:ring-2 focus:ring-primary/50";
+
+  const textareaClasses = [
+    sharedStyles,
+    darkMode ? darkModeStyles : lightModeStyles,
+    stateStyles,
+    className,
+  ]
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const labelStyles = darkMode
+    ? "block text-base font-medium text-white font-body"
+    : "block text-base font-medium text-tertiary font-body";
+
+  const helperTextStyles = darkMode
+    ? "text-xs text-white/70 mt-1"
+    : "text-xs text-tertiary mt-1";
+
+  const errorStyles = darkMode
+    ? "text-xs text-red-400 font-medium mt-1 flex items-center gap-1"
+    : "text-xs text-red-500 font-medium mt-1 flex items-center gap-1";
 
   return (
     <>
-      <div className={`space-y-2 ${className}`}>
-        <label htmlFor={id} className={labelStyles}>
+      <div className="space-y-2">
+        <label htmlFor={id} className={hideLabel ? "sr-only" : labelStyles}>
           {label}
           {required && <span className="ml-1">*</span>}
         </label>
 
         <textarea
+          ref={ref}
           id={id}
           name={name}
           rows={rows}
           value={value}
-          onChange={onChange}
-          onBlur={onBlur}
-          placeholder={placeholder}
-          required={required}
           disabled={disabled}
+          required={required}
           aria-required={required}
           aria-invalid={hasError}
           aria-describedby={
-            error ? `${id}-error` : helperText ? `${id}-helper` : undefined
+            hasError ? `${id}-error` : helperText ? `${id}-helper` : undefined
           }
-          className={textareaStyles}
+          className={textareaClasses}
+          {...rest}
         />
 
-        {helperText && !error && (
+        {helperText && !hasError && (
           <p id={`${id}-helper`} className={helperTextStyles}>
             {helperText}
           </p>
         )}
 
-        {error && (
+        {hasError && (
           <p id={`${id}-error`} className={errorStyles} role="alert">
             <svg
               className="w-4 h-4"
@@ -114,4 +143,3 @@ export default function TextArea({
     </>
   );
 }
-

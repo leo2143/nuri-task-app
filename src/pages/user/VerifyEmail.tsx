@@ -37,7 +37,9 @@ export default function VerifyEmail() {
       } catch (error: unknown) {
         setState("error");
         if (error && typeof error === "object" && "response" in error) {
-          const axiosError = error as { response?: { data?: { message?: string } } };
+          const axiosError = error as {
+            response?: { data?: { message?: string } };
+          };
           setErrorMessage(
             axiosError.response?.data?.message || "Token inválido o expirado",
           );
@@ -101,10 +103,11 @@ export default function VerifyEmail() {
             />
             <div className="flex flex-col gap-4">
               <h1 className="text-2xl font-heading font-bold text-neutral text-center">
-                No pudimos verificar
+                Este enlace ya no es válido
               </h1>
               <p className="text-neutral/80 font-body text-center text-sm">
-                {errorMessage}
+                El enlace de verificación expiró o ya fue usado. Son válidos por
+                1 hora. Pedí uno nuevo e intentá otra vez.
               </p>
             </div>
             <div className="flex flex-col gap-4 w-full">

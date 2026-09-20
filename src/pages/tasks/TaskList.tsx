@@ -51,6 +51,7 @@ export default function TaskList() {
   const [lockedTasks, setLockedTasks] = useState<Record<string, boolean>>({});
   const [taskToConfirm, setTaskToConfirm] = useState<ITodo | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [deletedIds, setDeletedIds] = useState<Record<string, true>>({});
 
   useEffect(() => {
     setLocalTaskStates({});
@@ -89,15 +90,25 @@ export default function TaskList() {
     return lockedTasks[task._id!] ?? task.isLocked ?? false;
   };
 
+  const visibleTasks = filterableList.data.filter(
+    (task) => !task._id || !deletedIds[task._id],
+  );
+
   const renderTaskItem = (task: ITodo) => (
     <TaskCard
       key={task._id}
       id={task._id}
       title={task.title}
+      description={task.description}
       goalTitle={task.goalTitle}
+      dueDate={task.dueDate}
+      priority={task.priority}
       completed={getTaskCompleted(task)}
       isLocked={getTaskLocked(task)}
       onToggleComplete={handleToggleComplete}
+      onDeleted={(taskId) =>
+        setDeletedIds((prev) => ({ ...prev, [taskId]: true }))
+      }
     />
   );
 
@@ -105,7 +116,7 @@ export default function TaskList() {
     <div className="flex flex-col gap-11 justify-center pt-6">
       <div className="flex flex-col gap-6 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
-          {isCompletedView ? "Tareas Realizadas" : "Mis Tareas"}
+          {isCompletedView ? "Tareas Completadas" : "Mis Tareas"}
         </h2>
 
         {!isCompletedView && (
@@ -122,6 +133,8 @@ export default function TaskList() {
 
       <FilterableList
         {...filterableList}
+        data={visibleTasks}
+        isEmpty={visibleTasks.length === 0 && !filterableList.loading}
         onSearchChange={filterableList.setSearchTerm}
         searchPlaceholder="Buscar tarea..."
         renderItem={renderTaskItem}
@@ -139,7 +152,7 @@ export default function TaskList() {
           variant="secondary"
           fullWidth
         >
-          Ver Historial de Tareas Realizadas
+          Ver Historial de Tareas Completadas
         </ButtonLink>
       )}
 

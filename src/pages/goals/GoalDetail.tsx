@@ -49,7 +49,12 @@ export default function GoalDetail() {
           { value: "high", label: "Alta" },
         ],
       },
-      { key: "completed", label: "Completadas", type: "toggle" },
+      {
+        key: "completed",
+        label: "Estado",
+        type: "chips",
+        options: [{ value: "true", label: "Completada" }],
+      },
     ],
     []
   );
@@ -165,7 +170,7 @@ export default function GoalDetail() {
       );
     }
 
-    if (activeTaskFilters.completed !== undefined && activeTaskFilters.completed !== "") {
+    if (String(activeTaskFilters.completed) === "true") {
       result = result.filter((task) => task.completed === true);
     }
 
@@ -192,9 +197,14 @@ export default function GoalDetail() {
         title={task.title}
         description={task.description}
         goalTitle={goal?.title}
+        dueDate={task.dueDate}
+        priority={task.priority}
         completed={task.completed}
         isLocked={task.isLocked}
         onToggleComplete={handleToggleTaskComplete}
+        onDeleted={(taskId) =>
+          setTasks((prev) => prev.filter((item) => item._id !== taskId))
+        }
       />
     ),
     [handleToggleTaskComplete, goal?.title],

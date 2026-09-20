@@ -1,3 +1,5 @@
+import { nenufar } from "../../assets/svg-icons";
+
 interface AvatarProps {
   imageUrl?: string;
   name?: string;
@@ -5,9 +7,9 @@ interface AvatarProps {
 }
 
 const sizeClasses = {
-  sm: "w-12 h-12 text-xl",
-  md: "w-20 h-20 text-4xl",
-  lg: "w-32 h-32 text-6xl",
+  sm: "w-12 h-12",
+  md: "w-20 h-20",
+  lg: "w-32 h-32",
 };
 
 export function Avatar({ imageUrl, name, size = "md" }: AvatarProps) {
@@ -25,9 +27,11 @@ export function Avatar({ imageUrl, name, size = "md" }: AvatarProps) {
 
   return (
     <div
-      className={`bg-brand rounded-full flex items-center justify-center text-white font-bold ${sizeClass}`}
+      className={`bg-brand rounded-full flex items-center justify-center ${sizeClass}`}
+      role="img"
+      aria-label={name || "Sin imagen"}
     >
-      {name?.charAt(0).toUpperCase()}
+      <img src={nenufar} alt="" className="w-[62.5%] h-[62.5%]" />
     </div>
   );
 }

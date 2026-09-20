@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 // Layouts y Route Guards - NO usar lazy (siempre necesarios)
@@ -24,7 +24,6 @@ const VerifyEmail = lazy(() => import("../pages/user/VerifyEmail"));
 // Páginas protegidas - lazy loading
 const Home = lazy(() => import("../pages/Home"));
 const TaskList = lazy(() => import("../pages/tasks/TaskList"));
-const TaskDetail = lazy(() => import("../pages/tasks/TaskDetail"));
 const TaskForm = lazy(() => import("../pages/tasks/taskForm"));
 const GoalList = lazy(() => import("../pages/goals/GoalList"));
 const GoalDetail = lazy(() => import("../pages/goals/GoalDetail"));
@@ -145,7 +144,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "tasks/:id",
-            element: withSuspense(TaskDetail),
+            element: <Navigate to="/tasks" replace />,
           },
           {
             path: "goals",

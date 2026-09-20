@@ -56,7 +56,7 @@ export default function SideDrawer({
         }`}
         aria-label={ariaLabel}
       >
-        <div className="py-6 flex flex-col gap-20 min-h-full">
+        <div className="pt-6 flex flex-col gap-20 min-h-full">
           <div>
             <div className="flex items-center justify-end mb-6 px-6">
               <h2 className="sr-only">{ariaLabel}</h2>

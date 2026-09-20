@@ -9,6 +9,7 @@ export { default as IconWrapper } from "./IconWrapper";
 export { default as Select } from "./Select";
 export { default as TextArea } from "./TextArea";
 export { default as CustomCheckbox } from "./CustomCheckbox";
+export { default as ToggleSwitch } from "./ToggleSwitch";
 export { default as ConfirmModal } from "./ConfirmModal";
 export { InfoCard } from "./InfoCard";
 export { Avatar } from "./Avatar";

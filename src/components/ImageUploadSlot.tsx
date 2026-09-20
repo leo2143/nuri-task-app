@@ -11,6 +11,7 @@ interface ImageUploadSlotProps {
   isUploading?: boolean;
   isDeleting?: boolean;
   className?: string;
+  variant?: "slot" | "avatar";
 }
 
 export function ImageUploadSlot({
@@ -21,7 +22,8 @@ export function ImageUploadSlot({
   onImageRemove,
   isUploading = false,
   isDeleting = false,
-  className = ''
+  className = '',
+  variant = 'slot',
 }: ImageUploadSlotProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -59,10 +61,13 @@ export function ImageUploadSlot({
     <div
       className={`
         group relative flex items-center justify-center
-        bg-white border border-[#2F9685]/20
+        aspect-square shrink-0
+        bg-white
         cursor-pointer overflow-hidden
         transition-all duration-200
-        hover:border-[#2F9685]/60 hover:bg-primary/10
+        ${variant === "avatar"
+          ? "border-0 hover:bg-primary/5"
+          : "border border-primary/20 hover:border-primary/60 hover:bg-primary/10"}
         ${className}
       `}
       onClick={handleClick}
@@ -136,7 +141,7 @@ export function ImageUploadSlot({
         <img
           src={translusentAdd}
           alt=""
-          className="w-10 h-10 text-primary"
+          className="w-10 h-10"
         />
       )}
 

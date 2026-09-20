@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, ButtonLink, InfoCard, Input } from "../../components/ui";
+import { Button, ButtonLink, InfoCard, Input, ToggleSwitch } from "../../components/ui";
 import { ImageUploadSlot } from "../../components/ImageUploadSlot";
 import { useAppNavigate, useAuth, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
 import { userService } from "../../services/userService";
@@ -92,6 +92,7 @@ export default function UserProfile() {
             onImageEdit={handleImageUpload}
             onImageRemove={handleImageRemove}
             isUploading={isUploading || isUpdating}
+            variant="avatar"
             className="w-24 h-24 rounded-full"
           />
 
@@ -101,6 +102,31 @@ export default function UserProfile() {
               { label: "Correo electrónico", value: user.email },
             ]}
           />
+
+          {isSupported && (
+            <article className="w-full bg-white rounded-lg p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-heading font-bold text-tertiary text-sm">
+                    Notificaciones
+                  </h3>
+                  <p className="font-body text-xs text-gray-500 mt-1">
+                    {permission === "denied"
+                      ? "Bloqueadas en el navegador. Habilitá las notificaciones desde la configuración del sitio."
+                      : isSubscribed
+                        ? "Recibirás alertas al completar tareas, metas y logros."
+                        : "Activá para recibir alertas de tareas y logros."}
+                  </p>
+                </div>
+                <ToggleSwitch
+                  checked={isSubscribed}
+                  onChange={isSubscribed ? unsubscribe : subscribe}
+                  disabled={pushLoading || permission === "denied"}
+                  ariaLabel="Activar notificaciones push"
+                />
+              </div>
+            </article>
+          )}
 
           {hasActiveSubscription ? (
             <>
@@ -131,7 +157,7 @@ export default function UserProfile() {
               </Button>
             </>
           ) : (
-            <article className="w-full bg-gradient-to-r from-brand/20 to-primary/20 rounded-xl p-6 text-center">
+            <article className="w-full bg-brand/15 rounded-xl p-6 text-center">
               <h3 className="text-lg font-heading font-semibold text-tertiary mb-2">
                 ¡Desbloquea todo el potencial!
               </h3>
@@ -145,38 +171,6 @@ export default function UserProfile() {
             </article>
           )}
 
-          {isSupported && (
-            <article className="w-full bg-white rounded-xl p-5 shadow border border-neutral">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-heading font-semibold text-tertiary text-sm">
-                    Notificaciones push
-                  </h3>
-                  <p className="font-body text-xs text-gray-500 mt-1">
-                    {permission === "denied"
-                      ? "Bloqueadas en el navegador. Habilitá las notificaciones desde la configuración del sitio."
-                      : isSubscribed
-                        ? "Recibirás alertas al completar tareas, metas y logros."
-                        : "Activá para recibir alertas de tareas y logros."}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  disabled={pushLoading || permission === "denied"}
-                  onClick={isSubscribed ? unsubscribe : subscribe}
-                  className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${isSubscribed ? "bg-primary" : "bg-gray-300"}`}
-                  role="switch"
-                  aria-checked={isSubscribed}
-                  aria-label="Activar notificaciones push"
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isSubscribed ? "translate-x-5" : "translate-x-0"}`}
-                  />
-                </button>
-              </div>
-            </article>
-          )}
-
           {user.googleId && !user.hasPassword && (
             <SetPasswordSection onSuccess={refetch} />
           )}
@@ -184,8 +178,9 @@ export default function UserProfile() {
           <div className="w-full max-w-md">
             <Button
               type="button"
-              variant="secondary"
+              variant="outline"
               fullWidth
+              className="font-black"
               onClick={handleLogout}
             >
               Cerrar Sesión
