@@ -15,6 +15,7 @@ export const userAchievementService = {
     try {
       const response = await apiClient.get<ISuccessResponse<IUserAchievement[]>>(
         `${API_BASE_URL}/api/user/achievements`,
+        { params: { limit: 100 } },
       );
       return response.data;
     } catch (error) {
