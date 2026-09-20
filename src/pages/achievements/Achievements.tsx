@@ -5,6 +5,8 @@ import { useFetchListOffline } from "../../hooks";
 import type { IUserAchievement } from "../../interfaces";
 import { userAchievementService } from "../../services/userAchievementService";
 
+const TIER_ORDER: Record<string, number> = { basic: 0, premium: 1 };
+
 export default function AchievementList() {
   const { response, loading, errorMessage, isEmpty } =
     useFetchListOffline<IUserAchievement>({
@@ -14,8 +16,13 @@ export default function AchievementList() {
 
   const sortedAchievements = [...(response?.data || [])].sort(
     (currentAchievement, nextAchievement) => {
-      if (currentAchievement.isAccessible === nextAchievement.isAccessible) return 0;
-      return currentAchievement.isAccessible ? -1 : 1;
+      const tierDiff =
+        (TIER_ORDER[currentAchievement.tier] ?? 1) -
+        (TIER_ORDER[nextAchievement.tier] ?? 1);
+
+      if (tierDiff !== 0) return tierDiff;
+
+      return currentAchievement.title.localeCompare(nextAchievement.title, "es");
     },
   );
 
