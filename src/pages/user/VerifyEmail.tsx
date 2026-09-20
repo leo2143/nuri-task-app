@@ -12,7 +12,6 @@ export default function VerifyEmail() {
   const navigate = useAppNavigate();
   const { login } = useAuth();
   const [state, setState] = useState<VerifyState>("loading");
-  const [errorMessage, setErrorMessage] = useState("");
   const hasVerified = useRef(false);
 
   useEffect(() => {
@@ -21,7 +20,6 @@ export default function VerifyEmail() {
     const token = searchParams.get("token");
     if (!token) {
       setState("error");
-      setErrorMessage("No se encontró el token de verificación");
       return;
     }
 
@@ -34,18 +32,8 @@ export default function VerifyEmail() {
           login(result.user, result.token);
         }
         setState("success");
-      } catch (error: unknown) {
+      } catch {
         setState("error");
-        if (error && typeof error === "object" && "response" in error) {
-          const axiosError = error as {
-            response?: { data?: { message?: string } };
-          };
-          setErrorMessage(
-            axiosError.response?.data?.message || "Token inválido o expirado",
-          );
-        } else {
-          setErrorMessage("Ocurrió un error al verificar tu email");
-        }
       }
     };
 
@@ -75,10 +63,10 @@ export default function VerifyEmail() {
             />
             <div className="flex flex-col gap-4">
               <h1 className="text-2xl font-heading font-bold text-neutral text-center">
-                ¡Email verificado!
+                ?Email verificado!
               </h1>
               <p className="text-neutral/80 font-body text-center text-sm">
-                Tu cuenta está activa. ¡Bienvenido a Nuri Task!
+                Tu cuenta est? activa. ?Bienvenido a Nuri Task!
               </p>
             </div>
             <div className="flex flex-col gap-4 w-full">
@@ -103,11 +91,11 @@ export default function VerifyEmail() {
             />
             <div className="flex flex-col gap-4">
               <h1 className="text-2xl font-heading font-bold text-neutral text-center">
-                Este enlace ya no es válido
+                Este enlace ya no es v?lido
               </h1>
               <p className="text-neutral/80 font-body text-center text-sm">
-                El enlace de verificación expiró o ya fue usado. Son válidos por
-                1 hora. Pedí uno nuevo e intentá otra vez.
+                El enlace de verificaci?n expir? o ya fue usado. Son v?lidos por
+                1 hora. Ped? uno nuevo e intent? otra vez.
               </p>
             </div>
             <div className="flex flex-col gap-4 w-full">
