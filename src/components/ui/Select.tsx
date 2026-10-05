@@ -178,7 +178,6 @@ export default function Select({
             aria-haspopup="listbox"
             aria-expanded={isOpen}
             aria-labelledby={`${id}-label`}
-            aria-required={required}
             aria-invalid={hasError}
             aria-describedby={
               hasError ? `${id}-error` : helperText ? `${id}-helper` : undefined
@@ -225,9 +224,9 @@ export default function Select({
                 {placeholder}
               </li>
 
-              {options.map((option, index) => (
+              {options.map((option) => (
                 <li
-                  key={option.id || index}
+                  key={option.id}
                   role="option"
                   aria-selected={value === option.id}
                   onClick={() => handleOptionClick(option.id || "")}

@@ -68,10 +68,40 @@ export function useFetchById<T>({
   };
 
   useEffect(() => {
-    if (autoFetch) {
-      fetchData();
-    }
-  }, [id]);
+    if (!autoFetch) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      if (!id) {
+        if (!cancelled) {
+          handleError(new Error("No encontramos lo que buscás"));
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        if (!cancelled) {
+          setLoading(true);
+          clearError();
+        }
+        const result = await fetchFn(id);
+        if (cancelled) return;
+        setData(result);
+      } catch (err) {
+        if (cancelled) return;
+        handleError(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, autoFetch, fetchFn, handleError, clearError]);
 
   return {
     data,
@@ -108,10 +138,35 @@ export function useFetchList<T, F = void>({
   };
 
   useEffect(() => {
-    if (autoFetch) {
-      fetchData();
-    }
-  }, [autoFetch, ...dependencies]);
+    if (!autoFetch) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        if (!cancelled) {
+          setLoading(true);
+          clearError();
+        }
+        // `filters` no va en deps: useFilterableList lo recrea cada render.
+        const result = await fetchFn(filters);
+        if (cancelled) return;
+        setResponse(result);
+      } catch (err) {
+        if (cancelled) return;
+        handleError(err);
+        setResponse(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- filters via `dependencies`
+  }, [autoFetch, fetchFn, handleError, clearError, ...dependencies]);
 
   return {
     response,
@@ -162,10 +217,34 @@ export function useFetchData<T>({
   };
 
   useEffect(() => {
-    if (autoFetch) {
-      fetchData();
-    }
-  }, [autoFetch, ...dependencies]);
+    if (!autoFetch) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        if (!cancelled) {
+          setLoading(true);
+          clearError();
+        }
+        const result = await fetchFn();
+        if (cancelled) return;
+        setData(result);
+      } catch (err) {
+        if (cancelled) return;
+        handleError(err);
+        setData(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `dependencies` is the public refetch key
+  }, [autoFetch, fetchFn, handleError, clearError, ...dependencies]);
 
   return {
     data,

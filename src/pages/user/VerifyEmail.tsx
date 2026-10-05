@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button, TramaHeader } from "../../components/ui";
-import { useAppNavigate, useAuth } from "../../hooks";
+import { useAppNavigate, useAuthActions } from "../../hooks";
 import { userService } from "../../services/userService";
 import { nuriAlegre, nuriTriste } from "../../assets/ilustrations";
 
@@ -10,7 +10,7 @@ type VerifyState = "loading" | "success" | "error";
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const navigate = useAppNavigate();
-  const { login } = useAuth();
+  const { login } = useAuthActions();
   const [state, setState] = useState<VerifyState>("loading");
   const hasVerified = useRef(false);
 
@@ -25,19 +25,25 @@ export default function VerifyEmail() {
 
     hasVerified.current = true;
 
+    let cancelled = false;
     const verify = async () => {
       try {
         const result = await userService.verifyEmail(token);
-        if (result.token && result.user) {
-          login(result.user, result.token);
+        if (cancelled) return;
+        if (result.user) {
+          login(result.user);
         }
         setState("success");
       } catch {
+        if (cancelled) return;
         setState("error");
       }
     };
 
     verify();
+    return () => {
+      cancelled = true;
+    };
   }, [searchParams, login]);
 
   return (

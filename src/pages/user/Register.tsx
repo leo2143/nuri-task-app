@@ -4,7 +4,7 @@ import { userService } from "../../services/userService";
 import type { ICreateUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
-import { useAppNavigate, useAuth, useField, useHttpError } from "../../hooks";
+import { useAppNavigate, useAuthActions, useField, useHttpError } from "../../hooks";
 import { Button, Input, TramaHeader } from "../../components/ui";
 import {
   isConflictResponse,
@@ -19,7 +19,7 @@ import {
 } from "../../utils/validations";
 export default function Register() {
   const navigate = useAppNavigate();
-  const { login: authLogin } = useAuth();
+  const { login: authLogin } = useAuthActions();
 
   const { error, errorMessage, clearError, setError, setErrorMessage } =
     useHttpError();
@@ -118,14 +118,14 @@ export default function Register() {
         password: password.value,
       };
 
-      await userService.createUser(userData);
+      const { emailSent } = await userService.createUser(userData);
 
       const authResponse = await userService.login({
         email: email.value,
         password: password.value,
       });
-      authLogin(authResponse.user, authResponse.token);
-      navigate("/", { replace: true });
+      authLogin(authResponse.user);
+      navigate(emailSent ? "/" : "/verify-email-pending", { replace: true });
     } catch (error: unknown) {
       // 7. MANEJAR errores con type guards
       console.error("Error en registro:", error);
@@ -230,7 +230,7 @@ export default function Register() {
             disabled={loading}
             error={passwordError}
             onBlur={handlePasswordBlur}
-            helperText="Mínimo 5 caracteres"
+            helperText="Mínimo 6 caracteres"
             darkMode
           />
 

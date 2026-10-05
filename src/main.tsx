@@ -4,8 +4,13 @@ import { RouterProvider } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { router } from "./routes/router";
 import { AuthProvider } from "./context/AuthContext";
+import { setUnauthorizedHandler } from "./config/axios";
 import { GOOGLE_CLIENT_ID } from "./config/env";
 import "./index.css";
+
+setUnauthorizedHandler(() => {
+  router.navigate("/login");
+});
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

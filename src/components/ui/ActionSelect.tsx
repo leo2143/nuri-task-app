@@ -93,9 +93,13 @@ export default function ActionSelect({ children, options = defaultOptions }: Act
       },
     })
   ) : (
-    <div onClick={handleTriggerClick} className="cursor-pointer">
+    <button
+      type="button"
+      onClick={handleTriggerClick}
+      className="cursor-pointer"
+    >
       {children}
-    </div>
+    </button>
   );
 
   return (

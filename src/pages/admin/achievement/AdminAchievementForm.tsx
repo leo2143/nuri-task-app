@@ -123,12 +123,14 @@ export default function AdminAchievementForm() {
   useEffect(() => {
     if (!isEditMode) return;
 
+    let cancelled = false;
     const fetchAchievementDetail = async () => {
       try {
         setLoading(true);
         clearError();
         const data = await achievementService.getAchievementById(id!);
 
+        if (cancelled) return;
         if (data) {
           setAchievement(data);
           setTitle(data.title);
@@ -152,13 +154,17 @@ export default function AdminAchievementForm() {
           });
         }
       } catch (err) {
+        if (cancelled) return;
         handleError(err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchAchievementDetail();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -417,12 +423,13 @@ export default function AdminAchievementForm() {
 
         {/* Achievement Image */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-tertiary">
+          <p id="admin-achievement-image" className="block text-sm font-medium text-tertiary">
             Icono/Imagen del Logro
-          </label>
+          </p>
           <ImageUploadSlot
             imageUrl={imageUrl || undefined}
             imageAlt="Imagen del logro"
+            labelledBy="admin-achievement-image"
             onImageSelect={handleImageUpload}
             onImageEdit={handleImageUpload}
             onImageRemove={handleImageRemove}

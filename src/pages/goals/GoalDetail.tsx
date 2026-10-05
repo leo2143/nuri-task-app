@@ -79,47 +79,63 @@ export default function GoalDetail() {
 
   const dueDate = useFormatDate(goal?.dueDate);
 
+  const goalId = fetchedGoal?._id;
+
   // Cargar tareas relacionadas
   useEffect(() => {
+    if (activeTab !== "tasks" || !goalId) return;
+
+    let cancelled = false;
     const fetchTasks = async () => {
-      if (!goal?._id) return;
       setLoadingTasks(true);
       try {
-        const tasksData = await goalService.getGoalTodos(goal._id);
+        const tasksData = await goalService.getGoalTodos(goalId);
+        if (cancelled) return;
         setTasks(tasksData);
       } catch (error) {
+        if (cancelled) return;
         console.error("Error fetching tasks:", error);
       } finally {
-        setLoadingTasks(false);
-        setIsFirstLoadTasks(false);
+        if (!cancelled) {
+          setLoadingTasks(false);
+          setIsFirstLoadTasks(false);
+        }
       }
     };
 
-    if (activeTab === "tasks" && goal?._id) {
-      fetchTasks();
-    }
-  }, [goal?._id, activeTab]);
+    fetchTasks();
+    return () => {
+      cancelled = true;
+    };
+  }, [goalId, activeTab]);
 
   // Cargar submetas
   useEffect(() => {
+    if (activeTab !== "subgoals" || !goalId) return;
+
+    let cancelled = false;
     const fetchSubGoals = async () => {
-      if (!goal?._id) return;
       setLoadingSubGoals(true);
       try {
-        const subGoalsData = await goalService.getSubGoals(goal._id);
+        const subGoalsData = await goalService.getSubGoals(goalId);
+        if (cancelled) return;
         setSubGoals(subGoalsData);
       } catch (error) {
+        if (cancelled) return;
         console.error("Error fetching subgoals:", error);
       } finally {
-        setLoadingSubGoals(false);
-        setIsFirstLoadSubGoals(false);
+        if (!cancelled) {
+          setLoadingSubGoals(false);
+          setIsFirstLoadSubGoals(false);
+        }
       }
     };
 
-    if (activeTab === "subgoals" && goal?._id) {
-      fetchSubGoals();
-    }
-  }, [goal?._id, activeTab]);
+    fetchSubGoals();
+    return () => {
+      cancelled = true;
+    };
+  }, [goalId, activeTab]);
 
   const handleToggleTaskComplete = useCallback(
     (taskId: string, currentCompleted: boolean) => {
