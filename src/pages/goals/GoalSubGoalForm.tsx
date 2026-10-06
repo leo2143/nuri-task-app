@@ -46,6 +46,7 @@ export default function GoalSubGoalForm() {
   });
 
   useEffect(() => {
+    let cancelled = false;
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -56,6 +57,7 @@ export default function GoalSubGoalForm() {
           goalService.getCatalogGoals(),
         ]);
 
+        if (cancelled) return;
         if (parentGoalData) {
           setParentGoal(parentGoalData);
         }
@@ -63,12 +65,16 @@ export default function GoalSubGoalForm() {
         const filteredData = id ? catalogData.filter((goal) => goal.id !== id) : catalogData;
         setGoalCatalogs(filteredData);
       } catch (err) {
+        if (cancelled) return;
         console.error("Error fetching data:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetchData();
+    return () => {
+      cancelled = true;
+    };
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handlers para modales

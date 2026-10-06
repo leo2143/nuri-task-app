@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CLOUDINARY_UPLOAD_URL, CLOUDINARY_UPLOAD_PRESET } from '../config/cloudinary';
+import { cloudinaryService } from '../services/cloudinaryService';
 
 interface UploadResult {
   secure_url: string;
@@ -41,6 +42,13 @@ export function useCloudinaryUpload(): UseCloudinaryUploadReturn {
 
       const data = await response.json();
       setProgress(100);
+
+      // Permite DELETE /api/cloudinary/image si el usuario cancela sin persistir
+      try {
+        await cloudinaryService.registerPendingImage(data.secure_url);
+      } catch {
+        console.error('No se pudo registrar la imagen pendiente en la API');
+      }
 
       return {
         secure_url: data.secure_url,

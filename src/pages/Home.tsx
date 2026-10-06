@@ -46,36 +46,50 @@ export default function Home() {
   // Fetch metas (max 5)
   useEffect(() => {
     if (activeTab !== "goals") return;
+
+    let cancelled = false;
     const fetchGoals = async () => {
       setLoadingGoals(true);
       try {
         const response = await goalService.getAllGoals({ limit: 5, sortOrder: "desc" });
+        if (cancelled) return;
         setGoals(response.data || []);
       } catch {
+        if (cancelled) return;
         setGoals([]);
       } finally {
-        setLoadingGoals(false);
+        if (!cancelled) setLoadingGoals(false);
       }
     };
     fetchGoals();
+    return () => {
+      cancelled = true;
+    };
   }, [activeTab]);
 
   // Fetch tareas recientes (ultimos 30 dias)
   useEffect(() => {
     if (activeTab !== "tasks") return;
+
+    let cancelled = false;
     const fetchTasks = async () => {
       setLoadingTasks(true);
       try {
         const response = await todoservice.gettodos({ limit: 10, sortOrder: "desc" });
+        if (cancelled) return;
         setRecentTasks(response.data || []);
         setLocalTaskStates({});
       } catch {
+        if (cancelled) return;
         setRecentTasks([]);
       } finally {
-        setLoadingTasks(false);
+        if (!cancelled) setLoadingTasks(false);
       }
     };
     fetchTasks();
+    return () => {
+      cancelled = true;
+    };
   }, [activeTab]);
 
   // Filtrar tareas de los ultimos 30 dias

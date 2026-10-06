@@ -14,6 +14,7 @@ export default function SubscriptionCallback() {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     let retries = 0;
     let timeoutId: ReturnType<typeof setTimeout>;
 
@@ -24,6 +25,7 @@ export default function SubscriptionCallback() {
 
     async function poll() {
       await checkStatus();
+      if (cancelled) return;
 
       if (retries >= MAX_RETRIES) {
         setChecking(false);
@@ -36,8 +38,11 @@ export default function SubscriptionCallback() {
 
     poll();
 
-    return () => clearTimeout(timeoutId);
-  }, []);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [refreshSubscription]);
 
   useEffect(() => {
     if (isPremium && checking) {

@@ -96,12 +96,14 @@ export default function AdminUserForm() {
   useEffect(() => {
     if (!isEditMode) return;
 
+    let cancelled = false;
     const fetchUserDetail = async () => {
       try {
         setLoading(true);
         clearError();
         const data = await userService.getUserById(id!);
 
+        if (cancelled) return;
         if (data) {
           setUser(data);
           setName(data.name);
@@ -120,13 +122,17 @@ export default function AdminUserForm() {
           });
         }
       } catch (err) {
+        if (cancelled) return;
         handleError(err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchUserDetail();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -345,7 +351,7 @@ export default function AdminUserForm() {
           placeholder={
             isEditMode
               ? "Dejalo vacío si no querés cambiarla"
-              : "Mínimo 5 caracteres"
+              : "Mínimo 6 caracteres"
           }
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -354,7 +360,7 @@ export default function AdminUserForm() {
           disabled={loading}
           error={passwordError}
           helperText={
-            isEditMode ? "Opcional en modo edición" : "Mínimo 5 caracteres"
+            isEditMode ? "Opcional en modo edición" : "Mínimo 6 caracteres"
           }
         />
 
@@ -392,12 +398,13 @@ export default function AdminUserForm() {
 
         {/* Profile Image */}
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-tertiary">
+          <p id="admin-user-profile-image" className="block text-sm font-medium text-tertiary">
             Imagen de Perfil
-          </label>
+          </p>
           <ImageUploadSlot
             imageUrl={profileImageUrl || undefined}
             imageAlt="Imagen de perfil del usuario"
+            labelledBy="admin-user-profile-image"
             onImageSelect={handleImageUpload}
             onImageEdit={handleImageUpload}
             onImageRemove={handleImageRemove}

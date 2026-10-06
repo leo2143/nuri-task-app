@@ -54,8 +54,6 @@ export function useFilterableList<T, F>({
   const [hasMore, setHasMore] = useState(false);
 
   const isLoadingMoreRef = useRef(false);
-  const activeFiltersRef = useRef(activeFilters);
-  activeFiltersRef.current = activeFilters;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -110,7 +108,7 @@ export function useFilterableList<T, F>({
       const moreFilters = buildFilters(
         debouncedSearch,
         { limit: pagination.limit, cursor: nextCursor },
-        activeFiltersRef.current
+        activeFilters
       );
       const newResponse = await fetchFn(moreFilters);
 
@@ -127,7 +125,7 @@ export function useFilterableList<T, F>({
       // Desactivar ref DESPUÉS de todo
       isLoadingMoreRef.current = false;
     }
-  }, [pagination, nextCursor, loadingMore, debouncedSearch, buildFilters, fetchFn]);
+  }, [pagination, nextCursor, loadingMore, debouncedSearch, activeFilters, buildFilters, fetchFn]);
 
   // Use accumulated data if pagination is enabled, otherwise use response data
   const data = pagination?.enabled ? accumulatedData : (response?.data || []);

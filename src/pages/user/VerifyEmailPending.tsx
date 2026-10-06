@@ -16,18 +16,23 @@ export default function VerifyEmailPending() {
     if (!user?.email || hasSentInitial.current) return;
     hasSentInitial.current = true;
 
+    let cancelled = false;
     const sendInitial = async () => {
       setSending(true);
       try {
         await userService.resendVerification(user.email);
+        if (cancelled) return;
         setCooldown(60);
       } catch {
         // El email ya fue enviado durante el registro
       } finally {
-        setSending(false);
+        if (!cancelled) setSending(false);
       }
     };
     sendInitial();
+    return () => {
+      cancelled = true;
+    };
   }, [user?.email]);
 
   useEffect(() => {
@@ -41,7 +46,7 @@ export default function VerifyEmailPending() {
     setSending(true);
     setMessage("");
     try {
-      await userService.resendVerification(user.email, true);
+      await userService.resendVerification(user.email);
       setMessage("¡Email reenviado! Revisá tu casilla.");
       setCooldown(60);
     } catch {

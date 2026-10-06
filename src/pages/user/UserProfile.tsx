@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, ButtonLink, InfoCard, Input, ToggleSwitch } from "../../components/ui";
 import { ImageUploadSlot } from "../../components/ImageUploadSlot";
-import { useAppNavigate, useAuth, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
+import { useAppNavigate, useAuthActions, useFetchData, useFormatDate, useCloudinaryUpload, useNotifications } from "../../hooks";
 import { userService } from "../../services/userService";
 import { subscriptionService } from "../../services/subscriptionService";
 import type { IUserProfile } from "../../interfaces";
@@ -10,7 +10,7 @@ import { validatePassword, validateConfirmPassword } from "../../utils/validatio
 
 export default function UserProfile() {
   const navigate = useAppNavigate();
-  const { logout, refreshSubscription } = useAuth();
+  const { logout, refreshSubscription } = useAuthActions();
   const { upload, isUploading } = useCloudinaryUpload();
   const { isSupported, permission, isSubscribed, isLoading: pushLoading, subscribe, unsubscribe } = useNotifications();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -22,8 +22,8 @@ export default function UserProfile() {
 
   const subscriptionStartDate = useFormatDate(user?.subscription?.startDate);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -250,11 +250,11 @@ function SetPasswordSection({ onSuccess }: { onSuccess: () => void }) {
           name="newPassword"
           type="password"
           label="Nueva contraseña"
-          placeholder="Mínimo 5 caracteres"
+          placeholder="Mínimo 6 caracteres"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           error={passwordError}
-          helperText="Mínimo 5 caracteres"
+          helperText="Mínimo 6 caracteres"
         />
         <Input
           id="set-confirm-password"

@@ -5,14 +5,14 @@ import { userService } from "../../services/userService";
 import type { IAuthUser, ILoginUser } from "../../interfaces/IUser";
 import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
-import { useAppNavigate, useField, useHttpError, useAuth } from "../../hooks";
+import { useAppNavigate, useField, useHttpError, useAuthActions } from "../../hooks";
 import { Button, Input, TramaHeader } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
 import GoogleIcon from "../../assets/icons/google.svg";
 
 export default function Login() {
   const navigate = useAppNavigate();
-  const { login } = useAuth();
+  const { login } = useAuthActions();
 
   const { error, errorMessage, handleError, clearError } = useHttpError();
 
@@ -55,7 +55,7 @@ export default function Login() {
       setLoading(true);
       try {
         const authResponse = await userService.googleLogin(codeResponse.code);
-        login(authResponse.user, authResponse.token);
+        login(authResponse.user);
         handleSuccessfulLogin(authResponse.user);
       } catch (error: unknown) {
         console.error("Error en login con Google:", error);
@@ -94,7 +94,7 @@ export default function Login() {
         password: password.value,
       };
       const authResponse = await userService.login(loginData);
-      login(authResponse.user, authResponse.token);
+      login(authResponse.user);
       handleSuccessfulLogin(authResponse.user);
     } catch (error: unknown) {
       console.error("Error en login:", error);

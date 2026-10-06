@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FilterConfig, FilterValues } from "../../interfaces";
 import BottomSheet from "./BottomSheet";
 import Button from "./Button";
@@ -20,10 +20,14 @@ export default function FilterBottomSheet({
   onApply,
 }: FilterBottomSheetProps) {
   const [draft, setDraft] = useState<FilterValues>({ ...activeFilters });
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (isOpen) setDraft({ ...activeFilters });
-  }, [isOpen]);
+    if (isOpen && !wasOpen.current) {
+      setDraft({ ...activeFilters });
+    }
+    wasOpen.current = isOpen;
+  }, [isOpen, activeFilters]);
 
   const handleChipToggle = (key: string, value: string) => {
     setDraft((prev) => ({

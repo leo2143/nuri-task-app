@@ -35,20 +35,25 @@ export default function ResetPassword() {
   // Verificar token al cargar la página
   useEffect(() => {
     if (success) return;
+
+    let cancelled = false;
     const verifyToken = async () => {
       if (!token) {
-        handleError(
-          new Error(
-            "El enlace no es válido. Usá el link que te enviamos por email.",
-          ),
-        );
-        setVerifying(false);
+        if (!cancelled) {
+          handleError(
+            new Error(
+              "El enlace no es válido. Usá el link que te enviamos por email.",
+            ),
+          );
+          setVerifying(false);
+        }
         return;
       }
 
       try {
         const response = await userService.verifyResetToken(token);
 
+        if (cancelled) return;
         if (response.valid) {
           setTokenValid(true);
           setUserEmail(response.email || "");
@@ -58,16 +63,20 @@ export default function ResetPassword() {
           );
         }
       } catch (error: unknown) {
+        if (cancelled) return;
         console.error("Error verificando token:", error);
         handleError(error);
         setTokenValid(false);
       } finally {
-        setVerifying(false);
+        if (!cancelled) setVerifying(false);
       }
     };
 
     verifyToken();
-  }, [token, handleError]);
+    return () => {
+      cancelled = true;
+    };
+  }, [token, handleError, success]);
 
   const validar = (): {
     newPassword?: string;
@@ -231,7 +240,7 @@ export default function ResetPassword() {
                 disabled={loading}
                 error={newPasswordError}
                 onBlur={handleNewPasswordBlur}
-                helperText="Mínimo 5 caracteres"
+                helperText="Mínimo 6 caracteres"
                 darkMode
               />
 

@@ -12,6 +12,7 @@ interface ImageUploadSlotProps {
   isDeleting?: boolean;
   className?: string;
   variant?: "slot" | "avatar";
+  labelledBy?: string;
 }
 
 export function ImageUploadSlot({
@@ -24,15 +25,10 @@ export function ImageUploadSlot({
   isDeleting = false,
   className = '',
   variant = 'slot',
+  labelledBy,
 }: ImageUploadSlotProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
-
-  const handleClick = () => {
-    if (!imageUrl) {
-      inputRef.current?.click();
-    }
-  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -42,8 +38,7 @@ export function ImageUploadSlot({
     event.target.value = '';
   };
 
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleEditClick = () => {
     editInputRef.current?.click();
   };
 
@@ -56,26 +51,20 @@ export function ImageUploadSlot({
   };
 
   const isLoading = isUploading || isDeleting;
+  const frameClass = `
+    group relative flex items-center justify-center
+    aspect-square shrink-0
+    bg-white
+    overflow-hidden
+    transition-all duration-200
+    ${variant === "avatar"
+      ? "border-0 hover:bg-primary/5"
+      : "border border-primary/20 hover:border-primary/60 hover:bg-primary/10"}
+    ${className}
+  `;
 
   return (
-    <div
-      className={`
-        group relative flex items-center justify-center
-        aspect-square shrink-0
-        bg-white
-        cursor-pointer overflow-hidden
-        transition-all duration-200
-        ${variant === "avatar"
-          ? "border-0 hover:bg-primary/5"
-          : "border border-primary/20 hover:border-primary/60 hover:bg-primary/10"}
-        ${className}
-      `}
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
-      aria-label={imageUrl ? imageAlt : 'Agregar imagen'}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
-    >
+    <div className={frameClass}>
       {isLoading ? (
         <div className="flex flex-col items-center gap-2">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -119,10 +108,7 @@ export function ImageUploadSlot({
             {onImageRemove && (
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onImageRemove();
-                }}
+                onClick={onImageRemove}
                 className="
                   w-6 h-6 rounded-full
                   bg-red-500 text-white
@@ -138,11 +124,19 @@ export function ImageUploadSlot({
           </div>
         </>
       ) : (
-        <img
-          src={translusentAdd}
-          alt=""
-          className="w-10 h-10"
-        />
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="flex h-full w-full items-center justify-center cursor-pointer"
+          aria-label={imageAlt ? `Agregar ${imageAlt}` : "Agregar imagen"}
+          aria-labelledby={labelledBy}
+        >
+          <img
+            src={translusentAdd}
+            alt=""
+            className="w-10 h-10"
+          />
+        </button>
       )}
 
       <input

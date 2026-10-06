@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { close } from "../../assets/svg-icons";
 
@@ -15,60 +15,58 @@ export default function BottomSheet({
   title,
   children,
 }: BottomSheetProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
+    let openTimer: ReturnType<typeof setTimeout> | undefined;
+    let closeTimer: ReturnType<typeof setTimeout> | undefined;
+
     if (isOpen) {
       setShouldRender(true);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setIsAnimating(true));
-      });
+      openTimer = setTimeout(() => {
+        dialogRef.current?.showModal();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setIsAnimating(true));
+        });
+      }, 10);
     } else {
       setIsAnimating(false);
-      const timer = setTimeout(() => setShouldRender(false), 300);
-      return () => clearTimeout(timer);
+      closeTimer = setTimeout(() => {
+        dialogRef.current?.close();
+        setShouldRender(false);
+      }, 300);
     }
-  }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
     return () => {
-      document.body.style.overflow = "unset";
+      if (openTimer !== undefined) clearTimeout(openTimer);
+      if (closeTimer !== undefined) clearTimeout(closeTimer);
     };
   }, [isOpen]);
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) onClose();
-    };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen, onClose]);
 
   if (!shouldRender) return null;
 
   return (
-    <>
-      <div
-        className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
-          isAnimating ? "opacity-50" : "opacity-0"
-        }`}
+    <dialog
+      ref={dialogRef}
+      className="nuri-dialog nuri-dialog-sheet"
+      aria-label={title}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+    >
+      <button
+        type="button"
+        className="nuri-dialog-backdrop"
+        aria-label="Cerrar"
         onClick={onClose}
-        aria-hidden="true"
       />
-
       <div
-        className={`fixed inset-x-0 bottom-0 z-50 transform transition-transform duration-300 ease-out ${
+        className={`relative z-10 transform transition-transform duration-300 ease-out ${
           isAnimating ? "translate-y-0" : "translate-y-full"
         }`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
       >
         <div className="bg-neutral rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl">
           <div className="flex flex-col items-center pt-3 pb-2">
@@ -82,6 +80,7 @@ export default function BottomSheet({
               </h2>
             )}
             <button
+              type="button"
               onClick={onClose}
               className="ml-auto p-2 text-tertiary hover:text-secondary transition-colors duration-200 focus:outline-none rounded-lg"
               aria-label="Cerrar"
@@ -93,6 +92,6 @@ export default function BottomSheet({
           <div className="overflow-y-auto px-6 pb-6 flex-1">{children}</div>
         </div>
       </div>
-    </>
+    </dialog>
   );
 }

@@ -118,6 +118,7 @@ export default function StatusSelect({
               <li
                 key={option.id}
                 role="option"
+                aria-selected={option.id === value}
                 onClick={() => handleStatusChange(option.id)}
                 className=" py-3 cursor-pointer text-center font-body text-base text-tertiary hover:bg-gray-200 transition-colors duration-150"
               >
