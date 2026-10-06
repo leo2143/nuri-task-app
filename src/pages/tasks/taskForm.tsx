@@ -94,7 +94,7 @@ export default function TaskForm() {
         if (!cancelled) setLoading(false);
       }
     };
-    fetchGoalCatalog();
+    void fetchGoalCatalog();
 
     if (!isEditMode) {
       return () => {
@@ -146,7 +146,7 @@ export default function TaskForm() {
       }
     };
 
-    fetchTaskDetail();
+    void fetchTaskDetail();
     return () => {
       cancelled = true;
     };

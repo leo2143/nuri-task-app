@@ -145,7 +145,7 @@ export function ImageUploadSlot({
         accept="image/*"
         onChange={handleFileChange}
         className="hidden"
-        aria-hidden="true"
+        tabIndex={-1}
       />
 
       <input
@@ -154,7 +154,7 @@ export function ImageUploadSlot({
         accept="image/*"
         onChange={handleEditFileChange}
         className="hidden"
-        aria-hidden="true"
+        tabIndex={-1}
       />
     </div>
   );

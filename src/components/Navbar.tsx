@@ -54,7 +54,7 @@ export default function Navbar() {
         console.error("Error loading streak:", error);
       }
     };
-    loadStreak();
+    void loadStreak();
     return () => {
       cancelled = true;
     };

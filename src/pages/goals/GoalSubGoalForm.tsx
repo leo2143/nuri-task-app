@@ -71,7 +71,7 @@ export default function GoalSubGoalForm() {
         if (!cancelled) setLoading(false);
       }
     };
-    fetchData();
+    void fetchData();
     return () => {
       cancelled = true;
     };

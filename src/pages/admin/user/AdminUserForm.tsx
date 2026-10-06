@@ -129,7 +129,7 @@ export default function AdminUserForm() {
       }
     };
 
-    fetchUserDetail();
+    void fetchUserDetail();
     return () => {
       cancelled = true;
     };

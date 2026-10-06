@@ -140,7 +140,7 @@ export default function GoalForm() {
         if (!cancelled) setLoading(false);
       }
     };
-    fetchGoalDetail();
+    void fetchGoalDetail();
     return () => {
       cancelled = true;
     };

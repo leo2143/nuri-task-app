@@ -72,7 +72,7 @@ export default function ResetPassword() {
       }
     };
 
-    verifyToken();
+    void verifyToken();
     return () => {
       cancelled = true;
     };

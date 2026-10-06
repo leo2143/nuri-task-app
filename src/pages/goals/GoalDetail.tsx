@@ -103,7 +103,7 @@ export default function GoalDetail() {
       }
     };
 
-    fetchTasks();
+    void fetchTasks();
     return () => {
       cancelled = true;
     };
@@ -131,7 +131,7 @@ export default function GoalDetail() {
       }
     };
 
-    fetchSubGoals();
+    void fetchSubGoals();
     return () => {
       cancelled = true;
     };

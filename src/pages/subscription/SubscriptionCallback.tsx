@@ -36,7 +36,7 @@ export default function SubscriptionCallback() {
       timeoutId = setTimeout(poll, RETRY_DELAY_MS);
     }
 
-    poll();
+    void poll();
 
     return () => {
       cancelled = true;

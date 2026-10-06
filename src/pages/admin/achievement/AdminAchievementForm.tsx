@@ -161,7 +161,7 @@ export default function AdminAchievementForm() {
       }
     };
 
-    fetchAchievementDetail();
+    void fetchAchievementDetail();
     return () => {
       cancelled = true;
     };
@@ -187,8 +187,8 @@ export default function AdminAchievementForm() {
       return;
     }
 
-    const numericValue = parseInt(targetCount, 10);
-    if (isNaN(numericValue) || numericValue <= 0) {
+    const numericValue = Number.parseInt(targetCount, 10);
+    if (Number.isNaN(numericValue) || numericValue <= 0) {
       setTargetCountError("El objetivo debe ser mayor a 0");
     } else {
       setTargetCountError("");
@@ -221,8 +221,8 @@ export default function AdminAchievementForm() {
       setTargetCountError("Ingresá un objetivo numérico");
       hasErrors = true;
     } else {
-      const numericValue = parseInt(targetCount, 10);
-      if (isNaN(numericValue) || numericValue <= 0) {
+      const numericValue = Number.parseInt(targetCount, 10);
+      if (Number.isNaN(numericValue) || numericValue <= 0) {
         setTargetCountError("El objetivo debe ser mayor a 0");
         hasErrors = true;
       }
@@ -237,7 +237,7 @@ export default function AdminAchievementForm() {
         const updateData: IUpdateAchievement = {
           title: title.trim(),
           description: description.trim(),
-          targetCount: parseInt(targetCount, 10),
+          targetCount: Number.parseInt(targetCount, 10),
           type,
           triggerEvent,
           tier,
@@ -253,7 +253,7 @@ export default function AdminAchievementForm() {
         const achievementData: ICreateAchievement = {
           title: title.trim(),
           description: description.trim(),
-          targetCount: parseInt(targetCount, 10),
+          targetCount: Number.parseInt(targetCount, 10),
           type,
           triggerEvent,
           tier,

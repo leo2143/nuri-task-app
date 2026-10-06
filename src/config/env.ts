@@ -8,8 +8,9 @@ export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 // Timeout para las peticiones (en milisegundos)
-export const API_TIMEOUT = parseInt(
+export const API_TIMEOUT = Number.parseInt(
   import.meta.env.VITE_API_TIMEOUT || "10000",
+  10,
 );
 
 // Google OAuth Client ID

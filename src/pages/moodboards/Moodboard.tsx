@@ -13,7 +13,7 @@ export default function Moodboard() {
   const [operationError, setOperationError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadMoodboard();
+    void loadMoodboard();
   }, []);
 
   const loadMoodboard = async (showLoading = true) => {
