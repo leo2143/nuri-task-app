@@ -74,25 +74,33 @@ export default function TaskForm() {
   const [titleError, setTitleError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchGoalCatalog = async () => {
       try {
         setLoading(true);
         clearError();
         const data = await goalService.getCatalogGoals();
 
+        if (cancelled) return;
         if (data) {
           setGoalCatalogs(data);
         }
       } catch (err) {
+        if (cancelled) return;
         // No mostrar error si no hay metas, es una opción válida
         console.error("Error fetching goal catalogs:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetchGoalCatalog();
 
-    if (!isEditMode) return;
+    if (!isEditMode) {
+      return () => {
+        cancelled = true;
+      };
+    }
 
     const fetchTaskDetail = async () => {
       try {
@@ -100,6 +108,7 @@ export default function TaskForm() {
         clearError();
         const data = await todoservice.getTodoById(id!);
 
+        if (cancelled) return;
         if (data) {
           if (data.completed || data.isLocked) {
             navigate("/tasks");
@@ -128,15 +137,19 @@ export default function TaskForm() {
           });
         }
       } catch (err) {
+        if (cancelled) return;
         handleError(err);
         setModalMessage("No pudimos cargar la tarea, intentá de nuevo");
         setIsErrorModalOpen(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchTaskDetail();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 

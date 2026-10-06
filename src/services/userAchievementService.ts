@@ -23,25 +23,4 @@ export const userAchievementService = {
       throw error;
     }
   },
-
-  /**
-   * Incrementa manualmente el progreso en un logro (útil para testing o casos edge).
-   * En el flujo normal el backend lo hace automáticamente vía processEvent.
-   * POST /api/user/achievements/:id/progress
-   */
-  incrementProgress: async (
-    achievementId: string,
-    amount: number = 1,
-  ): Promise<IUserAchievement> => {
-    try {
-      const response = await apiClient.post<ISuccessResponse<IUserAchievement>>(
-        `${API_BASE_URL}/api/user/achievements/${achievementId}/progress`,
-        { amount },
-      );
-      return response.data.data!;
-    } catch (error) {
-      console.error(`Error incrementing progress for achievement ${achievementId}:`, error);
-      throw error;
-    }
-  },
 };

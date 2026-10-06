@@ -64,11 +64,11 @@ export interface INotFoundResponse extends IBaseResponse {
 /**
  * Interface para respuestas de recurso creado exitosamente (201)
  * @property {T} data - Datos del recurso creado
- * @property {null} meta - Siempre null para recursos creados
+ * @property {Object | null} meta - p. ej. `{ emailSent }` en registro
  */
 export interface ICreatedResponse<T = unknown> extends IBaseResponse {
   data: T;
-  meta: null;
+  meta: { emailSent?: boolean } | null;
   status: 201;
   success: true;
 }

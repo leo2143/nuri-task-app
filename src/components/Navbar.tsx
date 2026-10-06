@@ -41,17 +41,23 @@ export default function Navbar() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (location.pathname === '/') {
-      const loadStreak = async () => {
-        try {
-          const data = await metricsService.getUserStreak();
-          setCurrentStreak(data.currentStreak);
-        } catch (error) {
-          console.error("Error loading streak:", error);
-        }
-      };
-      loadStreak();
-    }
+    if (location.pathname !== '/') return;
+
+    let cancelled = false;
+    const loadStreak = async () => {
+      try {
+        const data = await metricsService.getUserStreak();
+        if (cancelled) return;
+        setCurrentStreak(data.currentStreak);
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Error loading streak:", error);
+      }
+    };
+    loadStreak();
+    return () => {
+      cancelled = true;
+    };
   }, [location.pathname]);
 
   useEffect(() => {

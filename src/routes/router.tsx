@@ -1,7 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import RootErrorBoundary from "../pages/status/RootErrorBoundary";
 
-// Layouts y Route Guards - NO usar lazy (siempre necesarios)
+// Layouts y Route Guards
 import ProtectedLayout from "../components/ProtectedLayout";
 import PublicLayout from "../components/PublicLayout";
 import AdminLayout from "../components/AdminLayout";
@@ -14,14 +15,14 @@ import PremiumGate from "../components/PremiumGate";
 import Loading from "../components/Loading";
 import LazyErrorBoundary from "../components/LazyErrorBoundary";
 
-// Páginas públicas - lazy loading
+// Páginas públicas
 const Login = lazy(() => import("../pages/user/Login"));
 const Register = lazy(() => import("../pages/user/Register"));
 const ForgotPassword = lazy(() => import("../pages/user/ForgotPassword"));
 const ResetPassword = lazy(() => import("../pages/user/ResetPassword"));
 const VerifyEmail = lazy(() => import("../pages/user/VerifyEmail"));
 
-// Páginas protegidas - lazy loading
+// Páginas protegidas
 const Home = lazy(() => import("../pages/Home"));
 const TaskList = lazy(() => import("../pages/tasks/TaskList"));
 const TaskForm = lazy(() => import("../pages/tasks/taskForm"));
@@ -29,36 +30,55 @@ const GoalList = lazy(() => import("../pages/goals/GoalList"));
 const GoalDetail = lazy(() => import("../pages/goals/GoalDetail"));
 const GoalForm = lazy(() => import("../pages/goals/GoalForm"));
 const GoalSubGoalForm = lazy(() => import("../pages/goals/GoalSubGoalForm"));
-const AchievementList = lazy(() => import("../pages/achievements/Achievements"));
+const AchievementList = lazy(
+  () => import("../pages/achievements/Achievements"),
+);
 const UserProfile = lazy(() => import("../pages/user/UserProfile"));
 const Moodboard = lazy(() => import("../pages/moodboards/Moodboard"));
 const Metrics = lazy(() => import("../pages/metrics/Metrics"));
-const Notifications = lazy(() => import("../pages/notifications/Notifications"));
+const Notifications = lazy(
+  () => import("../pages/notifications/Notifications"),
+);
 const Subscription = lazy(() => import("../pages/subscription/Subscription"));
-const SubscriptionSuccess = lazy(() => import("../pages/subscription/SubscriptionSuccess"));
-const SubscriptionCallback = lazy(() => import("../pages/subscription/SubscriptionCallback"));
+const SubscriptionSuccess = lazy(
+  () => import("../pages/subscription/SubscriptionSuccess"),
+);
+const SubscriptionCallback = lazy(
+  () => import("../pages/subscription/SubscriptionCallback"),
+);
 
-// Páginas admin - lazy loading
+// Páginas admin
 const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
 const AdminUser = lazy(() => import("../pages/admin/user/AdminUser"));
-const AdminUserDetail = lazy(() => import("../pages/admin/user/AdminUserDetail"));
+const AdminUserDetail = lazy(
+  () => import("../pages/admin/user/AdminUserDetail"),
+);
 const AdminUserForm = lazy(() => import("../pages/admin/user/AdminUserForm"));
-const AdminAchievement = lazy(() => import("../pages/admin/achievement/AdminAchievement"));
-const AdminAchievementForm = lazy(() => import("../pages/admin/achievement/AdminAchievementForm"));
-const AdminAchievementDetail = lazy(() => import("../pages/admin/achievement/AdminAchievementDetail"));
+const AdminAchievement = lazy(
+  () => import("../pages/admin/achievement/AdminAchievement"),
+);
+const AdminAchievementForm = lazy(
+  () => import("../pages/admin/achievement/AdminAchievementForm"),
+);
+const AdminAchievementDetail = lazy(
+  () => import("../pages/admin/achievement/AdminAchievementDetail"),
+);
 
-// Verificación de email - lazy loading
-const VerifyEmailPending = lazy(() => import("../pages/user/VerifyEmailPending"));
+// Verificación de email
+const VerifyEmailPending = lazy(
+  () => import("../pages/user/VerifyEmailPending"),
+);
 
-// Onboarding - lazy loading
+// Onboarding
 const Onboarding = lazy(() => import("../pages/onboarding/Onboarding"));
 
-// Páginas de status - lazy loading
+// Páginas de status
 const NotFound = lazy(() => import("../pages/status/NotFound"));
 const Forbidden = lazy(() => import("../pages/status/Forbidden"));
 
-// Helper para envolver componentes en Suspense + Error Boundary
-const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>) => (
+const withSuspense = (
+  Component: React.LazyExoticComponent<React.ComponentType>,
+) => (
   <LazyErrorBoundary>
     <Suspense fallback={<Loading />}>
       <Component />
@@ -66,7 +86,10 @@ const withSuspense = (Component: React.LazyExoticComponent<React.ComponentType>)
   </LazyErrorBoundary>
 );
 
-const withPremium = (Component: React.LazyExoticComponent<React.ComponentType>, featureName: string) => (
+const withPremium = (
+  Component: React.LazyExoticComponent<React.ComponentType>,
+  featureName: string,
+) => (
   <LazyErrorBoundary>
     <Suspense fallback={<Loading />}>
       <PremiumGate featureName={featureName}>
@@ -78,185 +101,190 @@ const withPremium = (Component: React.LazyExoticComponent<React.ComponentType>, 
 
 export const router = createBrowserRouter([
   {
-    element: <PublicLayout />,
-    errorElement: withSuspense(NotFound),
+    errorElement: <RootErrorBoundary />,
     children: [
+      {
+        element: <PublicLayout />,
+        errorElement: <RootErrorBoundary />,
+        children: [
+          {
+            path: "/",
+            element: <PublicRoute />,
+            children: [
+              {
+                path: "login",
+                element: withSuspense(Login),
+              },
+              {
+                path: "register",
+                element: withSuspense(Register),
+              },
+              {
+                path: "forgot-password",
+                element: withSuspense(ForgotPassword),
+              },
+              {
+                path: "reset-password",
+                element: withSuspense(ResetPassword),
+              },
+            ],
+          },
+          {
+            path: "/verify-email",
+            element: withSuspense(VerifyEmail),
+          },
+          {
+            path: "/verify-email-pending",
+            element: withSuspense(VerifyEmailPending),
+          },
+          {
+            path: "/onboarding",
+            element: withSuspense(Onboarding),
+          },
+        ],
+      },
+
       {
         path: "/",
-        element: <PublicRoute />,
+        element: <ProtectedLayout />,
+        errorElement: <RootErrorBoundary />,
         children: [
           {
-            path: "login",
-            element: withSuspense(Login),
-          },
-          {
-            path: "register",
-            element: withSuspense(Register),
-          },
-          {
-            path: "forgot-password",
-            element: withSuspense(ForgotPassword),
-          },
-          {
-            path: "reset-password",
-            element: withSuspense(ResetPassword),
+            element: <ProtectedRoute />,
+            children: [
+              {
+                index: true,
+                element: withSuspense(Home),
+              },
+              {
+                path: "tasks",
+                element: withSuspense(TaskList),
+              },
+              {
+                path: "tasks/new",
+                element: withSuspense(TaskForm),
+              },
+              {
+                path: "tasks/:id/edit",
+                element: withSuspense(TaskForm),
+              },
+              {
+                path: "tasks/:id",
+                element: <Navigate to="/tasks" replace />,
+              },
+              {
+                path: "goals",
+                element: withSuspense(GoalList),
+              },
+              {
+                path: "goals/:id",
+                element: withSuspense(GoalDetail),
+              },
+              {
+                path: "goals/new",
+                element: withSuspense(GoalForm),
+              },
+              {
+                path: "goals/:id/new/subgoal",
+                element: withSuspense(GoalSubGoalForm),
+              },
+              {
+                path: "goals/:id/edit",
+                element: withSuspense(GoalForm),
+              },
+              {
+                path: "achievements",
+                element: withSuspense(AchievementList),
+              },
+              {
+                path: "profile",
+                element: withSuspense(UserProfile),
+              },
+              {
+                path: "moodboard",
+                element: withPremium(Moodboard, "Moodboard"),
+              },
+              {
+                path: "metrics",
+                element: withPremium(Metrics, "Metricas"),
+              },
+              {
+                path: "notifications",
+                element: withSuspense(Notifications),
+              },
+              {
+                path: "subscription",
+                element: withSuspense(Subscription),
+              },
+              {
+                path: "subscription/success",
+                element: withSuspense(SubscriptionSuccess),
+              },
+              {
+                path: "subscription/callback",
+                element: withSuspense(SubscriptionCallback),
+              },
+            ],
           },
         ],
       },
-      {
-        path: "/verify-email",
-        element: withSuspense(VerifyEmail),
-      },
-      {
-        path: "/verify-email-pending",
-        element: withSuspense(VerifyEmailPending),
-      },
-      {
-        path: "/onboarding",
-        element: withSuspense(Onboarding),
-      },
-    ],
-  },
 
-  {
-    path: "/",
-    element: <ProtectedLayout />,
-    errorElement: withSuspense(NotFound),
-    children: [
       {
-        element: <ProtectedRoute />,
+        path: "/admin",
+        element: <AdminLayout />,
+        errorElement: <RootErrorBoundary />,
         children: [
           {
-            index: true,
-            element: withSuspense(Home),
-          },
-          {
-            path: "tasks",
-            element: withSuspense(TaskList),
-          },
-          {
-            path: "tasks/new",
-            element: withSuspense(TaskForm),
-          },
-          {
-            path: "tasks/:id/edit",
-            element: withSuspense(TaskForm),
-          },
-          {
-            path: "tasks/:id",
-            element: <Navigate to="/tasks" replace />,
-          },
-          {
-            path: "goals",
-            element: withSuspense(GoalList),
-          },
-          {
-            path: "goals/:id",
-            element: withSuspense(GoalDetail),
-          },
-          {
-            path: "goals/new",
-            element: withSuspense(GoalForm),
-          },
-          {
-            path: "goals/:id/new/subgoal",
-            element: withSuspense(GoalSubGoalForm),
-          },
-          {
-            path: "goals/:id/edit",
-            element: withSuspense(GoalForm),
-          },
-          {
-            path: "achievements",
-            element: withSuspense(AchievementList),
-          },
-          {
-            path: "profile",
-            element: withSuspense(UserProfile),
-          },
-          {
-            path: "moodboard",
-            element: withPremium(Moodboard, "Moodboard"),
-          },
-          {
-            path: "metrics",
-            element: withPremium(Metrics, "Metricas"),
-          },
-          {
-            path: "notifications",
-            element: withSuspense(Notifications),
-          },
-          {
-            path: "subscription",
-            element: withSuspense(Subscription),
-          },
-          {
-            path: "subscription/success",
-            element: withSuspense(SubscriptionSuccess),
-          },
-          {
-            path: "subscription/callback",
-            element: withSuspense(SubscriptionCallback),
+            element: <AdminRoute />,
+            children: [
+              {
+                index: true,
+                element: withSuspense(AdminDashboard),
+              },
+              {
+                path: "users",
+                element: withSuspense(AdminUser),
+              },
+              {
+                path: "users/:id",
+                element: withSuspense(AdminUserDetail),
+              },
+              {
+                path: "users/new",
+                element: withSuspense(AdminUserForm),
+              },
+              {
+                path: "users/:id/edit",
+                element: withSuspense(AdminUserForm),
+              },
+              {
+                path: "achievements",
+                element: withSuspense(AdminAchievement),
+              },
+              {
+                path: "achievements/:id",
+                element: withSuspense(AdminAchievementDetail),
+              },
+              {
+                path: "achievements/new",
+                element: withSuspense(AdminAchievementForm),
+              },
+              {
+                path: "achievements/:id/edit",
+                element: withSuspense(AdminAchievementForm),
+              },
+            ],
           },
         ],
       },
-    ],
-  },
-
-  {
-    path: "/admin",
-    element: <AdminLayout />,
-    errorElement: withSuspense(NotFound),
-    children: [
       {
-        element: <AdminRoute />,
-        children: [
-          {
-            index: true,
-            element: withSuspense(AdminDashboard),
-          },
-          {
-            path: "users",
-            element: withSuspense(AdminUser),
-          },
-          {
-            path: "users/:id",
-            element: withSuspense(AdminUserDetail),
-          },
-          {
-            path: "users/new",
-            element: withSuspense(AdminUserForm),
-          },
-          {
-            path: "users/:id/edit",
-            element: withSuspense(AdminUserForm),
-          },
-          {
-            path: "achievements",
-            element: withSuspense(AdminAchievement),
-          },
-          {
-            path: "achievements/:id",
-            element: withSuspense(AdminAchievementDetail),
-          },
-          {
-            path: "achievements/new",
-            element: withSuspense(AdminAchievementForm),
-          },
-          {
-            path: "achievements/:id/edit",
-            element: withSuspense(AdminAchievementForm),
-          },
-        ],
+        path: "*",
+        element: withSuspense(NotFound),
+      },
+      {
+        path: "/forbidden",
+        element: withSuspense(Forbidden),
       },
     ],
-  },
-  {
-    path: "*",
-    element: withSuspense(NotFound),
-  },
-  {
-    path: "/forbidden",
-    element: withSuspense(Forbidden),
   },
 ]);

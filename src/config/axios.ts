@@ -1,56 +1,53 @@
 import axios from "axios";
-import type { AxiosInstance, AxiosError } from "axios";
+import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
 import { API_BASE_URL, API_TIMEOUT } from "../config/env";
 
-/**
- * Instancia configurada de Axios
- */
+declare module "axios" {
+  interface AxiosRequestConfig {
+    skipUnauthorizedHandler?: boolean;
+  }
+}
+
+let unauthorizedHandler: (() => void) | null = null;
+let sessionExpiredHandler: (() => void) | null = null;
+
+/** Conecta el 401 al navigate del router (main.tsx). Evita importar el router acá. */
+export function setUnauthorizedHandler(handler: () => void) {
+  unauthorizedHandler = handler;
+}
+
+/** Limpia el estado de AuthContext cuando la cookie ya no vale. */
+export function setSessionExpiredHandler(handler: () => void) {
+  sessionExpiredHandler = handler;
+}
+
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-/**
- * Interceptor de peticiones
- * Agrega el token de autenticación si existe
- */
-apiClient.interceptors.request.use(
-  (config) => {
-    // Obtener token del localStorage
-    const token = localStorage.getItem("authToken");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
-/**
- * Interceptor de respuestas
- * Maneja errores globales
- */
 apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error: AxiosError) => {
-    // Manejo de errores comunes
     if (error.response?.status === 401) {
-      // Token inválido o expirado
-      localStorage.removeItem("authToken");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      sessionExpiredHandler?.();
+
+      const skipRedirect = (error.config as InternalAxiosRequestConfig | undefined)
+        ?.skipUnauthorizedHandler;
+      if (!skipRedirect) {
+        if (unauthorizedHandler) {
+          unauthorizedHandler();
+        } else {
+          window.location.href = "/login";
+        }
+      }
     }
 
-    //todo: Generar las vistas de error
     if (error.response?.status === 403) {
       console.error("Acceso denegado");
     }

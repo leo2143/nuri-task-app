@@ -1,24 +1,61 @@
-import { createContext, useState, useEffect, useCallback } from "react";
+import { createContext, useState, useCallback, useMemo, useEffect } from "react";
 import type { ReactNode } from "react";
-import type { IAuthUser } from "../interfaces";
+import type { IAuthUser, IUserProfile } from "../interfaces";
 import { offlineStorage } from "../utils/offlineStorage";
 import { subscriptionService } from "../services/subscriptionService";
+import { userService } from "../services/userService";
+import { setSessionExpiredHandler } from "../config/axios";
 
-export interface AuthContextType {
+export interface AuthState {
   user: IAuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   isPremium: boolean;
+}
 
-  login: (user: IAuthUser, token: string) => void;
-  logout: () => void;
+export interface AuthActions {
+  login: (user: IAuthUser) => void;
+  logout: () => Promise<void>;
   updateUser: (user: IAuthUser) => void;
   refreshSubscription: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export type AuthContextType = AuthState & AuthActions;
 
-export { AuthContext };
+const USER_STORAGE_KEY = "user";
+
+/**
+ * Perfil de API → usuario de sesión (sin JWT).
+ */
+function toAuthUser(profile: IUserProfile): IAuthUser {
+  return {
+    _id: profile._id,
+    name: profile.name,
+    email: profile.email,
+    isAdmin: !!profile.isAdmin,
+    googleId: profile.googleId,
+    profileImageUrl: profile.profileImageUrl ?? undefined,
+    subscription: profile.subscription
+      ? { isActive: profile.subscription.isActive }
+      : undefined,
+    onboardingCompleted: profile.onboardingCompleted,
+    emailVerified: profile.emailVerified,
+    hasPassword: profile.hasPassword,
+  };
+}
+
+function persistUser(userData: IAuthUser) {
+  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+}
+
+function clearStoredUser() {
+  localStorage.removeItem(USER_STORAGE_KEY);
+}
+
+const AuthStateContext = createContext<AuthState | undefined>(undefined);
+const AuthActionsContext = createContext<AuthActions | undefined>(undefined);
+
+export { AuthStateContext, AuthActionsContext };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<IAuthUser | null>(null);
@@ -26,44 +63,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    const userStr = localStorage.getItem("user");
+    setSessionExpiredHandler(() => {
+      clearStoredUser();
+      setUser(null);
+      setIsAuthenticated(false);
+    });
 
-    if (token && userStr) {
+    let cancelled = false;
+
+    const hydrateSession = async () => {
       try {
-        const userData = JSON.parse(userStr);
-        setUser(userData);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error("Error al cargar usuario desde localStorage:", error);
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("user");
+        const profile = await userService.getSessionProfile();
+        if (cancelled) return;
+
+        if (profile) {
+          const authUser = toAuthUser(profile);
+          persistUser(authUser);
+          setUser(authUser);
+          setIsAuthenticated(true);
+        } else {
+          clearStoredUser();
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
-    }
-    setIsLoading(false);
+    };
+
+    void hydrateSession();
+
+    return () => {
+      cancelled = true;
+      setSessionExpiredHandler(() => {});
+    };
   }, []);
 
-  const login = (userData: IAuthUser, token: string) => {
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-
+  const login = useCallback((userData: IAuthUser) => {
+    persistUser(userData);
     setUser(userData);
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const logout = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("user");
+  const logout = useCallback(async () => {
+    try {
+      await userService.logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión en el API:", error);
+    }
+    clearStoredUser();
     offlineStorage.clear();
-
     setUser(null);
     setIsAuthenticated(false);
-  };
+  }, []);
 
-  const updateUser = (userData: IAuthUser) => {
-    localStorage.setItem("user", JSON.stringify(userData));
+  const updateUser = useCallback((userData: IAuthUser) => {
+    persistUser(userData);
     setUser(userData);
-  };
+  }, []);
 
   const refreshSubscription = useCallback(async () => {
     try {
@@ -74,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ...prevUser,
           subscription: { isActive: data.subscription.isActive },
         };
-        localStorage.setItem("user", JSON.stringify(updated));
+        persistUser(updated);
         return updated;
       });
     } catch (error) {
@@ -84,20 +143,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isPremium = !!user?.isAdmin || !!user?.subscription?.isActive;
 
+  const stateValue = useMemo<AuthState>(
+    () => ({
+      user,
+      isAuthenticated,
+      isLoading,
+      isPremium,
+    }),
+    [user, isAuthenticated, isLoading, isPremium],
+  );
+
+  const actionsValue = useMemo<AuthActions>(
+    () => ({
+      login,
+      logout,
+      updateUser,
+      refreshSubscription,
+    }),
+    [login, logout, updateUser, refreshSubscription],
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated,
-        isLoading,
-        isPremium,
-        login,
-        logout,
-        updateUser,
-        refreshSubscription,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthStateContext.Provider value={stateValue}>
+      <AuthActionsContext.Provider value={actionsValue}>
+        {children}
+      </AuthActionsContext.Provider>
+    </AuthStateContext.Provider>
   );
 }

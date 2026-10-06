@@ -95,24 +95,6 @@ export const todoservice = {
   },
 
   /**
-   * Obtener una tarea por título exacto
-   * GET /api/todos/title/:title
-   * @requires Bearer Token
-   */
-  getTodoByTitle: async (title: string): Promise<ITodo | null> => {
-    try {
-      const encodedTitle = encodeURIComponent(title);
-      const response = await apiClient.get<ISuccessResponse<ITodo>>(
-        `${API_BASE_URL}/api/todos/title/${encodedTitle}`,
-      );
-      return response.data.data;
-    } catch (error) {
-      console.error(`Error fetching Todo by title "${title}":`, error);
-      throw error;
-    }
-  },
-
-  /**
    * Obtener todas las tareas completadas
    * GET /api/todos/completed
    * @requires Bearer Token

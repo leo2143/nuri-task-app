@@ -56,10 +56,48 @@ export function useFetchByIdOffline<T>({
   };
 
   useEffect(() => {
-    if (autoFetch) {
-      fetchData();
-    }
-  }, [id]);
+    if (!autoFetch) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      if (!id) {
+        if (!cancelled) {
+          handleError(new Error("No encontramos lo que buscás"));
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        if (!cancelled) {
+          setLoading(true);
+          clearError();
+          setIsOffline(false);
+        }
+        const result = await fetchFn(id);
+        if (cancelled) return;
+        setData(result);
+        if (result) offlineStorage.save(fullKey, result);
+      } catch (err) {
+        if (cancelled) return;
+        const cached = offlineStorage.load<T>(fullKey);
+        if (cached) {
+          setData(cached);
+          setIsOffline(true);
+        } else {
+          handleError(err);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, autoFetch, fetchFn, fullKey, handleError, clearError]);
 
   return { data, loading, errorMessage, isOffline, refetch: fetchData, clearError };
 }
@@ -111,10 +149,44 @@ export function useFetchListOffline<T, F = void>({
   };
 
   useEffect(() => {
-    if (autoFetch) {
-      fetchData();
-    }
-  }, [autoFetch, ...dependencies]);
+    if (!autoFetch) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        if (!cancelled) {
+          setLoading(true);
+          clearError();
+          setIsOffline(false);
+        }
+        const result = await fetchFn(filters);
+        if (cancelled) return;
+        setResponse(result);
+        if (result?.data) {
+          offlineStorage.save(cacheKey, result);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        const cached = offlineStorage.load<ISuccessResponse<T[]>>(cacheKey);
+        if (cached) {
+          setResponse(cached);
+          setIsOffline(true);
+        } else {
+          handleError(err);
+          setResponse(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- filters via `dependencies`
+  }, [autoFetch, fetchFn, cacheKey, handleError, clearError, ...dependencies]);
 
   return {
     response,
@@ -170,10 +242,42 @@ export function useFetchDataOffline<T>({
   };
 
   useEffect(() => {
-    if (autoFetch) {
-      fetchData();
-    }
-  }, [autoFetch, ...dependencies]);
+    if (!autoFetch) return;
+
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        if (!cancelled) {
+          setLoading(true);
+          clearError();
+          setIsOffline(false);
+        }
+        const result = await fetchFn();
+        if (cancelled) return;
+        setData(result);
+        if (result) offlineStorage.save(cacheKey, result);
+      } catch (err) {
+        if (cancelled) return;
+        const cached = offlineStorage.load<T>(cacheKey);
+        if (cached) {
+          setData(cached);
+          setIsOffline(true);
+        } else {
+          handleError(err);
+          setData(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `dependencies` is the public refetch key
+  }, [autoFetch, fetchFn, cacheKey, handleError, clearError, ...dependencies]);
 
   return { data, loading, errorMessage, isOffline, refetch: fetchData, clearError };
 }

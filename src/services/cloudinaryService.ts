@@ -6,10 +6,21 @@ import { API_BASE_URL } from "../config/env";
  */
 export const cloudinaryService = {
   /**
-   * Eliminar imagen de Cloudinary directamente
+   * Registra una URL recién subida para poder borrarla si el usuario cancela.
+   * POST /api/cloudinary/pending
+   */
+  registerPendingImage: async (imageUrl: string): Promise<void> => {
+    try {
+      await apiClient.post(`${API_BASE_URL}/api/cloudinary/pending`, { imageUrl });
+    } catch (error) {
+      console.error("Error registering pending Cloudinary image:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Eliminar imagen de Cloudinary del usuario autenticado
    * DELETE /api/cloudinary/image
-   * @requires validarToken
-   * Útil para limpiar imágenes huérfanas
    */
   deleteImage: async (imageUrl: string): Promise<void> => {
     try {

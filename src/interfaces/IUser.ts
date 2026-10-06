@@ -82,8 +82,10 @@ export interface IRegisterUser {
  * GET /api/user/profile
  */
 export interface IUserProfile {
+  _id: string;
   name: string;
   email: string;
+  isAdmin: boolean;
   subscription: {
     isActive: boolean;
     startDate: string | null;
@@ -93,6 +95,7 @@ export interface IUserProfile {
   googleId?: string;
   emailVerified?: boolean;
   hasPassword?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 /**
@@ -121,7 +124,6 @@ export interface IAuthUser {
  */
 export interface IAuthResponse {
   user: IAuthUser;
-  token: string;
   message?: string;
 }
 /**

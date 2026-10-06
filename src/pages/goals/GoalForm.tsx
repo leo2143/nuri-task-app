@@ -99,12 +99,14 @@ export default function GoalForm() {
   useEffect(() => {
     if (!isEditMode) return;
 
+    let cancelled = false;
     const fetchGoalDetail = async () => {
       try {
         setLoading(true);
         clearError();
         const data = await goalService.getGoalById(id!);
 
+        if (cancelled) return;
         if (data) {
           setGoal(data);
           setTitle(data.title);
@@ -130,14 +132,18 @@ export default function GoalForm() {
           });
         }
       } catch (err) {
+        if (cancelled) return;
         handleError(err);
         setModalMessage("No pudimos cargar la meta, intentá de nuevo");
         setIsErrorModalOpen(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetchGoalDetail();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 

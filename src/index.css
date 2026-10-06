@@ -152,6 +152,38 @@
   animation: fade-in 200ms ease-out;
 }
 
+dialog.nuri-dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-width: none;
+  max-height: none;
+}
+
+dialog.nuri-dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+dialog.nuri-dialog-center {
+  margin: auto;
+  width: min(28rem, calc(100% - 2rem));
+}
+
+dialog.nuri-dialog-sheet {
+  margin: auto 0 0;
+  width: 100%;
+}
+
+dialog.nuri-dialog .nuri-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: default;
+}
+
 /* Soporte para prefers-reduced-motion (accesibilidad) */
 @media (prefers-reduced-motion: reduce) {
   *,

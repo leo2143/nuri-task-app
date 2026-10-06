@@ -19,7 +19,7 @@ export function InfoCard({ items }: InfoCardProps) {
     <div className="w-full">
       {items.map((item, index) => (
         <div
-          key={index}
+          key={item.label}
           className={`p-8 bg-white border-b-2 border-brand ${getPosition(index, items.length)}`}
         >
           <div className="font-semibold text-sm">{item.label}</div>

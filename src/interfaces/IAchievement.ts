@@ -24,6 +24,7 @@ export interface IAchievement {
   tier: AchievementTier;
   isActive: boolean;
   imageUrl: string;
+  reward?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -55,6 +56,7 @@ export interface ICreateAchievement {
   tier?: AchievementTier;
   isActive?: boolean;
   imageUrl: string;
+  reward?: string;
 }
 
 /**
@@ -69,6 +71,7 @@ export interface IUpdateAchievement {
   tier?: AchievementTier;
   isActive?: boolean;
   imageUrl?: string;
+  reward?: string;
 }
 
 export interface AchievementFilters {

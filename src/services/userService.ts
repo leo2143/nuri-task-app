@@ -7,6 +7,7 @@ import type {
   ILoginUser,
   IAuthResponse,
   ISuccessResponse,
+  ICreatedResponse,
   IChangePassword,
   IResetPassword,
   CreateAdminUserDto,
@@ -32,11 +33,6 @@ export const userService = {
         credentials,
       );
 
-      // Guardar token en localStorage
-      if (response.data.data?.token) {
-        localStorage.setItem("authToken", response.data.data.token);
-      }
-
       return response.data.data!;
     } catch (error) {
       console.error("Error during login:", error);
@@ -56,10 +52,6 @@ export const userService = {
         { code },
       );
 
-      if (response.data.data?.token) {
-        localStorage.setItem("authToken", response.data.data.token);
-      }
-
       return response.data.data!;
     } catch (error) {
       console.error("Error during Google login:", error);
@@ -72,13 +64,16 @@ export const userService = {
    * POST /api/users
    * @public
    */
-  createUser: async (userData: ICreateUser): Promise<IUser> => {
+  createUser: async (userData: ICreateUser): Promise<{ user: IUser; emailSent: boolean }> => {
     try {
-      const response = await apiClient.post<ISuccessResponse<IUser>>(
+      const response = await apiClient.post<ICreatedResponse<IUser>>(
         `${API_BASE_URL}/api/users`,
         userData,
       );
-      return response.data.data!;
+      return {
+        user: response.data.data,
+        emailSent: response.data.meta?.emailSent !== false,
+      };
     } catch (error) {
       console.error("Error creating user:", error);
       throw error;
@@ -169,6 +164,21 @@ export const userService = {
   },
 
   /**
+   * Hidrata sesión por cookie. 401 no redirige.
+   */
+  getSessionProfile: async (): Promise<IUserProfile | null> => {
+    try {
+      const response = await apiClient.get<ISuccessResponse<IUserProfile>>(
+        `${API_BASE_URL}/api/user/profile`,
+        { skipUnauthorizedHandler: true },
+      );
+      return response.data.data ?? null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
    * Cambiar contraseña del usuario actual
    * PUT /api/users/change-password
    * @requires validarToken
@@ -218,13 +228,10 @@ export const userService = {
   },
 
   /**
-   * Logout de usuario (Local)
-   * Elimina el token del localStorage
-   * NOTA: Usar el contexto AuthContext.logout() en lugar de este método
-   * @deprecated Usar useAuth().logout() para mejor manejo de estado
+   * Cierra sesión en el API (limpia la cookie HttpOnly).
    */
-  logout: (): void => {
-    localStorage.removeItem("authToken");
+  logout: async (): Promise<void> => {
+    await apiClient.post(`${API_BASE_URL}/api/users/logout`);
     localStorage.removeItem("user");
   },
 
@@ -388,14 +395,13 @@ export const userService = {
     }
   },
 
-  verifyEmail: async (token: string): Promise<{ message: string; token?: string; user?: IAuthResponse["user"] }> => {
+  verifyEmail: async (token: string): Promise<{ message: string; user?: IAuthResponse["user"] }> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<{ token: string; user: IAuthResponse["user"] }>>(
+      const response = await apiClient.get<ISuccessResponse<{ user: IAuthResponse["user"] }>>(
         `${API_BASE_URL}/api/users/verify-email/${token}`,
       );
       return {
         message: response.data.message || "Email verificado",
-        token: response.data.data?.token,
         user: response.data.data?.user,
       };
     } catch (error) {
@@ -404,11 +410,11 @@ export const userService = {
     }
   },
 
-  resendVerification: async (email: string, force = false): Promise<{ message: string }> => {
+  resendVerification: async (email: string): Promise<{ message: string }> => {
     try {
       const response = await apiClient.post<ISuccessResponse<null>>(
         `${API_BASE_URL}/api/users/resend-verification`,
-        { email, force },
+        { email },
       );
       return { message: response.data.message || "Email reenviado" };
     } catch (error) {
