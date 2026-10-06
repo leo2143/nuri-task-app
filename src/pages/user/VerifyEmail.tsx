@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button, TramaHeader } from "../../components/ui";
+import Loading from "../../components/Loading";
 import { useAppNavigate, useAuthActions } from "../../hooks";
 import { userService } from "../../services/userService";
 import { nuriAlegre, nuriTriste } from "../../assets/ilustrations";
@@ -25,41 +26,28 @@ export default function VerifyEmail() {
 
     hasVerified.current = true;
 
-    let cancelled = false;
     const verify = async () => {
       try {
         const result = await userService.verifyEmail(token);
-        if (cancelled) return;
         if (result.user) {
           login(result.user);
         }
         setState("success");
       } catch {
-        if (cancelled) return;
         setState("error");
       }
     };
 
     verify();
-    return () => {
-      cancelled = true;
-    };
   }, [searchParams, login]);
+
+  if (state === "loading") return <Loading />;
 
   return (
     <section className="min-h-screen flex flex-col bg-secondary">
       <TramaHeader />
 
       <div className="relative flex-1 px-8 pt-6 pb-10 flex flex-col items-center justify-center gap-5">
-        {state === "loading" && (
-          <>
-            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <p className="font-body text-sm text-neutral/80 text-center">
-              Verificando tu email...
-            </p>
-          </>
-        )}
-
         {state === "success" && (
           <>
             <img
@@ -69,10 +57,10 @@ export default function VerifyEmail() {
             />
             <div className="flex flex-col gap-4">
               <h1 className="text-2xl font-heading font-bold text-neutral text-center">
-                ?Email verificado!
+                ¡Email verificado!
               </h1>
               <p className="text-neutral/80 font-body text-center text-sm">
-                Tu cuenta est? activa. ?Bienvenido a Nuri Task!
+                Tu cuenta está activa. ¡Bienvenido a Nuri Task!
               </p>
             </div>
             <div className="flex flex-col gap-4 w-full">
@@ -97,11 +85,11 @@ export default function VerifyEmail() {
             />
             <div className="flex flex-col gap-4">
               <h1 className="text-2xl font-heading font-bold text-neutral text-center">
-                Este enlace ya no es v?lido
+                Este enlace ya no es válido
               </h1>
               <p className="text-neutral/80 font-body text-center text-sm">
-                El enlace de verificaci?n expir? o ya fue usado. Son v?lidos por
-                1 hora. Ped? uno nuevo e intent? otra vez.
+                El enlace de verificación expiró o ya fue usado. Son válidos por
+                1 hora. Pedí uno nuevo e intentá otra vez.
               </p>
             </div>
             <div className="flex flex-col gap-4 w-full">
