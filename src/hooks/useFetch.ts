@@ -97,7 +97,7 @@ export function useFetchById<T>({
       }
     };
 
-    run();
+    void run();
     return () => {
       cancelled = true;
     };
@@ -161,7 +161,7 @@ export function useFetchList<T, F = void>({
       }
     };
 
-    run();
+    void run();
     return () => {
       cancelled = true;
     };
@@ -239,7 +239,7 @@ export function useFetchData<T>({
       }
     };
 
-    run();
+    void run();
     return () => {
       cancelled = true;
     };

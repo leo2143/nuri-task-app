@@ -93,7 +93,7 @@ export function useFetchByIdOffline<T>({
       }
     };
 
-    run();
+    void run();
     return () => {
       cancelled = true;
     };
@@ -181,7 +181,7 @@ export function useFetchListOffline<T, F = void>({
       }
     };
 
-    run();
+    void run();
     return () => {
       cancelled = true;
     };
@@ -272,7 +272,7 @@ export function useFetchDataOffline<T>({
       }
     };
 
-    run();
+    void run();
     return () => {
       cancelled = true;
     };

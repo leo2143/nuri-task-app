@@ -61,7 +61,7 @@ export default function Home() {
         if (!cancelled) setLoadingGoals(false);
       }
     };
-    fetchGoals();
+    void fetchGoals();
     return () => {
       cancelled = true;
     };
@@ -86,7 +86,7 @@ export default function Home() {
         if (!cancelled) setLoadingTasks(false);
       }
     };
-    fetchTasks();
+    void fetchTasks();
     return () => {
       cancelled = true;
     };

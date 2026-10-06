@@ -15,9 +15,9 @@ export function useNotifications() {
   useEffect(() => {
     if (!isSupported || !isAuthenticated) return;
 
-    pushNotificationService.getExistingSubscription().then((sub) => {
+    void pushNotificationService.getExistingSubscription().then((sub) => {
       setIsSubscribed(!!sub);
-    });
+    }).catch(() => {});
   }, [isSupported, isAuthenticated]);
 
   const subscribe = useCallback(async () => {

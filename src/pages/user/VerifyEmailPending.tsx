@@ -29,7 +29,7 @@ export default function VerifyEmailPending() {
         if (!cancelled) setSending(false);
       }
     };
-    sendInitial();
+    void sendInitial();
     return () => {
       cancelled = true;
     };
@@ -57,7 +57,7 @@ export default function VerifyEmailPending() {
   }, [user?.email, cooldown]);
 
   const handleLogout = () => {
-    logout();
+    void logout();
   };
 
   return (

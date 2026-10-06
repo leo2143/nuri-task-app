@@ -38,7 +38,7 @@ export default function VerifyEmail() {
       }
     };
 
-    verify();
+    void verify();
   }, [searchParams, login]);
 
   if (state === "loading") return <Loading />;
