@@ -33,7 +33,7 @@ export default function InputFilter({
   const hasError = !!error;
 
   const sharedInputStyles = `
-    w-4/5 pl-12 pr-4 py-3 rounded-lg
+    w-full pl-12 pr-4 py-3 rounded-lg
     focus:outline-none focus:border-transparent
     disabled:cursor-not-allowed disabled:opacity-60
     font-body text-tertiary
@@ -59,7 +59,7 @@ export default function InputFilter({
   return (
     <div className="w-full">
       <div className="flex items-center">
-        <div className="relative flex-1">
+        <div className="relative min-w-0 w-4/5">
           <img
             src={search}
             alt=""
@@ -85,7 +85,7 @@ export default function InputFilter({
           />
         </div>
 
-        <div className="relative shrink-0">
+        <div className="relative ml-auto shrink-0">
           <Button
             variant="brand"
             icon="filter"

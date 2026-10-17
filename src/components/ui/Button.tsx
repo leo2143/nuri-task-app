@@ -17,7 +17,7 @@ interface ButtonProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: "primary" | "secondary" | "danger" | "success" | "brand" | "ghost" | "outline";
+  variant?: "primary" | "secondary" | "danger" | "success" | "brand" | "ghost" | "outline" | "onDark";
   size?: "sm" | "md" | "lg" | "ro";
   fullWidth?: boolean;
   children?: React.ReactNode;
@@ -93,6 +93,12 @@ export default function Button({
       bg-white text-primary border-2 border-primary
       hover:bg-primary/5
       focus:outline-none focus:ring-4 focus:ring-primary/50
+      disabled:opacity-50 disabled:cursor-not-allowed
+    `,
+    onDark: `
+      bg-neutral text-secondary-dark
+      hover:bg-brand
+      focus:outline-none focus:ring-4 focus:ring-brand/50
       disabled:opacity-50 disabled:cursor-not-allowed
     `,
   };

@@ -18,6 +18,7 @@ interface FilterableListProps<T> {
   emptyStateName: string;
   isFirstLoad: boolean;
   extraFilters?: ReactNode;
+  headerAction?: ReactNode;
   filterConfig?: FilterConfig[];
   activeFilters?: FilterValues;
   onFiltersChange?: (values: FilterValues) => void;
@@ -41,6 +42,7 @@ export default function FilterableList<T extends { _id?: string }>({
   emptyStateName,
   isFirstLoad,
   extraFilters,
+  headerAction,
   filterConfig,
   activeFilters = {},
   onFiltersChange,
@@ -64,18 +66,29 @@ export default function FilterableList<T extends { _id?: string }>({
     return <Loading />;
   }
 
+  const searchInput = (
+    <InputFilter
+      id="filter"
+      name="filtro"
+      value={searchTerm}
+      onChange={handleInputChange}
+      placeholder={searchPlaceholder}
+      disabled={loading}
+      onFilterPress={filterConfig ? () => setIsFilterOpen(true) : undefined}
+      activeFilterCount={activeFilterCount}
+    />
+  );
+
   return (
     <>
-      <InputFilter
-        id="filter"
-        name="filtro"
-        value={searchTerm}
-        onChange={handleInputChange}
-        placeholder={searchPlaceholder}
-        disabled={loading}
-        onFilterPress={filterConfig ? () => setIsFilterOpen(true) : undefined}
-        activeFilterCount={activeFilterCount}
-      />
+      {headerAction ? (
+        <div className="flex items-center gap-2">
+          <div className="flex-1 min-w-0">{searchInput}</div>
+          {headerAction}
+        </div>
+      ) : (
+        searchInput
+      )}
 
       {filterConfig && onFiltersChange && (
         <FilterBottomSheet
