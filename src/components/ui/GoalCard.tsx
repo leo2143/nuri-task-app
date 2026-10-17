@@ -31,7 +31,7 @@ export function GoalCard({
           {status && <StatusBadge status={status} />}
         </div>
         {description && (
-          <p className="mb-3 text-sm text-tertiary opacity-75 line-clamp-2">{description}</p>
+          <p className="mb-3 text-sm text-tertiary opacity-75 line-clamp-2 break-words">{description}</p>
         )}
         {progress !== undefined && (
           <ProgressBar

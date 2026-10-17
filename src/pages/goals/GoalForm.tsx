@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import type { FormEvent } from "react";
 import {
@@ -7,6 +7,7 @@ import {
   Select,
   TextArea,
   ConfirmModal,
+  GoalCard,
 } from "../../components/ui";
 import type {
   ICreateGoal,
@@ -23,17 +24,24 @@ import Loading from "../../components/Loading";
 export default function GoalForm() {
   const navigate = useAppNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
   const [goal, setGoal] = useState<IGoal | null>(null);
+  const [parentGoal, setParentGoal] = useState<IGoal | null>(null);
   const isEditMode = !!id;
+  const parentGoalId = !isEditMode ? searchParams.get("parentGoalId") : null;
 
   // Estados para modales
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  const pageTitle = isEditMode ? "Editar tu meta" : "Crea tu meta";
+  const pageTitle = isEditMode
+    ? "Editar tu meta"
+    : parentGoalId
+      ? "Crea una meta asociada"
+      : "Crea tu meta";
 
   // Estados del formulario
   const [title, setTitle] = useState("");
@@ -87,7 +95,6 @@ export default function GoalForm() {
   const statusOptions = [
     { id: "active", title: "Activa" },
     { id: "paused", title: "Pausada" },
-    { id: "completed", title: "Completada" },
   ];
 
   const priorityOptions = [
@@ -147,6 +154,27 @@ export default function GoalForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  useEffect(() => {
+    if (isEditMode || !parentGoalId) return;
+
+    let cancelled = false;
+    const fetchParentGoal = async () => {
+      try {
+        const data = await goalService.getGoalById(parentGoalId);
+        if (!cancelled && data) setParentGoal(data);
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Error al cargar la meta padre:", error);
+        }
+      }
+    };
+
+    void fetchParentGoal();
+    return () => {
+      cancelled = true;
+    };
+  }, [isEditMode, parentGoalId]);
+
   // Validaciones
   const handleTitleBlur = () => {
     const minError = validateMinLength(title, 3, "El nombre de tu meta");
@@ -192,7 +220,7 @@ export default function GoalForm() {
   // Handlers para modales
   const handleSuccessModalClose = () => {
     setIsSuccessModalOpen(false);
-    navigate("/goals");
+    navigate(parentGoalId ? `/goals/${parentGoalId}` : "/goals");
   };
 
   const handleErrorModalClose = () => {
@@ -250,15 +278,16 @@ export default function GoalForm() {
       setLoading(true);
 
       if (isEditMode) {
-        // En edición sí enviamos status
         const updateData: IUpdateGoal = {
           title: title.trim(),
           description: description.trim() || undefined,
           reason: reason.trim() || undefined,
-          status,
           priority,
           dueDate: dueDate ? `${dueDate}T12:00:00.000Z` : undefined,
         };
+        if (goal?.status !== "completed") {
+          updateData.status = status;
+        }
         await goalService.updateGoal(id!, updateData);
         setModalMessage("¡Meta actualizada exitosamente!");
       } else {
@@ -269,6 +298,7 @@ export default function GoalForm() {
           reason: reason.trim() || undefined,
           priority,
           dueDate: dueDate ? `${dueDate}T12:00:00.000Z` : undefined,
+          ...(parentGoalId ? { parentGoalId } : {}),
         };
         await goalService.createGoal(createData);
         setModalMessage("¡Meta creada exitosamente!");
@@ -307,10 +337,24 @@ export default function GoalForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6"
+        className="space-y-4"
         method="post"
         noValidate
       >
+        {parentGoal && (
+          <>
+            <div>
+              <p className="font-body text-sm text-tertiary mb-2">Se asocia a</p>
+              <GoalCard
+                id={parentGoal._id}
+                title={parentGoal.title}
+                status={parentGoal.status}
+              />
+            </div>
+            <div className="border-brand rounded-lg border" aria-hidden="true" />
+          </>
+        )}
+
         {/* Título */}
         <Input
           type="text"
@@ -357,22 +401,20 @@ export default function GoalForm() {
           withDivider
         />
 
-        {/* Estado y Prioridad en grid */}
+        {/* Estado (pausa/reanudar) y Prioridad. Completar no vive acá. */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Estado - Solo visible en modo edición */}
-          {isEditMode && (
+          {isEditMode && goal?.status !== "completed" && (
             <Select
               id="status"
               name="status"
               label="Estado"
-              value={status}
+              value={status === "completed" ? "active" : status}
               onChange={(e) => setStatus(e.target.value as GoalStatus)}
               options={statusOptions}
               disabled={loading}
             />
           )}
 
-          {/* Prioridad */}
           <Select
             id="priority"
             name="priority"
@@ -381,9 +423,10 @@ export default function GoalForm() {
             onChange={(e) => setPriority(e.target.value as GoalPriority)}
             options={priorityOptions}
             disabled={loading}
-            className={!isEditMode ? "col-span-2" : ""}
+            className={!isEditMode || goal?.status === "completed" ? "col-span-2" : ""}
           />
         </div>
+        <div className="border-brand rounded-lg border" aria-hidden="true" />
 
         {/* Fecha límite */}
         <Input

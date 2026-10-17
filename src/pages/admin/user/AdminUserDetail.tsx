@@ -1,16 +1,12 @@
 import { useState } from "react";
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  ConfirmModal,
-  InfoCard,
-} from "../../../components/ui";
+import { Link } from "react-router-dom";
+import { Avatar, ConfirmModal, InfoCard } from "../../../components/ui";
 import { useFetchById, useFormatDate, useAppNavigate } from "../../../hooks";
 import type { IUser } from "../../../interfaces";
 import { userService } from "../../../services/userService";
 import Loading from "../../../components/Loading";
 import StateMessage from "../../../components/StateMessage";
+import { deleteBrand, editBrand } from "../../../assets/svg-icons";
 
 export default function AdminUserDetail() {
   const navigate = useAppNavigate();
@@ -24,7 +20,6 @@ export default function AdminUserDetail() {
   } = useFetchById<IUser>({
     fetchFn: userService.getUserById,
   });
-  console.log(user);
   const createdDate = useFormatDate(user?.createdAt);
   const subscriptionEndDate = useFormatDate(user?.subscription?.endDate);
   const subscriptionDueDate = useFormatDate(user?.subscription?.startDate);
@@ -61,25 +56,24 @@ export default function AdminUserDetail() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex gap-5 items-center justify-between">
-        <h2>Datos del usuario</h2>
-        <div className="flex gap-2">
-          <ButtonLink
-            variant="secondary"
-            icon="lapiz"
+      <div className="flex items-center justify-between">
+        <h2 className="min-w-0">Datos del usuario</h2>
+        <div className="flex gap-2 shrink-0">
+          <Link
             to={`/admin/users/${user?._id}/edit`}
-            size="ro"
-            ariaLabel="Editar usuario"
+            className="inline-flex hover:opacity-80 transition-opacity"
+            aria-label="Editar usuario"
           >
-            {""}
-          </ButtonLink>
-
-          <Button
-            variant="danger"
-            icon="trash"
-            size="ro"
+            <img src={editBrand} alt="" aria-hidden="true" />
+          </Link>
+          <button
+            type="button"
             onClick={() => setIsDeleteModalOpen(true)}
-          ></Button>
+            className="inline-flex hover:opacity-80 transition-opacity"
+            aria-label="Eliminar usuario"
+          >
+            <img src={deleteBrand} alt="" aria-hidden="true" />
+          </button>
         </div>
       </div>
 

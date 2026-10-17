@@ -16,7 +16,6 @@ export { Avatar } from "./Avatar";
 export { MetricCard } from "./MetricCard";
 export { StreakCard } from "./StreakCard";
 export { StatusBadge } from "./StatusBadge";
-export { default as StatusSelect } from "./StatusSelect";
 export { default as TabGroup } from "./TabGroup";
 export { GoalCard } from "./GoalCard";
 export { TaskCard } from "./TaskCard";

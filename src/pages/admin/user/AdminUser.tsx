@@ -44,7 +44,7 @@ export default function AdminUser() {
             {user.name}
           </p>
           <p className="text-tertiary/70 text-sm truncate">{user.email}</p>
-          <span className="text-tertiary/50 text-sm">
+          <span className="text-tertiary/50 text-xs">
             {user.isAdmin ? "Admin" : "Usuario"} • Suscripto:{" "}
             {user.subscription?.isActive ? "Si" : "No"}
           </span>
@@ -60,8 +60,8 @@ export default function AdminUser() {
   );
 
   return (
-    <div className="flex flex-col gap-11 justify-center">
-      <div className="flex flex-col gap-6 justify-center">
+    <div className="flex flex-col gap-8 justify-center pt-2">
+      <div className="flex flex-col gap-8 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           Usuarios Registrados
         </h2>

@@ -1,43 +1,37 @@
 import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ButtonLink, GoalCard } from "../../components/ui";
-import type { IGoal, IGoalFilters, FilterConfig } from "../../interfaces";
+import type { IGoal, IGoalFilters, FilterValues, GoalStatus, GoalPriority } from "../../interfaces";
 import { useFilterableList, useAuth } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import FilterableList from "../../components/FilterableList";
+import { goalFilterConfig } from "../../utils/goalFilterConfig";
 
 const ITEMS_PER_PAGE = 5;
 const FREE_GOALS_LIMIT = 2;
 
 export default function GoalList() {
   const { isPremium } = useAuth();
+  const [searchParams] = useSearchParams();
 
-  const goalFilterConfig: FilterConfig[] = useMemo(
-    () => [
-      {
-        key: "status",
-        label: "Estado",
-        type: "chips",
-        options: [
-          { value: "active", label: "Activa" },
-          { value: "paused", label: "Pausada" },
-          { value: "completed", label: "Completada" },
-        ],
-      },
-      {
-        key: "priority",
-        label: "Prioridad",
-        type: "chips",
-        options: [
-          { value: "low", label: "Baja" },
-          { value: "medium", label: "Media" },
-          { value: "high", label: "Alta" },
-        ],
-      },
-      { key: "dueDateFrom", label: "Fecha desde", type: "date" },
-      { key: "dueDateTo", label: "Fecha hasta", type: "date" },
-    ],
-    []
-  );
+  const initialFilters = useMemo(() => {
+    const filters: FilterValues = {};
+    const dueDateFrom = searchParams.get("dueDateFrom");
+    const dueDateTo = searchParams.get("dueDateTo");
+    const status = searchParams.get("status");
+    const priority = searchParams.get("priority");
+
+    if (dueDateFrom) filters.dueDateFrom = dueDateFrom;
+    if (dueDateTo) filters.dueDateTo = dueDateTo;
+    if (status === "active" || status === "paused" || status === "completed") {
+      filters.status = status as GoalStatus;
+    }
+    if (priority === "low" || priority === "medium" || priority === "high") {
+      filters.priority = priority as GoalPriority;
+    }
+
+    return filters;
+  }, [searchParams]);
 
   const filterableList = useFilterableList<IGoal, IGoalFilters>({
     fetchFn: goalService.getAllGoals,
@@ -51,6 +45,7 @@ export default function GoalList() {
       cursor: pagination?.cursor,
     }),
     pagination: { enabled: true, limit: ITEMS_PER_PAGE },
+    initialFilters,
   });
 
   const totalGoals = filterableList.data?.length ?? 0;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import CustomCheckbox from "./CustomCheckbox";
 import Button from "./Button";
@@ -26,6 +26,7 @@ interface TaskCardProps {
   onToggleComplete: (id: string, currentCompleted: boolean) => void;
   onDeleted?: (id: string) => void;
   className?: string;
+  defaultExpanded?: boolean;
 }
 
 export function TaskCard({
@@ -40,18 +41,26 @@ export function TaskCard({
   onToggleComplete,
   onDeleted,
   className = "",
+  defaultExpanded = false,
 }: TaskCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [userExpanded, setUserExpanded] = useState<boolean | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const articleRef = useRef<HTMLElement>(null);
   const { user } = useAuth();
   const formattedDueDate = useFormatDate(dueDate);
   const isDone = completed || isLocked;
   const canEdit = Boolean(id) && !isDone;
   const canDelete = Boolean(id) && (!isDone || Boolean(user?.isAdmin));
+  const isExpanded = userExpanded ?? defaultExpanded;
+
+  useEffect(() => {
+    if (!defaultExpanded || !isExpanded || !articleRef.current) return;
+    articleRef.current.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [defaultExpanded, isExpanded]);
 
   const handleToggleExpand = () => {
-    setIsExpanded((prev) => !prev);
+    setUserExpanded((prev) => !(prev ?? defaultExpanded));
   };
 
   const handleDelete = async () => {
@@ -69,7 +78,10 @@ export function TaskCard({
   };
 
   return (
-    <article className={`bg-white rounded-lg shadow-brand-glow overflow-hidden min-w-0 ${className}`}>
+    <article
+      ref={articleRef}
+      className={`bg-white rounded-lg shadow-brand-glow overflow-hidden min-w-0 ${className}`}
+    >
       {!isExpanded ? (
         <div
           className="flex items-center justify-between p-5 cursor-pointer min-w-0"

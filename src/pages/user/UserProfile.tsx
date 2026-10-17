@@ -6,6 +6,7 @@ import { userService } from "../../services/userService";
 import { subscriptionService } from "../../services/subscriptionService";
 import type { IUserProfile } from "../../interfaces";
 import Loading from "../../components/Loading";
+import StateMessage from "../../components/StateMessage";
 import { validatePassword, validateConfirmPassword } from "../../utils/validations";
 
 export default function UserProfile() {
@@ -16,7 +17,7 @@ export default function UserProfile() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  const { data: user, loading, refetch } = useFetchData<IUserProfile>({
+  const { data: user, loading, errorMessage, refetch } = useFetchData<IUserProfile>({
     fetchFn: userService.getProfile,
   });
 
@@ -71,11 +72,16 @@ export default function UserProfile() {
     return <Loading />;
   }
 
+  if (errorMessage) {
+    return <StateMessage itemName="tu perfil" variant="error" />;
+  }
+
   if (!user) {
     return null;
   }
 
-  const hasActiveSubscription = user.subscription?.isActive;
+  const hasActiveSubscription = Boolean(user.subscription?.isActive);
+  const showPremiumUpsell = !user.isAdmin && !hasActiveSubscription;
 
   return (
     <section className="flex flex-col gap-5">
@@ -103,7 +109,7 @@ export default function UserProfile() {
             ]}
           />
 
-          {isSupported && (
+          {isSupported ? (
             <article className="w-full bg-white rounded-lg p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -115,7 +121,7 @@ export default function UserProfile() {
                       ? "Bloqueadas en el navegador. Habilitá las notificaciones desde la configuración del sitio."
                       : isSubscribed
                         ? "Recibirás alertas al completar tareas, metas y logros."
-                        : "Activá para recibir alertas de tareas y logros."}
+                        : "Activá para recibir alertas de tareas, metas y logros."}
                   </p>
                 </div>
                 <ToggleSwitch
@@ -126,7 +132,7 @@ export default function UserProfile() {
                 />
               </div>
             </article>
-          )}
+          ) : null}
 
           {hasActiveSubscription ? (
             <>
@@ -156,7 +162,7 @@ export default function UserProfile() {
                 {isCancelling ? "Cancelando..." : "Cancelar suscripción"}
               </Button>
             </>
-          ) : (
+          ) : showPremiumUpsell ? (
             <article className="w-full bg-brand/15 rounded-xl p-6 text-center">
               <h3 className="text-lg font-heading font-semibold text-tertiary mb-2">
                 ¡Desbloquea todo el potencial!
@@ -169,7 +175,7 @@ export default function UserProfile() {
                 Suscribirme ahora
               </ButtonLink>
             </article>
-          )}
+          ) : null}
 
           {user.googleId && !user.hasPassword && (
             <SetPasswordSection onSuccess={refetch} />

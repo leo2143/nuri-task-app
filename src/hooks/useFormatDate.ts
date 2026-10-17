@@ -42,9 +42,9 @@ export function useFormatDate(
         };
       }
 
-      const formatted = new Intl.DateTimeFormat("es-ES", {
+      const formatted = new Intl.DateTimeFormat("es-AR", {
         dateStyle: "medium",
-        timeZone: "UTC",
+        timeZone: "America/Argentina/Buenos_Aires",
       }).format(date);
 
       return {

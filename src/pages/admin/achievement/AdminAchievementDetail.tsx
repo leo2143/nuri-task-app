@@ -1,16 +1,12 @@
 import { useState } from "react";
-import {
-  Avatar,
-  Button,
-  ButtonLink,
-  ConfirmModal,
-  InfoCard,
-} from "../../../components/ui";
+import { Link } from "react-router-dom";
+import { Avatar, ConfirmModal, InfoCard } from "../../../components/ui";
 import { useFetchById, useFormatDate, useAppNavigate } from "../../../hooks";
 import type { IAchievement } from "../../../interfaces";
 import { achievementService } from "../../../services/achievementService";
 import Loading from "../../../components/Loading";
 import StateMessage from "../../../components/StateMessage";
+import { deleteBrand, editBrand } from "../../../assets/svg-icons";
 
 export default function AdminAchievementDetail() {
   const navigate = useAppNavigate();
@@ -60,25 +56,24 @@ export default function AdminAchievementDetail() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex gap-5 items-center justify-between">
-        <h2>Datos del logro</h2>
-        <div className="flex gap-2">
-          <ButtonLink
-            variant="secondary"
-            icon="lapiz"
+      <div className="flex items-center justify-between">
+        <h2 className="min-w-0">Datos del logro</h2>
+        <div className="flex gap-2 shrink-0">
+          <Link
             to={`/admin/achievements/${achievement?._id}/edit`}
-            size="ro"
-            ariaLabel="Editar logro"
+            className="inline-flex hover:opacity-80 transition-opacity"
+            aria-label="Editar logro"
           >
-            {""}
-          </ButtonLink>
-
-          <Button
-            variant="danger"
-            icon="trash"
-            size="ro"
+            <img src={editBrand} alt="" aria-hidden="true" />
+          </Link>
+          <button
+            type="button"
             onClick={() => setIsDeleteModalOpen(true)}
-          ></Button>
+            className="inline-flex hover:opacity-80 transition-opacity"
+            aria-label="Eliminar logro"
+          >
+            <img src={deleteBrand} alt="" aria-hidden="true" />
+          </button>
         </div>
       </div>
 

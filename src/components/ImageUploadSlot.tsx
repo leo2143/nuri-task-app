@@ -1,6 +1,7 @@
-import { useRef } from 'react';
-import { translusentAdd } from '../assets/svg-icons';
-import { CloudinaryImage } from './CloudinaryImage';
+import { useRef, useState } from "react";
+import { translusentAdd } from "../assets/svg-icons";
+import { CloudinaryImage } from "./CloudinaryImage";
+import { ConfirmModal } from "./ui";
 
 interface ImageUploadSlotProps {
   imageUrl?: string;
@@ -17,25 +18,39 @@ interface ImageUploadSlotProps {
 
 export function ImageUploadSlot({
   imageUrl,
-  imageAlt = 'Imagen del moodboard',
+  imageAlt = "Imagen del moodboard",
   onImageSelect,
   onImageEdit,
   onImageRemove,
   isUploading = false,
   isDeleting = false,
-  className = '',
-  variant = 'slot',
+  className = "",
+  variant = "slot",
   labelledBy,
 }: ImageUploadSlotProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleConfirmDelete = () => {
+    onImageRemove?.();
+    setIsDeleteModalOpen(false);
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       onImageSelect(file);
     }
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const handleEditClick = () => {
@@ -47,7 +62,7 @@ export function ImageUploadSlot({
     if (file && onImageEdit) {
       onImageEdit(file);
     }
-    event.target.value = '';
+    event.target.value = "";
   };
 
   const isLoading = isUploading || isDeleting;
@@ -57,9 +72,11 @@ export function ImageUploadSlot({
     bg-white
     overflow-hidden
     transition-all duration-200
-    ${variant === "avatar"
-      ? "border-0 hover:bg-primary/5"
-      : "border border-primary/20 hover:border-primary/60 hover:bg-primary/10"}
+    ${
+      variant === "avatar"
+        ? "border-0 hover:bg-primary/5"
+        : "border border-primary/20 hover:border-primary/60 hover:bg-primary/10"
+    }
     ${className}
   `;
 
@@ -69,7 +86,7 @@ export function ImageUploadSlot({
         <div className="flex flex-col items-center gap-2">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           <span className="text-xs text-primary">
-            {isDeleting ? 'Eliminando...' : 'Subiendo...'}
+            {isDeleting ? "Eliminando..." : "Subiendo..."}
           </span>
         </div>
       ) : imageUrl ? (
@@ -80,7 +97,7 @@ export function ImageUploadSlot({
             className="w-full h-full object-cover"
           />
 
-          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="absolute top-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             {onImageEdit && (
               <button
                 type="button"
@@ -108,7 +125,7 @@ export function ImageUploadSlot({
             {onImageRemove && (
               <button
                 type="button"
-                onClick={onImageRemove}
+                onClick={handleDeleteClick}
                 className="
                   w-6 h-6 rounded-full
                   bg-red-500 text-white
@@ -131,11 +148,7 @@ export function ImageUploadSlot({
           aria-label={imageAlt ? `Agregar ${imageAlt}` : "Agregar imagen"}
           aria-labelledby={labelledBy}
         >
-          <img
-            src={translusentAdd}
-            alt=""
-            className="w-10 h-10"
-          />
+          <img src={translusentAdd} alt="" className="w-10 h-10" />
         </button>
       )}
 
@@ -156,6 +169,19 @@ export function ImageUploadSlot({
         className="hidden"
         tabIndex={-1}
       />
+
+      {onImageRemove && (
+        <ConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+          title="¿Eliminar imagen?"
+          message="¿Querés eliminar esta imagen? Esta acción no se puede deshacer."
+          confirmText="Eliminar"
+          variant="danger"
+          loading={isDeleting}
+        />
+      )}
     </div>
   );
 }

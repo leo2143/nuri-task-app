@@ -1,21 +1,25 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
+  Button,
   ButtonLink,
   ProgressBar,
   ConfirmModal,
   TaskCard,
   GoalCard,
-  StatusSelect,
+  StatusBadge,
   TabGroup,
 } from "../../components/ui";
 import type { IGoal, ITodo, FilterConfig, FilterValues } from "../../interfaces";
-import { useAppNavigate, useFetchByIdOffline, useFormatDate } from "../../hooks";
+import { useAppNavigate, useFetchByIdOffline, useFormatDate, useHttpError } from "../../hooks";
 import { goalService } from "../../services/goalService";
-import { todoservice } from "../../services/todoService"; // Solo para updateTodoState
+import { todoservice } from "../../services/todoService";
 import Loading from "../../components/Loading";
 import FilterableList from "../../components/FilterableList";
-import { lapiz, calendar, trash } from "../../assets/svg-icons";
+import GoalOverflowMenu from "../../components/GoalOverflowMenu";
+import { canCloseGoal } from "../../utils/canCloseGoal";
+import { goalFilterConfig, matchesGoalDateFilters } from "../../utils/goalFilterConfig";
+import { lapiz, calendar, trash, addButtonBrand } from "../../assets/svg-icons";
 
 type TabType = "tasks" | "subgoals";
 
@@ -31,11 +35,17 @@ export default function GoalDetail() {
   const [taskSearchTerm, setTaskSearchTerm] = useState("");
   const [subGoalSearchTerm, setSubGoalSearchTerm] = useState("");
   const [activeTaskFilters, setActiveTaskFilters] = useState<FilterValues>({});
+  const [activeSubGoalFilters, setActiveSubGoalFilters] = useState<FilterValues>({});
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
   const [localGoal, setLocalGoal] = useState<IGoal | null>(null);
   const [taskToConfirm, setTaskToConfirm] = useState<ITodo | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [isClosingGoal, setIsClosingGoal] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+  const { handleError } = useHttpError();
 
   const taskFilterConfig: FilterConfig[] = useMemo(
     () => [
@@ -80,6 +90,19 @@ export default function GoalDetail() {
   const dueDate = useFormatDate(goal?.dueDate);
 
   const goalId = fetchedGoal?._id;
+
+  /**
+   * Vuelve a pedir la meta para sincronizar progress tras completar o borrar una tarea.
+   */
+  const refreshGoal = useCallback(async () => {
+    if (!goalId) return;
+    try {
+      const updatedGoal = await goalService.getGoalById(goalId);
+      if (updatedGoal) setLocalGoal(updatedGoal);
+    } catch (error) {
+      console.error("Error al actualizar la meta:", error);
+    }
+  }, [goalId]);
 
   // Cargar tareas relacionadas
   useEffect(() => {
@@ -159,13 +182,14 @@ export default function GoalDetail() {
             : task,
         ),
       );
+      await refreshGoal();
     } catch (error) {
       console.error("Error al completar tarea:", error);
     } finally {
       setIsConfirming(false);
       setTaskToConfirm(null);
     }
-  }, [taskToConfirm]);
+  }, [taskToConfirm, refreshGoal]);
 
   // Filtrar tareas localmente (búsqueda + filtros)
   const filteredTasks = useMemo(() => {
@@ -193,16 +217,37 @@ export default function GoalDetail() {
     return result;
   }, [tasks, taskSearchTerm, activeTaskFilters]);
 
-  // Filtrar submetas localmente
+  // Filtrar submetas localmente (búsqueda + filtros)
   const filteredSubGoals = useMemo(() => {
-    if (!subGoalSearchTerm) return subGoals;
-    const searchLower = subGoalSearchTerm.toLowerCase();
-    return subGoals.filter(
-      (subGoal) =>
-        subGoal.title.toLowerCase().includes(searchLower) ||
-        subGoal.description?.toLowerCase().includes(searchLower),
+    let result = subGoals;
+
+    if (subGoalSearchTerm) {
+      const searchLower = subGoalSearchTerm.toLowerCase();
+      result = result.filter(
+        (subGoal) =>
+          subGoal.title.toLowerCase().includes(searchLower) ||
+          subGoal.description?.toLowerCase().includes(searchLower),
+      );
+    }
+
+    if (activeSubGoalFilters.status) {
+      result = result.filter(
+        (subGoal) => subGoal.status === activeSubGoalFilters.status,
+      );
+    }
+
+    if (activeSubGoalFilters.priority) {
+      result = result.filter(
+        (subGoal) => subGoal.priority === activeSubGoalFilters.priority,
+      );
+    }
+
+    result = result.filter((subGoal) =>
+      matchesGoalDateFilters(subGoal.dueDate, activeSubGoalFilters),
     );
-  }, [subGoals, subGoalSearchTerm]);
+
+    return result;
+  }, [subGoals, subGoalSearchTerm, activeSubGoalFilters]);
 
   // Render functions para FilterableList
   const renderTaskItem = useCallback(
@@ -218,12 +263,13 @@ export default function GoalDetail() {
         completed={task.completed}
         isLocked={task.isLocked}
         onToggleComplete={handleToggleTaskComplete}
-        onDeleted={(taskId) =>
-          setTasks((prev) => prev.filter((item) => item._id !== taskId))
-        }
+        onDeleted={(taskId) => {
+          setTasks((prev) => prev.filter((item) => item._id !== taskId));
+          void refreshGoal();
+        }}
       />
     ),
-    [handleToggleTaskComplete, goal?.title],
+    [handleToggleTaskComplete, goal?.title, refreshGoal],
   );
 
   const renderSubGoalItem = useCallback(
@@ -240,20 +286,37 @@ export default function GoalDetail() {
     [],
   );
 
-  const handleStatusChange = async (
-    newStatus: "active" | "paused" | "completed",
-  ) => {
-    if (!goal?._id || !goal) return;
+  const handleStatusChange = async (newStatus: "active" | "paused" | "completed") => {
+    if (!goal?._id) return;
     setUpdatingStatus(true);
     try {
       const updatedGoal = await goalService.updateGoalStatus(goal._id, newStatus);
       setLocalGoal(updatedGoal);
     } catch (error) {
-      console.error("Error updating status:", error);
+      setErrorModalMessage(handleError(error));
+      setIsErrorModalOpen(true);
     } finally {
       setUpdatingStatus(false);
     }
   };
+
+  const handleConfirmCloseGoal = async () => {
+    if (!goal?._id) return;
+    setIsClosingGoal(true);
+    try {
+      const updatedGoal = await goalService.updateGoalStatus(goal._id, "completed");
+      setLocalGoal(updatedGoal);
+      setIsCloseModalOpen(false);
+    } catch (error) {
+      setIsCloseModalOpen(false);
+      setErrorModalMessage(handleError(error));
+      setIsErrorModalOpen(true);
+    } finally {
+      setIsClosingGoal(false);
+    }
+  };
+
+  const showCloseCta = canCloseGoal(goal);
 
   const handleDeleteGoal = async () => {
     if (!goal?._id) return;
@@ -306,22 +369,39 @@ export default function GoalDetail() {
     );
   }
 
+  const createChildPath =
+    activeTab === "tasks"
+      ? `/tasks/new?goalId=${goal._id}`
+      : `/goals/new?parentGoalId=${goal._id}`;
+  const createChildLabel =
+    activeTab === "tasks" ? "Crear tarea" : "Crear meta asociada";
+  const createChildAction = (
+    <Link
+      to={createChildPath}
+      className="shrink-0 inline-flex items-center justify-center w-11 h-11 hover:opacity-80 transition-opacity"
+      aria-label={createChildLabel}
+    >
+      <img
+        src={addButtonBrand}
+        alt=""
+        aria-hidden="true"
+        className="w-11 h-11"
+      />
+    </Link>
+  );
+
   return (
-    <section className="max-w-4xl mx-auto space-y-4 pt-6">
-      {/* Card Principal */}
-      <div className="bg-secondary-dark rounded-2xl p-5 text-white">
-        {/* Título y botón editar */}
-        <div className="flex items-start justify-between mb-3">
-          <h2 className="text-xl font-heading font-bold text-brand flex items-center gap-2">
-            {goal.title}
-          </h2>
-          <div className="flex items-center gap-1">
+    <section className="max-w-4xl mx-auto flex flex-col pt-6">
+      <div className="bg-secondary-dark rounded-lg p-5 text-white">
+        <div className="flex items-center justify-between gap-3">
+          <StatusBadge status={goal.status} />
+          <div className="flex items-center gap-3 shrink-0">
             <Link
               to={`/goals/${goal._id}/edit`}
               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               aria-label="Editar meta"
             >
-              <img src={lapiz} alt="" aria-hidden="true" className="w-5 h-5 invert brightness-0" />
+              <img src={lapiz} alt="" aria-hidden="true" className="w-5 h-5 shrink-0 invert brightness-0" />
             </Link>
             <button
               type="button"
@@ -329,25 +409,32 @@ export default function GoalDetail() {
               className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
               aria-label="Eliminar meta"
             >
-              <img src={trash} alt="" aria-hidden="true" className="w-5 h-5" />
+              <img src={trash} alt="" aria-hidden="true" className="w-5 h-5 shrink-0" />
             </button>
+            <GoalOverflowMenu
+              status={goal.status}
+              disabled={updatingStatus}
+              onPause={() => void handleStatusChange("paused")}
+              onResume={() => void handleStatusChange("active")}
+            />
           </div>
         </div>
 
-        {/* Descripción */}
-        <p className="text-base text-white mb-1 leading-relaxed">
+        <h2 className="mt-5 text-xl font-heading font-bold text-brand min-w-0 break-words">
+          {goal.title}
+        </h2>
+
+        <p className="mt-4 text-base text-white leading-relaxed min-w-0 break-words">
           {goal.description || "Sin descripción"}
         </p>
 
-        {/* Reason */}
         {goal.reason && (
-          <p className="text-base text-white mb-4 leading-relaxed">
+          <p className="mt-4 text-base text-white leading-relaxed min-w-0 break-words">
             {goal.reason}
           </p>
         )}
 
-        {/* Fecha y Prioridad */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="mt-4 flex items-center justify-between">
           {dueDate.isValid && (
             <div className="flex items-center gap-2">
               <img
@@ -366,80 +453,91 @@ export default function GoalDetail() {
           </span>
         </div>
 
-        {/* Barra de Progreso */}
-        <div className="mb-4">
+        <div className="mt-4 -mx-2.5">
           <ProgressBar
             progress={goal.progress}
             variant="inline"
-            height="2xl"
+            height="xl"
             color="bg-brand"
             bgColor="bg-[#D2D2D2]"
           />
         </div>
 
-        {/* Select de Estado */}
-        <StatusSelect
-          value={goal.status}
-          onChange={handleStatusChange}
-          disabled={updatingStatus}
-        />
+        {showCloseCta && (
+          <div className="mt-2 -mx-2.5">
+            <Button
+              type="button"
+              variant="onDark"
+              size="sm"
+              fullWidth
+              className="text-base h-10 shadow-none hover:scale-100"
+              disabled={updatingStatus || isClosingGoal}
+              onClick={() => setIsCloseModalOpen(true)}
+            >
+              Cerrar meta
+            </Button>
+          </div>
+        )}
       </div>
 
-      {/* Botón Asociar Meta */}
       <ButtonLink
         to={`/goals/${goal._id}/new/subgoal`}
         variant="primary"
-        size="md"
-        className="w-full flex items-center justify-center gap-2"
+        fullWidth
         icon="add"
+        className="mt-3"
       >
-
         Asociar Meta
       </ButtonLink>
 
-      {/* Tabs */}
-      <TabGroup
-        tabs={[
-          { id: "tasks", label: "Tareas" },
-          { id: "subgoals", label: "Metas Asociadas" },
-        ]}
-        activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as TabType)}
-      />
-
-      {/* Contenido de Tabs */}
-      {activeTab === "tasks" && (
-        <FilterableList
-          data={filteredTasks}
-          loading={loadingTasks}
-          errorMessage=""
-          isEmpty={filteredTasks.length === 0}
-          searchTerm={taskSearchTerm}
-          onSearchChange={setTaskSearchTerm}
-          searchPlaceholder="Buscar tarea..."
-          renderItem={renderTaskItem}
-          emptyStateName="Tareas"
-          isFirstLoad={isFirstLoadTasks}
-          filterConfig={taskFilterConfig}
-          activeFilters={activeTaskFilters}
-          onFiltersChange={setActiveTaskFilters}
+      <div className="flex flex-col gap-5 mt-5">
+        <TabGroup
+          tabs={[
+            { id: "tasks", label: "Tareas" },
+            { id: "subgoals", label: "Metas Asociadas" },
+          ]}
+          activeTab={activeTab}
+          onTabChange={(tabId) => setActiveTab(tabId as TabType)}
         />
-      )}
 
-      {activeTab === "subgoals" && (
-        <FilterableList
-          data={filteredSubGoals}
-          loading={loadingSubGoals}
-          errorMessage=""
-          isEmpty={filteredSubGoals.length === 0}
-          searchTerm={subGoalSearchTerm}
-          onSearchChange={setSubGoalSearchTerm}
-          searchPlaceholder="Buscar meta..."
-          renderItem={renderSubGoalItem}
-          emptyStateName="Metas"
-          isFirstLoad={isFirstLoadSubGoals}
-        />
-      )}
+        {activeTab === "tasks" && (
+          <FilterableList
+            data={filteredTasks}
+            loading={loadingTasks}
+            errorMessage=""
+            isEmpty={filteredTasks.length === 0}
+            searchTerm={taskSearchTerm}
+            onSearchChange={setTaskSearchTerm}
+            searchPlaceholder="Buscar tarea..."
+            renderItem={renderTaskItem}
+            emptyStateName="Tareas"
+            isFirstLoad={isFirstLoadTasks}
+            filterConfig={taskFilterConfig}
+            activeFilters={activeTaskFilters}
+            onFiltersChange={setActiveTaskFilters}
+            headerAction={createChildAction}
+          />
+        )}
+
+        {activeTab === "subgoals" && (
+          <FilterableList
+            data={filteredSubGoals}
+            loading={loadingSubGoals}
+            errorMessage=""
+            isEmpty={filteredSubGoals.length === 0}
+            searchTerm={subGoalSearchTerm}
+            onSearchChange={setSubGoalSearchTerm}
+            searchPlaceholder="Buscar meta..."
+            renderItem={renderSubGoalItem}
+            emptyStateName="Metas"
+            isFirstLoad={isFirstLoadSubGoals}
+            filterConfig={goalFilterConfig}
+            activeFilters={activeSubGoalFilters}
+            onFiltersChange={setActiveSubGoalFilters}
+            headerAction={createChildAction}
+          />
+        )}
+      </div>
 
 
       {/* Modal de Confirmación de Eliminación */}
@@ -463,6 +561,30 @@ export default function GoalDetail() {
         cancelText="Todavía no"
         variant="success"
         loading={isConfirming}
+      />
+
+      <ConfirmModal
+        isOpen={isCloseModalOpen}
+        onClose={() => setIsCloseModalOpen(false)}
+        onConfirm={handleConfirmCloseGoal}
+        title="¿Cerrar meta?"
+        message="Completaste los pasos. ¿La damos por cerrada?"
+        confirmText="Cerrar meta"
+        cancelText="Todavía no"
+        variant="success"
+        loading={isClosingGoal}
+      />
+
+      <ConfirmModal
+        isOpen={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        onConfirm={() => setIsErrorModalOpen(false)}
+        title="¡Ups!"
+        message={errorModalMessage}
+        confirmText="Aceptar"
+        cancelText=""
+        variant="danger"
+        loading={false}
       />
     </section>
   );

@@ -17,6 +17,7 @@ export interface UseFilterableListOptions<T, F> {
   debounceMs?: number;
   pagination?: PaginationOptions;
   extraDependencies?: unknown[];
+  initialFilters?: FilterValues;
 }
 
 export interface UseFilterableListResult<T> {
@@ -41,11 +42,12 @@ export function useFilterableList<T, F>({
   debounceMs = 500,
   pagination,
   extraDependencies = [],
+  initialFilters = {},
 }: UseFilterableListOptions<T, F>): UseFilterableListResult<T> {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const [activeFilters, setActiveFilters] = useState<FilterValues>({});
+  const [activeFilters, setActiveFilters] = useState<FilterValues>(initialFilters);
 
   // Pagination state
   const [accumulatedData, setAccumulatedData] = useState<T[]>([]);

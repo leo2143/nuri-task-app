@@ -29,10 +29,14 @@ export { default as arrowsUpDown } from "./arrows-up-down.svg";
 export { default as nenufar } from "./nenufar.svg";
 export { default as flower } from "./flower.svg";
 export { default as add } from "./add.svg";
+export { default as addButtonBrand } from "./add-button-brand.svg";
 export { default as lapiz } from "./lapiz.svg";
 export { default as lapizBlue } from "./lapiz-blue.svg";
 export { default as trash } from "./trash.svg";
 export { default as trashBlue } from "./trash-blue.svg";
+export { default as editBrand } from "./edit-brand.svg";
+export { default as deleteBrand } from "./delete-brand.svg";
+export { default as moreVertical } from "./more-vertical.svg";
 export { default as check } from "./check.svg";
 
 export { default as translusentAdd } from "./translusent_add.svg";
