@@ -44,7 +44,7 @@ export default function AdminAchievement() {
       key={achievement._id}
       className="flex w-full gap-4 p-5 justify-between items-center rounded-lg bg-white shadow-brand-glow"
     >
-      <div className="flex gap-5 items-center min-w-0 flex-1">
+      <div className="flex gap-4 items-center min-w-0 flex-1">
         <Avatar
           imageUrl={achievement.imageUrl}
           name={achievement.title}
@@ -58,7 +58,7 @@ export default function AdminAchievement() {
           <p className="text-tertiary/70 text-sm line-clamp-1">
             {achievement.description}
           </p>
-          <span className="text-tertiary/50 text-sm">
+          <span className="text-tertiary/50 text-xs">
             Tipo: {achievement.type} • Meta: {achievement.targetCount} •{" "}
             {achievement.isActive ? "Activo" : "Inactivo"}
           </span>
@@ -74,7 +74,7 @@ export default function AdminAchievement() {
   );
 
   return (
-    <div className="flex flex-col gap-11 justify-center">
+    <div className="flex flex-col gap-8 justify-center">
       <div className="flex flex-col gap-6 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           Logros del Sistema
