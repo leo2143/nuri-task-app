@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "./Button";
-import { nuriAlegre, nuriError, nuriWarning } from "../../assets/ilustrations";
+import { nuriAlegreOjos, nuriError, nuriWarning } from "../../assets/ilustrations";
 import { close } from "../../assets/svg-icons";
 
 interface ConfirmModalProps {
@@ -18,13 +18,19 @@ interface ConfirmModalProps {
 const illustrationMap = {
   danger: nuriError,
   warning: nuriWarning,
-  success: nuriAlegre,
+  success: nuriAlegreOjos,
 } as const;
 
 const borderColorMap = {
-  danger: "border-[#DC2626]",
-  warning: "border-[#F4D03F]",
-  success: "border-[#2A9D8F]",
+  danger: "border-[#962F2F]",
+  warning: "border-[#FFDB25]",
+  success: "border-primary",
+} as const;
+
+const glowMap = {
+  danger: "shadow-[inset_0_0_20px_8px_rgba(150,47,47,0.2)]",
+  warning: "shadow-[inset_0_0_20px_8px_rgba(255,219,37,0.2)]",
+  success: "shadow-[inset_0_0_20px_8px_rgba(47,150,133,0.2)]",
 } as const;
 
 export default function ConfirmModal({
@@ -43,7 +49,12 @@ export default function ConfirmModal({
   const [shouldRender, setShouldRender] = useState(false);
 
   const illustration = illustrationMap[variant];
-  const borderColor = borderColorMap[variant];
+  const hasCancel = Boolean(cancelText) && (variant === "warning" || variant === "success");
+  const isSuccessPrompt = variant === "success" && hasCancel;
+  const borderColor = isSuccessPrompt ? "border-[#2A9D8F]" : borderColorMap[variant];
+  const glow = isSuccessPrompt
+    ? "shadow-[inset_0_0_20px_8px_rgba(255,219,37,0.2)]"
+    : glowMap[variant];
 
   useEffect(() => {
     let openTimer: ReturnType<typeof setTimeout> | undefined;
@@ -90,9 +101,8 @@ export default function ConfirmModal({
       <div
         className={`
           relative z-10
-          bg-gradient-to-b from-[#FFF9E6] to-[#FFFBF0]
-          rounded-3xl shadow-2xl max-w-md w-full p-5
-          border-4 ${borderColor}
+          bg-neutral max-w-md w-full px-5 pb-5
+          rounded-[20px] border-[3px] ${borderColor} ${glow}
           transform transition-all duration-300 ease-out
           ${isAnimating ? "scale-100 opacity-100" : "scale-95 opacity-0"}
         `}
@@ -100,29 +110,29 @@ export default function ConfirmModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-tertiary hover:text-secondary
+          className="absolute top-[30px] right-8 text-tertiary hover:text-secondary
                    transition-colors duration-200 focus:outline-none"
           aria-label="Cerrar modal"
         >
           <img src={close} alt="cerrar" className="w-6 h-6" />
         </button>
 
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mt-[49px] mb-6">
           <img
             src={illustration}
             alt="Nuri"
-            className="w-32 h-32 object-contain"
+            className="w-[146px] h-[171px] object-contain"
           />
         </div>
 
         <h2
           id="modal-title"
-          className="text-3xl font-heading font-bold text-tertiary text-center mb-3"
+          className="text-3xl font-heading font-bold text-tertiary text-center mb-[14px]"
         >
           {title}
         </h2>
 
-        <p className="text-tertiary text-center mb-8 font-body text-lg">
+        <p className="text-tertiary text-center mb-7 font-body text-lg">
           {message}
         </p>
 
@@ -137,12 +147,13 @@ export default function ConfirmModal({
             {confirmText}
           </Button>
 
-          {cancelText && (variant === "warning" || variant === "success") && (
+          {hasCancel && (
             <Button
               onClick={onClose}
               disabled={loading}
               variant="ghost"
               fullWidth
+              className="text-tertiary/50 font-body font-bold hover:text-tertiary"
             >
               {cancelText}
             </Button>

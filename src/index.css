@@ -164,6 +164,10 @@ dialog.nuri-dialog::backdrop {
   background: rgb(0 0 0 / 0.5);
 }
 
+dialog.nuri-dialog-center::backdrop {
+  background: rgb(58 37 29 / 0.25);
+}
+
 dialog.nuri-dialog-center {
   margin: auto;
   width: min(28rem, calc(100% - 2rem));
