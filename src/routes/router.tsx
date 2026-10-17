@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import RootErrorBoundary from "../pages/status/RootErrorBoundary";
 
@@ -170,7 +170,7 @@ export const router = createBrowserRouter([
               },
               {
                 path: "tasks/:id",
-                element: <Navigate to="/tasks" replace />,
+                element: withSuspense(TaskList),
               },
               {
                 path: "goals",

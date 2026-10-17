@@ -12,12 +12,25 @@ const TYPE_ICONS: Record<NotificationType, string> = {
   inactivity: "/notifications/nuri-happy.svg",
   streak_increase: "/notifications/nuri-fire.svg",
   achievement_completed: "/notifications/crown.svg",
+  high_priority_upcoming: "/notifications/due-task.svg",
+  overdue_task: "/notifications/nuri-happy.svg",
+  overdue_goal: "/notifications/nuri-happy.svg",
+  goal_completed: "/notifications/nuri-happy.svg",
+  empty_goal: "/notifications/nuri-happy.svg",
+  day_recap: "/notifications/nuri-happy.svg",
+  due_goal: "/notifications/due-task.svg",
+  high_priority_upcoming_goal: "/notifications/due-task.svg",
+  stalled_goal: "/notifications/nuri-happy.svg",
+  pause_too_long: "/notifications/nuri-happy.svg",
+  overdue_backlog: "/notifications/nuri-happy.svg",
+  moodboard_nudge: "/notifications/nuri-happy.svg",
+  premium_nag: "/notifications/nuri-happy.svg",
 };
 
 function NotificationIcon({ type }: { type: NotificationType }) {
   return (
     <img
-      src={TYPE_ICONS[type]}
+      src={TYPE_ICONS[type] ?? TYPE_ICONS.inactivity}
       alt=""
       aria-hidden="true"
       className="w-9 h-9 shrink-0 object-contain"
@@ -60,16 +73,24 @@ export default function Notifications() {
   };
 
   const handleMarkAllAsRead = async () => {
-    await notificationApiService.markAllAsRead();
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    try {
+      await notificationApiService.markAllAsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch {
+      return;
+    }
   };
 
   const handleNotificationClick = async (notif: INotification) => {
     if (!notif.read) {
-      await notificationApiService.markAsRead(notif._id);
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n)),
-      );
+      try {
+        await notificationApiService.markAsRead(notif._id);
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n)),
+        );
+      } catch {
+        // El inbox sigue navegando aunque el mark falle.
+      }
     }
     navigate(notif.url);
   };

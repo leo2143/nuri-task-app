@@ -71,12 +71,27 @@ self.addEventListener("notificationclick", (event) => {
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
-        for (const client of clientList) {
-          if ("focus" in client && "navigate" in client) {
-            return client.navigate(targetUrl).then(() => client.focus());
-          }
+        const sameOriginClients = clientList.filter((client) =>
+          client.url.startsWith(self.location.origin),
+        );
+        const matchingClient =
+          sameOriginClients.find((client) => client.focused) ??
+          sameOriginClients.find((client) => client.visibilityState === "visible") ??
+          sameOriginClients[0];
+
+        if (!matchingClient) {
+          return self.clients.openWindow(targetUrl);
         }
-        return self.clients.openWindow(targetUrl);
+
+        return matchingClient
+          .focus()
+          .then((focusedClient) => {
+            if (focusedClient && "navigate" in focusedClient) {
+              return focusedClient.navigate(targetUrl);
+            }
+            return focusedClient;
+          })
+          .catch(() => self.clients.openWindow(targetUrl));
       }),
   );
 });

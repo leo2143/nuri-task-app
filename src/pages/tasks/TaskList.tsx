@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { ButtonLink, TaskCard, ConfirmModal } from "../../components/ui";
-import type { ITodo, ITodoFilters, FilterConfig } from "../../interfaces";
+import type { ITodo, ITodoFilters, FilterConfig, FilterValues, TodoPriority } from "../../interfaces";
 import { useFilterableList } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import FilterableList from "../../components/FilterableList";
@@ -10,7 +10,24 @@ const ITEMS_PER_PAGE = 5;
 
 export default function TaskList() {
   const [searchParams] = useSearchParams();
+  const { id: pathTaskId } = useParams<{ id: string }>();
   const isCompletedView = searchParams.get("completed") === "true";
+  const highlightedTaskId = searchParams.get("task") || pathTaskId || null;
+
+  const initialFilters = useMemo(() => {
+    const filters: FilterValues = {};
+    const dueDateFrom = searchParams.get("dueDateFrom");
+    const dueDateTo = searchParams.get("dueDateTo");
+    const priority = searchParams.get("priority");
+
+    if (dueDateFrom) filters.dueDateFrom = dueDateFrom;
+    if (dueDateTo) filters.dueDateTo = dueDateTo;
+    if (priority === "low" || priority === "medium" || priority === "high") {
+      filters.priority = priority as TodoPriority;
+    }
+
+    return filters;
+  }, [searchParams]);
 
   const taskFilterConfig: FilterConfig[] = useMemo(
     () => [
@@ -43,6 +60,7 @@ export default function TaskList() {
     }),
     pagination: { enabled: true, limit: ITEMS_PER_PAGE },
     extraDependencies: [isCompletedView],
+    initialFilters,
   });
 
   const [localTaskStates, setLocalTaskStates] = useState<
@@ -52,19 +70,68 @@ export default function TaskList() {
   const [taskToConfirm, setTaskToConfirm] = useState<ITodo | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [deletedIds, setDeletedIds] = useState<Record<string, true>>({});
+  const [pinnedTask, setPinnedTask] = useState<ITodo | null>(null);
 
   useEffect(() => {
     setLocalTaskStates({});
   }, [filterableList.data]);
 
+  useEffect(() => {
+    if (!highlightedTaskId) {
+      setPinnedTask(null);
+      return;
+    }
+
+    if (filterableList.loading) return;
+
+    const alreadyVisible = filterableList.data.some(
+      (task) => task._id === highlightedTaskId,
+    );
+    if (alreadyVisible) {
+      setPinnedTask(null);
+      return;
+    }
+
+    let cancelled = false;
+    const fetchPinnedTask = async () => {
+      try {
+        const task = await todoservice.getTodoById(highlightedTaskId);
+        if (!cancelled && task) setPinnedTask(task);
+      } catch {
+        if (!cancelled) setPinnedTask(null);
+      }
+    };
+
+    void fetchPinnedTask();
+    return () => {
+      cancelled = true;
+    };
+  }, [highlightedTaskId, filterableList.loading, filterableList.data]);
+
+  const visibleTasks = useMemo(() => {
+    const filtered = filterableList.data.filter(
+      (task) => !task._id || !deletedIds[task._id],
+    );
+
+    if (
+      pinnedTask?._id &&
+      !deletedIds[pinnedTask._id] &&
+      !filtered.some((task) => task._id === pinnedTask._id)
+    ) {
+      return [pinnedTask, ...filtered];
+    }
+
+    return filtered;
+  }, [filterableList.data, deletedIds, pinnedTask]);
+
   const handleToggleComplete = useCallback(
     (taskId: string, currentCompleted: boolean) => {
       if (!currentCompleted) {
-        const task = filterableList.data.find((t) => t._id === taskId);
+        const task = visibleTasks.find((item) => item._id === taskId);
         if (task) setTaskToConfirm(task);
       }
     },
-    [filterableList.data],
+    [visibleTasks],
   );
 
   const handleConfirmComplete = useCallback(async () => {
@@ -90,10 +157,6 @@ export default function TaskList() {
     return lockedTasks[task._id!] ?? task.isLocked ?? false;
   };
 
-  const visibleTasks = filterableList.data.filter(
-    (task) => !task._id || !deletedIds[task._id],
-  );
-
   const renderTaskItem = (task: ITodo) => (
     <TaskCard
       key={task._id}
@@ -105,6 +168,7 @@ export default function TaskList() {
       priority={task.priority}
       completed={getTaskCompleted(task)}
       isLocked={getTaskLocked(task)}
+      defaultExpanded={task._id === highlightedTaskId}
       onToggleComplete={handleToggleComplete}
       onDeleted={(taskId) =>
         setDeletedIds((prev) => ({ ...prev, [taskId]: true }))
