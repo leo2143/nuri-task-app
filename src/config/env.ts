@@ -4,8 +4,11 @@
  */
 
 // Obtener la URL base del API desde las variables de entorno
+// En producción: cadena vacía → peticiones relativas (/api/...) → reverse proxy de vercel.json (mismo dominio, cookie first-party)
+// En desarrollo: backend directo en localhost
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? "http://localhost:3000" : "");
 
 // Timeout para las peticiones (en milisegundos)
 export const API_TIMEOUT = Number.parseInt(
