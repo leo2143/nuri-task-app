@@ -1,11 +1,24 @@
 {
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://nuri-task-api.vercel.app/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        {
+          "key": "CDN-Cache-Control",
+          "value": "private, no-store"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
