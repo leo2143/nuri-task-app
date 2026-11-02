@@ -134,7 +134,7 @@ export default function Home() {
     lockedTasks[task._id!] ?? task.isLocked ?? false;
 
   return (
-    <section className="max-w-4xl mx-auto py-12 flex flex-col gap-8">
+    <section className="max-w-4xl mx-auto flex flex-col gap-8">
       <div className="home-trama-bg w-full  border rounded-lg bg-white overflow-hidden shadow-brand-glow relative">
         <div className="flex justify-center gap-4 relative z-10">
           <div className="flex flex-col justify-center">

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import CustomCheckbox from "./CustomCheckbox";
 import Button from "./Button";
 import ConfirmModal from "./ConfirmModal";
-import { lapizBlue, calendar, trashBlue } from "../../assets/svg-icons";
+import { lapizBlue, calendarPrimary, trashBlue } from "../../assets/svg-icons";
 import { todoservice } from "../../services/todoService";
 import { useAuth, useFormatDate } from "../../hooks";
 import type { TodoPriority } from "../../interfaces";
@@ -80,7 +80,11 @@ export function TaskCard({
   return (
     <article
       ref={articleRef}
-      className={`bg-white rounded-lg shadow-brand-glow overflow-hidden min-w-0 ${className}`}
+      className={`bg-white rounded-lg overflow-hidden min-w-0 ${
+        isExpanded
+          ? "shadow-[0px_4px_5px_0px_rgba(0,0,0,0.25)]"
+          : "shadow-brand-glow"
+      } ${className}`}
     >
       {!isExpanded ? (
         <div
@@ -130,8 +134,8 @@ export function TaskCard({
           />
         </div>
       ) : (
-        <div className="p-5 flex flex-col gap-3 min-w-0">
-          <div className="flex items-start justify-between gap-3 min-w-0">
+        <div className="flex flex-col min-w-0 px-4 pt-6 pb-6">
+          <div className="flex items-center justify-between gap-3 min-w-0">
             <button
               type="button"
               className="font-body font-bold text-base text-tertiary text-left flex-1 min-w-0 break-words"
@@ -141,25 +145,21 @@ export function TaskCard({
             >
               {title}
             </button>
-            <div className="flex items-center shrink-0">
+            <div className="flex items-center gap-3 shrink-0">
               {canEdit && (
                 <Link
                   to={`/tasks/${id}/edit`}
-                  className="p-2 hover:bg-brand/10 rounded-lg transition-colors"
+                  className="hover:opacity-80 transition-opacity"
                   aria-label="Editar tarea"
                 >
-                  <img
-                    src={lapizBlue}
-                    alt=""
-                    aria-hidden="true"
-                  />
+                  <img src={lapizBlue} alt="" aria-hidden="true" />
                 </Link>
               )}
               {canDelete && (
                 <button
                   type="button"
                   onClick={() => setIsDeleteModalOpen(true)}
-                  className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                  className="hover:opacity-80 transition-opacity"
                   aria-label="Eliminar tarea"
                 >
                   <img src={trashBlue} alt="" aria-hidden="true" />
@@ -167,18 +167,17 @@ export function TaskCard({
               )}
             </div>
           </div>
-
           {description && (
-            <p className="font-body text-sm text-tertiary leading-relaxed min-w-0 break-words">
+            <p className="mt-3 font-body font-medium text-xs text-tertiary min-w-0 break-words">
               {description}
             </p>
           )}
 
-          <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="mt-7 flex items-center justify-between gap-2 min-w-0">
             {formattedDueDate.isValid && (
               <div className="flex items-center gap-1.5 min-w-0">
                 <img
-                  src={calendar}
+                  src={calendarPrimary}
                   alt=""
                   aria-hidden="true"
                   className="w-5 h-5 shrink-0"
@@ -202,7 +201,9 @@ export function TaskCard({
             <Button
               type="button"
               variant="primary"
+              size="sm"
               fullWidth
+              className="mt-4 h-[41px] rounded-[9px] text-base shadow-none hover:scale-100"
               onClick={() => onToggleComplete(id, completed)}
             >
               Hecho

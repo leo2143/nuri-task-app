@@ -53,7 +53,7 @@ export default function SubscriptionCallback() {
 
   if (checking) {
     return (
-      <section className="flex flex-col items-center justify-center gap-6 text-center py-12">
+      <section className="flex flex-col items-center justify-center gap-6 text-center">
         <Loading />
         <p className="text-sm text-gray-600 font-body">
           Estamos verificando tu pago con MercadoPago...
@@ -64,7 +64,7 @@ export default function SubscriptionCallback() {
 
   if (failed) {
     return (
-      <section className="flex flex-col items-center justify-center gap-6 text-center py-12 px-4">
+      <section className="flex flex-col items-center justify-center gap-6 text-center">
         <img
           src={nuriLentes}
           alt="Nuri procesando"

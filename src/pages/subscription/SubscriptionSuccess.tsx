@@ -3,7 +3,7 @@ import { nuriCorazon } from "../../assets/ilustrations";
 
 export default function SubscriptionSuccess() {
   return (
-    <section className="flex flex-col items-center justify-center gap-6 text-center py-12">
+    <section className="flex flex-col items-center justify-center gap-6 text-center">
       <img
         src={nuriCorazon}
         alt="Nuri celebrando"

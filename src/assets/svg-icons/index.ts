@@ -44,6 +44,7 @@ export { default as chevronDown } from "./chevron-down.svg";
 
 export { default as calendar } from "./calendar.svg";
 export { default as calendarBrand } from "./calendar-brand.svg";
+export { default as calendarPrimary } from "./calendar-primary.svg";
 export { default as lapizWrite } from "./lapiz-write.svg";
 export { default as metricWhite } from "./metric-white.svg";
 export { default as flowerCutRight } from "./flower-cut-right.svg";

@@ -1,13 +1,12 @@
 import React from "react";
 import { useClassNames } from "../../hooks";
-import { add, lapiz, trash, filter } from "../../assets/svg-icons/index";
+import { add, lapiz, trash } from "../../assets/svg-icons/index";
 
 // Mapa de íconos disponibles - agregar nuevos íconos aquí
 const iconMap = {
   add,
   lapiz,
   trash,
-  filter,
 } as const;
 
 type IconName = keyof typeof iconMap;
@@ -17,8 +16,16 @@ interface ButtonProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: "primary" | "secondary" | "danger" | "success" | "brand" | "ghost" | "outline" | "onDark";
-  size?: "sm" | "md" | "lg" | "ro";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "danger"
+    | "success"
+    | "brand"
+    | "ghost"
+    | "outline"
+    | "onDark";
+  size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
   children?: React.ReactNode;
   className?: string;
@@ -108,7 +115,6 @@ export default function Button({
     sm: "px-4 py-2 text-sm rounded-lg",
     md: "px-6 py-3 text-base rounded-lg",
     lg: "px-8 py-4 text-lg rounded-lg",
-    ro: "rounded-full p-3",
   };
 
   const widthStyle = fullWidth ? "w-full" : "";

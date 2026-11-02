@@ -177,11 +177,16 @@ export default function TaskList() {
   );
 
   return (
-    <div className="flex flex-col gap-11 justify-center pt-6">
-      <div className="flex flex-col gap-6 justify-center">
+    <div className="flex flex-col gap-8 justify-center">
+      <div className="flex flex-col gap-4 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           {isCompletedView ? "Tareas Completadas" : "Mis Tareas"}
         </h2>
+        {!isCompletedView && (
+          <p className="font-body font-medium text-sm leading-5 text-black">
+            Organizá tus tareas y avanzá paso a paso
+          </p>
+        )}
 
         {!isCompletedView && (
           <ButtonLink

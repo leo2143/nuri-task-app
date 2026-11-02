@@ -63,11 +63,14 @@ export default function GoalList() {
   );
 
   return (
-    <div className="flex flex-col gap-11 justify-center pt-6">
-      <div className="flex flex-col gap-6 justify-center">
+    <div className="flex flex-col gap-8 justify-center">
+      <div className="flex flex-col gap-4 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           Mis Metas
         </h2>
+        <p className="font-body font-medium text-sm leading-5 text-black">
+          Organizá tus metas y avanzá paso a paso
+        </p>
 
         {reachedFreeLimit ? (
           <div className="flex flex-col gap-3 rounded-xl bg-brand/10 border border-brand/30 p-4 text-center">
