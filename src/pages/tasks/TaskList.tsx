@@ -11,7 +11,6 @@ const ITEMS_PER_PAGE = 5;
 export default function TaskList() {
   const [searchParams] = useSearchParams();
   const { id: pathTaskId } = useParams<{ id: string }>();
-  const isCompletedView = searchParams.get("completed") === "true";
   const highlightedTaskId = searchParams.get("task") || pathTaskId || null;
 
   const initialFilters = useMemo(() => {
@@ -20,6 +19,7 @@ export default function TaskList() {
     const dueDateTo = searchParams.get("dueDateTo");
     const priority = searchParams.get("priority");
 
+    if (searchParams.get("completed") === "true") filters.completed = true;
     if (dueDateFrom) filters.dueDateFrom = dueDateFrom;
     if (dueDateTo) filters.dueDateTo = dueDateTo;
     if (priority === "low" || priority === "medium" || priority === "high") {
@@ -41,6 +41,7 @@ export default function TaskList() {
           { value: "high", label: "Alta" },
         ],
       },
+      { key: "completed", label: "Completadas", type: "toggle" },
       { key: "dueDateFrom", label: "Fecha desde", type: "date" },
       { key: "dueDateTo", label: "Fecha hasta", type: "date" },
     ],
@@ -53,7 +54,7 @@ export default function TaskList() {
     fetchFn: todoservice.gettodos,
     buildFilters: (searchTerm, pagination, activeFilters) => ({
       search: searchTerm || undefined,
-      completed: isCompletedView ? true : false,
+      completed: activeFilters?.completed === true,
       priority: activeFilters?.priority as ITodoFilters["priority"],
       dueDateFrom: activeFilters?.dueDateFrom as string | undefined,
       dueDateTo: activeFilters?.dueDateTo as string | undefined,
@@ -61,9 +62,10 @@ export default function TaskList() {
       cursor: pagination?.cursor,
     }),
     pagination: { enabled: true, limit: ITEMS_PER_PAGE },
-    extraDependencies: [isCompletedView],
     initialFilters,
   });
+
+  const isCompletedView = filterableList.activeFilters?.completed === true;
 
   const [localTaskStates, setLocalTaskStates] = useState<
     Record<string, boolean>
@@ -220,16 +222,6 @@ export default function TaskList() {
         activeFilters={filterableList.activeFilters}
         onFiltersChange={filterableList.setActiveFilters}
       />
-
-      {!isCompletedView && (
-        <ButtonLink
-          to="/tasks?completed=true"
-          variant="secondary"
-          fullWidth
-        >
-          Ver Historial de Tareas Completadas
-        </ButtonLink>
-      )}
 
       <ConfirmModal
         isOpen={!!taskToConfirm}
