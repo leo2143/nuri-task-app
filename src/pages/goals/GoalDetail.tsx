@@ -21,6 +21,7 @@ import {
   useFetchByIdOffline,
   useFormatDate,
   useHttpError,
+  useToastActions,
 } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { todoservice } from "../../services/todoService";
@@ -47,6 +48,7 @@ function withTrailingPeriod(text: string): string {
 
 export default function GoalDetail() {
   const navigate = useAppNavigate();
+  const { notifyCompletion } = useToastActions();
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
   const [tasks, setTasks] = useState<ITodo[]>([]);
   const [subGoals, setSubGoals] = useState<IGoal[]>([]);
@@ -197,7 +199,10 @@ export default function GoalDetail() {
     if (!taskToConfirm?._id) return;
     setIsConfirming(true);
     try {
-      await todoservice.updateTodoState(taskToConfirm._id, true);
+      const { events } = await todoservice.updateTodoState(
+        taskToConfirm._id,
+        true,
+      );
       setTasks((prev) =>
         prev.map((task) =>
           task._id === taskToConfirm._id
@@ -205,6 +210,7 @@ export default function GoalDetail() {
             : task,
         ),
       );
+      notifyCompletion(events);
       await refreshGoal();
     } catch (error) {
       console.error("Error al completar tarea:", error);
@@ -212,7 +218,7 @@ export default function GoalDetail() {
       setIsConfirming(false);
       setTaskToConfirm(null);
     }
-  }, [taskToConfirm, refreshGoal]);
+  }, [taskToConfirm, refreshGoal, notifyCompletion]);
 
   // Filtrar tareas localmente (búsqueda + filtros)
   const filteredTasks = useMemo(() => {
@@ -314,11 +320,12 @@ export default function GoalDetail() {
     if (!goal?._id) return;
     setUpdatingStatus(true);
     try {
-      const updatedGoal = await goalService.updateGoalStatus(
+      const { data: updatedGoal, events } = await goalService.updateGoalStatus(
         goal._id,
         newStatus,
       );
       setLocalGoal(updatedGoal);
+      notifyCompletion(events);
     } catch (error) {
       setErrorModalMessage(handleError(error));
       setIsErrorModalOpen(true);
@@ -331,12 +338,13 @@ export default function GoalDetail() {
     if (!goal?._id) return;
     setIsClosingGoal(true);
     try {
-      const updatedGoal = await goalService.updateGoalStatus(
+      const { data: updatedGoal, events } = await goalService.updateGoalStatus(
         goal._id,
         "completed",
       );
       setLocalGoal(updatedGoal);
       setIsCloseModalOpen(false);
+      notifyCompletion(events);
     } catch (error) {
       setIsCloseModalOpen(false);
       setErrorModalMessage(handleError(error));

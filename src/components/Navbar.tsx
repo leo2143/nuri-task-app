@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../hooks";
+import { useAuth, useToastState } from "../hooks";
 import {
   nuriFire,
   hamburger,
@@ -28,12 +28,18 @@ import { notificationApiService } from "../services/notificationApiService";
 
 export default function Navbar() {
   const { user, isPremium } = useAuth();
+  const { lastStreak } = useToastState();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [currentStreak, setCurrentStreak] = useState<number>(0);
   const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const location = useLocation();
   const isHome = location.pathname === "/";
+
+  const userId = user?._id;
+  useEffect(() => {
+    setCurrentStreak(0);
+  }, [userId]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -58,6 +64,10 @@ export default function Navbar() {
       cancelled = true;
     };
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (lastStreak !== null) setCurrentStreak(lastStreak);
+  }, [lastStreak]);
 
   useEffect(() => {
     const loadUnread = () => {

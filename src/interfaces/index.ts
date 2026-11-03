@@ -27,3 +27,4 @@ export * from "./IFilter";
 
 // API Responses
 export * from "./IApiResponse";
+export * from "./ICompletionEvents";

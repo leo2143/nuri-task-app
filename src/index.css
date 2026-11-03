@@ -198,3 +198,66 @@ dialog.nuri-dialog .nuri-dialog-backdrop {
     transition-duration: 0.01ms !important;
   }
 }
+
+@keyframes nuri-toast-in {
+  from { opacity: 0; transform: translateY(-24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes nuri-toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-24px); }
+}
+
+@keyframes nuri-toast-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes nuri-toast-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes nuri-toast-progress {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+.nuri-toast-enter {
+  animation: nuri-toast-in 300ms ease-out both;
+}
+
+.nuri-toast-exit {
+  animation: nuri-toast-out 200ms ease-in both;
+}
+
+.nuri-toast {
+  --nuri-toast-duration: 4000ms;
+}
+
+.nuri-toast-progress {
+  animation-name: nuri-toast-progress;
+  animation-duration: var(--nuri-toast-duration);
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.nuri-toast:hover .nuri-toast-progress,
+.nuri-toast[data-held="true"] .nuri-toast-progress {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nuri-toast-enter {
+    animation-name: nuri-toast-fade-in;
+  }
+
+  .nuri-toast-exit {
+    animation-name: nuri-toast-fade-out;
+  }
+
+  .nuri-toast .nuri-toast-progress {
+    animation-duration: var(--nuri-toast-duration) !important;
+  }
+}

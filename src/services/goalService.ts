@@ -8,7 +8,10 @@ import type {
   IAddSubGoal,
   IGoalFilters,
   ITodo,
+  ICompletionEvents,
+  IWithCompletionEvents,
 } from "../interfaces";
+import { EMPTY_COMPLETION_EVENTS } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
 /**
@@ -196,13 +199,17 @@ export const goalService = {
   updateGoalStatus: async (
     id: string,
     status: "active" | "paused" | "completed",
-  ): Promise<IGoal> => {
+  ): Promise<IWithCompletionEvents<IGoal>> => {
     try {
-      const response = await apiClient.patch<ISuccessResponse<IGoal>>(
-        `${API_BASE_URL}/api/goals/${id}/status`,
-        { status },
-      );
-      return response.data.data!;
+      const response = await apiClient.patch<
+        ISuccessResponse<IGoal> & {
+          meta: { events?: ICompletionEvents } | null;
+        }
+      >(`${API_BASE_URL}/api/goals/${id}/status`, { status });
+      return {
+        data: response.data.data!,
+        events: response.data.meta?.events ?? EMPTY_COMPLETION_EVENTS,
+      };
     } catch (error) {
       console.error(`Error updating goal status ${id}:`, error);
       throw error;
