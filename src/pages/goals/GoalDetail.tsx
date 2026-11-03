@@ -10,21 +10,45 @@ import {
   StatusBadge,
   TabGroup,
 } from "../../components/ui";
-import type { IGoal, ITodo, FilterConfig, FilterValues } from "../../interfaces";
-import { useAppNavigate, useFetchByIdOffline, useFormatDate, useHttpError } from "../../hooks";
+import type {
+  IGoal,
+  ITodo,
+  FilterConfig,
+  FilterValues,
+} from "../../interfaces";
+import {
+  useAppNavigate,
+  useFetchByIdOffline,
+  useFormatDate,
+  useHttpError,
+  useToastActions,
+} from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { todoservice } from "../../services/todoService";
 import Loading from "../../components/Loading";
 import FilterableList from "../../components/FilterableList";
 import GoalOverflowMenu from "../../components/GoalOverflowMenu";
 import { canCloseGoal } from "../../utils/canCloseGoal";
-import { goalFilterConfig, matchesGoalDateFilters } from "../../utils/goalFilterConfig";
+import {
+  goalFilterConfig,
+  matchesGoalDateFilters,
+} from "../../utils/goalFilterConfig";
 import { lapiz, calendar, trash, addButtonBrand } from "../../assets/svg-icons";
 
 type TabType = "tasks" | "subgoals";
 
+/** Agrega un punto final si el texto no termina en puntuación. */
+function withTrailingPeriod(text: string): string {
+  const trimmed = text.trimEnd();
+  if (/[.!?…]$/.test(trimmed)) {
+    return trimmed;
+  }
+  return `${trimmed}.`;
+}
+
 export default function GoalDetail() {
   const navigate = useAppNavigate();
+  const { notifyCompletion } = useToastActions();
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
   const [tasks, setTasks] = useState<ITodo[]>([]);
   const [subGoals, setSubGoals] = useState<IGoal[]>([]);
@@ -35,7 +59,8 @@ export default function GoalDetail() {
   const [taskSearchTerm, setTaskSearchTerm] = useState("");
   const [subGoalSearchTerm, setSubGoalSearchTerm] = useState("");
   const [activeTaskFilters, setActiveTaskFilters] = useState<FilterValues>({});
-  const [activeSubGoalFilters, setActiveSubGoalFilters] = useState<FilterValues>({});
+  const [activeSubGoalFilters, setActiveSubGoalFilters] =
+    useState<FilterValues>({});
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
@@ -66,7 +91,7 @@ export default function GoalDetail() {
         options: [{ value: "true", label: "Completada" }],
       },
     ],
-    []
+    [],
   );
 
   const {
@@ -174,7 +199,10 @@ export default function GoalDetail() {
     if (!taskToConfirm?._id) return;
     setIsConfirming(true);
     try {
-      await todoservice.updateTodoState(taskToConfirm._id, true);
+      const { events } = await todoservice.updateTodoState(
+        taskToConfirm._id,
+        true,
+      );
       setTasks((prev) =>
         prev.map((task) =>
           task._id === taskToConfirm._id
@@ -182,6 +210,7 @@ export default function GoalDetail() {
             : task,
         ),
       );
+      notifyCompletion(events);
       await refreshGoal();
     } catch (error) {
       console.error("Error al completar tarea:", error);
@@ -189,7 +218,7 @@ export default function GoalDetail() {
       setIsConfirming(false);
       setTaskToConfirm(null);
     }
-  }, [taskToConfirm, refreshGoal]);
+  }, [taskToConfirm, refreshGoal, notifyCompletion]);
 
   // Filtrar tareas localmente (búsqueda + filtros)
   const filteredTasks = useMemo(() => {
@@ -257,7 +286,6 @@ export default function GoalDetail() {
         id={task._id}
         title={task.title}
         description={task.description}
-        goalTitle={goal?.title}
         dueDate={task.dueDate}
         priority={task.priority}
         completed={task.completed}
@@ -269,7 +297,7 @@ export default function GoalDetail() {
         }}
       />
     ),
-    [handleToggleTaskComplete, goal?.title, refreshGoal],
+    [handleToggleTaskComplete, refreshGoal],
   );
 
   const renderSubGoalItem = useCallback(
@@ -286,12 +314,18 @@ export default function GoalDetail() {
     [],
   );
 
-  const handleStatusChange = async (newStatus: "active" | "paused" | "completed") => {
+  const handleStatusChange = async (
+    newStatus: "active" | "paused" | "completed",
+  ) => {
     if (!goal?._id) return;
     setUpdatingStatus(true);
     try {
-      const updatedGoal = await goalService.updateGoalStatus(goal._id, newStatus);
+      const { data: updatedGoal, events } = await goalService.updateGoalStatus(
+        goal._id,
+        newStatus,
+      );
       setLocalGoal(updatedGoal);
+      notifyCompletion(events);
     } catch (error) {
       setErrorModalMessage(handleError(error));
       setIsErrorModalOpen(true);
@@ -304,9 +338,13 @@ export default function GoalDetail() {
     if (!goal?._id) return;
     setIsClosingGoal(true);
     try {
-      const updatedGoal = await goalService.updateGoalStatus(goal._id, "completed");
+      const { data: updatedGoal, events } = await goalService.updateGoalStatus(
+        goal._id,
+        "completed",
+      );
       setLocalGoal(updatedGoal);
       setIsCloseModalOpen(false);
+      notifyCompletion(events);
     } catch (error) {
       setIsCloseModalOpen(false);
       setErrorModalMessage(handleError(error));
@@ -351,7 +389,7 @@ export default function GoalDetail() {
 
   if (!goal) {
     return (
-      <div className="max-w-3xl mx-auto text-center py-12">
+      <div className="max-w-3xl mx-auto text-center">
         <h2 className="font-heading font-bold text-tertiary mb-4">
           Meta no encontrada
         </h2>
@@ -378,21 +416,23 @@ export default function GoalDetail() {
   const createChildAction = (
     <Link
       to={createChildPath}
-      className="shrink-0 inline-flex items-center justify-center w-11 h-11 hover:opacity-80 transition-opacity"
+      className="flex size-[30px] items-center justify-center hover:opacity-80 transition-opacity"
       aria-label={createChildLabel}
     >
       <img
         src={addButtonBrand}
         alt=""
         aria-hidden="true"
-        className="w-11 h-11"
+        width={30}
+        height={30}
+        className="block size-[30px]"
       />
     </Link>
   );
 
   return (
-    <section className="max-w-4xl mx-auto flex flex-col pt-6">
-      <div className="bg-secondary-dark rounded-lg p-5 text-white">
+    <section className="max-w-4xl mx-auto flex flex-col">
+      <div className="bg-secondary-dark rounded-lg p-5 text-white flex flex-col gap-5">
         <div className="flex items-center justify-between gap-3">
           <StatusBadge status={goal.status} />
           <div className="flex items-center gap-3 shrink-0">
@@ -401,7 +441,12 @@ export default function GoalDetail() {
               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
               aria-label="Editar meta"
             >
-              <img src={lapiz} alt="" aria-hidden="true" className="w-5 h-5 shrink-0 invert brightness-0" />
+              <img
+                src={lapiz}
+                alt=""
+                aria-hidden="true"
+                className="w-5 h-5 shrink-0 invert brightness-0"
+              />
             </Link>
             <button
               type="button"
@@ -409,7 +454,12 @@ export default function GoalDetail() {
               className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
               aria-label="Eliminar meta"
             >
-              <img src={trash} alt="" aria-hidden="true" className="w-5 h-5 shrink-0" />
+              <img
+                src={trash}
+                alt=""
+                aria-hidden="true"
+                className="w-5 h-5 shrink-0"
+              />
             </button>
             <GoalOverflowMenu
               status={goal.status}
@@ -419,73 +469,77 @@ export default function GoalDetail() {
             />
           </div>
         </div>
+        <div className="flex flex-col gap-4 ">
+          <h2 className="text-xl font-heading font-bold text-brand min-w-0 break-words">
+            {goal.title}
+          </h2>
 
-        <h2 className="mt-5 text-xl font-heading font-bold text-brand min-w-0 break-words">
-          {goal.title}
-        </h2>
-
-        <p className="mt-4 text-base text-white leading-relaxed min-w-0 break-words">
-          {goal.description || "Sin descripción"}
-        </p>
-
-        {goal.reason && (
-          <p className="mt-4 text-base text-white leading-relaxed min-w-0 break-words">
-            {goal.reason}
+          <p className="text-base text-white leading-relaxed min-w-0 break-words">
+            {withTrailingPeriod(goal.description || "Sin descripción")}
+            {goal.reason && (
+              <>
+                <br />
+                {withTrailingPeriod(goal.reason)}
+              </>
+            )}
           </p>
-        )}
+          <div className=" flex items-center justify-between">
+            {dueDate.isValid && (
+              <div className="flex items-center gap-2">
+                <img
+                  src={calendar}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-5 h-5"
+                />
+                <time
+                  dateTime={dueDate.iso}
+                  className="text-sm font-bold text-brand"
+                >
+                  {dueDate.formatted}
+                </time>
+              </div>
+            )}
+            <span className="text-sm font-bold text-brand">
+              Prioridad: {getPriorityLabel(goal.priority)}
+            </span>
+          </div>
 
-        <div className="mt-4 flex items-center justify-between">
-          {dueDate.isValid && (
-            <div className="flex items-center gap-2">
-              <img
-                src={calendar}
-                alt=""
-                aria-hidden="true"
-                className="w-5 h-5"
-              />
-              <time dateTime={dueDate.iso} className="text-sm font-bold text-brand">
-                {dueDate.formatted}
-              </time>
+          <div className=" -mx-2.5">
+            <ProgressBar
+              progress={goal.progress}
+              variant="inline"
+              height="xl"
+              color="bg-brand"
+              bgColor="bg-[#D2D2D2]"
+            />
+          </div>
+
+          {showCloseCta && (
+            <div className="mt-2 -mx-2.5">
+              <Button
+                type="button"
+                variant="onDark"
+                size="sm"
+                fullWidth
+                className="text-base h-10 shadow-none hover:scale-100"
+                disabled={updatingStatus || isClosingGoal}
+                onClick={() => setIsCloseModalOpen(true)}
+              >
+                Cerrar meta
+              </Button>
             </div>
           )}
-          <span className="text-sm font-bold text-brand">
-            Prioridad: {getPriorityLabel(goal.priority)}
-          </span>
         </div>
-
-        <div className="mt-4 -mx-2.5">
-          <ProgressBar
-            progress={goal.progress}
-            variant="inline"
-            height="xl"
-            color="bg-brand"
-            bgColor="bg-[#D2D2D2]"
-          />
-        </div>
-
-        {showCloseCta && (
-          <div className="mt-2 -mx-2.5">
-            <Button
-              type="button"
-              variant="onDark"
-              size="sm"
-              fullWidth
-              className="text-base h-10 shadow-none hover:scale-100"
-              disabled={updatingStatus || isClosingGoal}
-              onClick={() => setIsCloseModalOpen(true)}
-            >
-              Cerrar meta
-            </Button>
-          </div>
-        )}
       </div>
 
       <ButtonLink
         to={`/goals/${goal._id}/new/subgoal`}
         variant="primary"
         fullWidth
+        size="sm"
         icon="add"
-        className="mt-3"
+        className="mt-3 h-[42px] rounded-[9px] text-base shadow-none hover:scale-100 [&_img]:size-6 [&_img]:left-5"
       >
         Asociar Meta
       </ButtonLink>
@@ -538,7 +592,6 @@ export default function GoalDetail() {
           />
         )}
       </div>
-
 
       {/* Modal de Confirmación de Eliminación */}
       <ConfirmModal

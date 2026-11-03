@@ -59,6 +59,8 @@ Si bien se ha trabajado para que la interfaz sea **funcional en desktop** para l
 
 **Recomendación:** Para la mejor experiencia, utiliza el modo de vista móvil en las herramientas de desarrollo del navegador o accede desde un dispositivo móvil.
 
+La explicación de arquitectura, rutas, sesión, hooks, pantallas, PWA y decisiones de diseño está en **[DOCUMENTACION.md](DOCUMENTACION.md)**. Este README es el arranque rápido; aquel es la referencia para la tesis.
+
 ## 🚀 Tecnologías Utilizadas
 
 ### Frontend
@@ -354,6 +356,8 @@ https://nuri-task-api.vercel.app
 ---
 
 ## 📚 Referencias y Documentación
+
+Guía interna del frontend: **[DOCUMENTACION.md](DOCUMENTACION.md)**.
 
 Recursos utilizados durante el desarrollo del proyecto:
 

@@ -13,7 +13,7 @@ type IconName = keyof typeof iconMap;
 interface ButtonLinkProps {
   to: string;
   variant?: "primary" | "secondary" | "danger" | "success";
-  size?: "sm" | "md" | "lg" | "ro";
+  size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
   children: React.ReactNode;
   className?: string;
@@ -62,7 +62,6 @@ export default function ButtonLink({
     sm: "px-4 py-2 text-sm rounded-lg",
     md: "px-6 py-3 text-base rounded-lg",
     lg: "px-8 py-4 text-lg rounded-lg",
-    ro: "rounded-full p-3",
   };
 
   const widthStyle = fullWidth ? "w-full" : "";

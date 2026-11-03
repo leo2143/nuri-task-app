@@ -6,11 +6,12 @@ import { GoalCard, TaskCard, ButtonLink, Spinner, ConfirmModal } from "../compon
 import TabGroup from "../components/ui/TabGroup";
 import { goalService } from "../services/goalService";
 import { todoservice } from "../services/todoService";
-import { useAuth, useNotifications } from "../hooks";
+import { useAuth, useNotifications, useToastActions } from "../hooks";
 import type { IGoal, ITodo } from "../interfaces";
 
 export default function Home() {
   const { user } = useAuth();
+  const { notifyCompletion } = useToastActions();
   const { isSupported, permission, isSubscribed, subscribe } = useNotifications();
   const [pushBannerDismissed, setPushBannerDismissed] = useState(
     () => sessionStorage.getItem("nuri_push_banner_dismissed") === "true",
@@ -116,16 +117,20 @@ export default function Home() {
     if (!taskToConfirm?._id) return;
     setIsConfirming(true);
     try {
-      await todoservice.updateTodoState(taskToConfirm._id, true);
+      const { events } = await todoservice.updateTodoState(
+        taskToConfirm._id,
+        true,
+      );
       setLocalTaskStates((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
       setLockedTasks((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
+      notifyCompletion(events);
     } catch {
       console.error("Error al completar tarea");
     } finally {
       setIsConfirming(false);
       setTaskToConfirm(null);
     }
-  }, [taskToConfirm]);
+  }, [taskToConfirm, notifyCompletion]);
 
   const getTaskCompleted = (task: ITodo): boolean =>
     localTaskStates[task._id!] ?? task.completed;
@@ -134,7 +139,7 @@ export default function Home() {
     lockedTasks[task._id!] ?? task.isLocked ?? false;
 
   return (
-    <section className="max-w-4xl mx-auto py-12 flex flex-col gap-8">
+    <section className="max-w-4xl mx-auto flex flex-col gap-8">
       <div className="home-trama-bg w-full  border rounded-lg bg-white overflow-hidden shadow-brand-glow relative">
         <div className="flex justify-center gap-4 relative z-10">
           <div className="flex flex-col justify-center">

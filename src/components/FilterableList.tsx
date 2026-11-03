@@ -76,19 +76,67 @@ export default function FilterableList<T extends { _id?: string }>({
       disabled={loading}
       onFilterPress={filterConfig ? () => setIsFilterOpen(true) : undefined}
       activeFilterCount={activeFilterCount}
+      trailingAction={headerAction}
     />
   );
 
   return (
     <>
-      {headerAction ? (
-        <div className="flex items-center gap-2">
-          <div className="flex-1 min-w-0">{searchInput}</div>
-          {headerAction}
+      <div className="flex flex-col gap-5">
+        {searchInput}
+
+        {extraFilters}
+
+        <div className="flex flex-col gap-2">
+          {(searchTerm || activeFilterCount > 0) && (
+            <div className="flex items-center gap-2">
+              {loading ? (
+                <>
+                  <Spinner size="sm" />
+                  <p className="text-sm text-tertiary/70">Buscando...</p>
+                </>
+              ) : data.length > 0 ? (
+                <p className="text-sm text-tertiary/70">
+                  Mostrando {data.length} resultado
+                  {data.length !== 1 ? "s" : ""}
+                  {searchTerm ? ` para "${searchTerm}"` : ""}
+                  {activeFilterCount > 0
+                    ? ` con ${activeFilterCount} filtro${activeFilterCount !== 1 ? "s" : ""}`
+                    : ""}
+                </p>
+              ) : null}
+            </div>
+          )}
+
+          {errorMessage && !isEmpty ? (
+            <StateMessage itemName={emptyStateName} variant="error" />
+          ) : (
+            <div
+              className={`flex flex-col gap-4 transition-opacity duration-200 ${
+                loading ? "opacity-50" : "opacity-100"
+              }`}
+            >
+              {isEmpty ? (
+                <StateMessage itemName={emptyStateName} variant="notFoundList" />
+              ) : (
+                <>
+                  {data.map((item: T) => renderItem(item))}
+
+                  {loadMore && (
+                    <LoadMoreButton
+                      isLoading={loadingMore}
+                      hasMore={hasMore}
+                      onLoadMore={loadMore}
+                      buttonText={loadMoreText}
+                      loadingMessage={loadingMoreText}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
-      ) : (
-        searchInput
-      )}
+      </div>
 
       {filterConfig && onFiltersChange && (
         <FilterBottomSheet
@@ -99,58 +147,6 @@ export default function FilterableList<T extends { _id?: string }>({
           onApply={onFiltersChange}
         />
       )}
-
-      {extraFilters}
-
-      <div className="flex flex-col gap-2">
-        {(searchTerm || activeFilterCount > 0) && (
-          <div className="flex items-center gap-2">
-            {loading ? (
-              <>
-                <Spinner size="sm" />
-                <p className="text-sm text-tertiary/70">Buscando...</p>
-              </>
-            ) : data.length > 0 ? (
-              <p className="text-sm text-tertiary/70">
-                Mostrando {data.length} resultado
-                {data.length !== 1 ? "s" : ""}
-                {searchTerm ? ` para "${searchTerm}"` : ""}
-                {activeFilterCount > 0
-                  ? ` con ${activeFilterCount} filtro${activeFilterCount !== 1 ? "s" : ""}`
-                  : ""}
-              </p>
-            ) : null}
-          </div>
-        )}
-
-        {errorMessage && !isEmpty ? (
-          <StateMessage itemName={emptyStateName} variant="error" />
-        ) : (
-          <div
-            className={`flex flex-col gap-4 transition-opacity duration-200 ${
-              loading ? "opacity-50" : "opacity-100"
-            }`}
-          >
-            {isEmpty ? (
-              <StateMessage itemName={emptyStateName} variant="notFoundList" />
-            ) : (
-              <>
-                {data.map((item: T) => renderItem(item))}
-
-                {loadMore && (
-                  <LoadMoreButton
-                    isLoading={loadingMore}
-                    hasMore={hasMore}
-                    onLoadMore={loadMore}
-                    buttonText={loadMoreText}
-                    loadingMessage={loadingMoreText}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </div>
     </>
   );
 }

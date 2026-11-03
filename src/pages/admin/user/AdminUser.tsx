@@ -60,7 +60,7 @@ export default function AdminUser() {
   );
 
   return (
-    <div className="flex flex-col gap-8 justify-center pt-2">
+    <div className="flex flex-col gap-8 justify-center">
       <div className="flex flex-col gap-8 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           Usuarios Registrados

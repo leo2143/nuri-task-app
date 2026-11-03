@@ -7,7 +7,10 @@ import type {
   ITodoFilters,
   IAddTodoComment,
   IUpdateTodoState,
+  ICompletionEvents,
+  IWithCompletionEvents,
 } from "../interfaces";
+import { EMPTY_COMPLETION_EVENTS } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
 /**
@@ -164,17 +167,24 @@ export const todoservice = {
   },
   /**
    * Actualizar estado de una tarea
-   * PUT /api/todos/:id
+   * PATCH /api/todos/:id/state
    * @requires Bearer Token
    */
-  updateTodoState: async (id: string, status: boolean): Promise<ITodo> => {
+  updateTodoState: async (
+    id: string,
+    status: boolean,
+  ): Promise<IWithCompletionEvents<ITodo>> => {
     try {
       const body: IUpdateTodoState = { completed: status };
-      const response = await apiClient.patch<ISuccessResponse<ITodo>>(
-        `${API_BASE_URL}/api/todos/${id}/state`,
-        body,
-      );
-      return response.data.data!;
+      const response = await apiClient.patch<
+        ISuccessResponse<ITodo> & {
+          meta: { events?: ICompletionEvents } | null;
+        }
+      >(`${API_BASE_URL}/api/todos/${id}/state`, body);
+      return {
+        data: response.data.data!,
+        events: response.data.meta?.events ?? EMPTY_COMPLETION_EVENTS,
+      };
     } catch (error) {
       console.error(`Error updating Todo ${id}:`, error);
       throw error;

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { ButtonLink, TaskCard, ConfirmModal } from "../../components/ui";
 import type { ITodo, ITodoFilters, FilterConfig, FilterValues, TodoPriority } from "../../interfaces";
-import { useFilterableList } from "../../hooks";
+import { useFilterableList, useToastActions } from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import FilterableList from "../../components/FilterableList";
 
@@ -46,6 +46,8 @@ export default function TaskList() {
     ],
     []
   );
+
+  const { notifyCompletion } = useToastActions();
 
   const filterableList = useFilterableList<ITodo, ITodoFilters>({
     fetchFn: todoservice.gettodos,
@@ -138,16 +140,20 @@ export default function TaskList() {
     if (!taskToConfirm?._id) return;
     setIsConfirming(true);
     try {
-      await todoservice.updateTodoState(taskToConfirm._id, true);
+      const { events } = await todoservice.updateTodoState(
+        taskToConfirm._id,
+        true,
+      );
       setLocalTaskStates((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
       setLockedTasks((prev) => ({ ...prev, [taskToConfirm._id!]: true }));
+      notifyCompletion(events);
     } catch (err) {
       console.error("Error al completar tarea:", err);
     } finally {
       setIsConfirming(false);
       setTaskToConfirm(null);
     }
-  }, [taskToConfirm]);
+  }, [taskToConfirm, notifyCompletion]);
 
   const getTaskCompleted = (task: ITodo): boolean => {
     return localTaskStates[task._id!] ?? task.completed;
@@ -177,11 +183,16 @@ export default function TaskList() {
   );
 
   return (
-    <div className="flex flex-col gap-11 justify-center pt-6">
-      <div className="flex flex-col gap-6 justify-center">
+    <div className="flex flex-col gap-8 justify-center">
+      <div className="flex flex-col gap-4 justify-center">
         <h2 className="font-heading font-bold text-tertiary">
           {isCompletedView ? "Tareas Completadas" : "Mis Tareas"}
         </h2>
+        {!isCompletedView && (
+          <p className="font-body font-medium text-sm leading-5 text-black">
+            Organizá tus tareas y avanzá paso a paso
+          </p>
+        )}
 
         {!isCompletedView && (
           <ButtonLink

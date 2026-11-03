@@ -1,7 +1,6 @@
 import { useId } from "react";
-import type { ComponentProps } from "react";
-import { search } from "../../assets/svg-icons/index";
-import { Button } from ".";
+import type { ComponentProps, ReactNode } from "react";
+import { filter, search } from "../../assets/svg-icons/index";
 
 export interface InputFilterProps
   extends Omit<ComponentProps<"input">, "size"> {
@@ -10,6 +9,7 @@ export interface InputFilterProps
   helperText?: string;
   onFilterPress?: () => void;
   activeFilterCount?: number;
+  trailingAction?: ReactNode;
 }
 
 export default function InputFilter({
@@ -22,6 +22,7 @@ export default function InputFilter({
   helperText,
   onFilterPress,
   activeFilterCount = 0,
+  trailingAction,
   disabled,
   required,
   placeholder = "Buscar",
@@ -31,9 +32,10 @@ export default function InputFilter({
   const autoId = useId();
   const id = externalId ?? autoId;
   const hasError = !!error;
+  const hasTrailingAction = trailingAction != null;
 
   const sharedInputStyles = `
-    w-full pl-12 pr-4 py-3 rounded-lg
+    w-full h-10 pl-12 pr-4 rounded-lg
     focus:outline-none focus:border-transparent
     disabled:cursor-not-allowed disabled:opacity-60
     font-body text-tertiary
@@ -51,20 +53,31 @@ export default function InputFilter({
     ? "!border-red-500 !bg-red-50 border-2 focus:ring-2 focus:ring-red-500/20"
     : "";
 
-  const inputClasses = [sharedInputStyles, lightModeStyles, stateStyles, className]
+  const inputClasses = [
+    sharedInputStyles,
+    lightModeStyles,
+    stateStyles,
+    className,
+  ]
     .join(" ")
     .replace(/\s+/g, " ")
     .trim();
 
   return (
     <div className="w-full">
-      <div className="flex items-center">
-        <div className="relative min-w-0 w-4/5">
+      <div
+        className={`flex h-10 items-center ${hasTrailingAction ? "justify-between" : ""}`}
+      >
+        <div
+          className={`relative min-w-0 h-10 ${
+            hasTrailingAction ? "w-[calc(223/353*100%)]" : "w-3/4"
+          }`}
+        >
           <img
             src={search}
             alt=""
             aria-hidden="true"
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 size-[30px] pointer-events-none"
           />
           <input
             ref={ref}
@@ -85,19 +98,37 @@ export default function InputFilter({
           />
         </div>
 
-        <div className="relative ml-auto shrink-0">
-          <Button
-            variant="brand"
-            icon="filter"
-            size="ro"
-            onClick={onFilterPress}
-            disabled={disabled}
-          />
-          {activeFilterCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
-              {activeFilterCount}
-            </span>
-          )}
+        <div
+          className={`flex h-[30px] shrink-0 items-center gap-[7px] ${
+            hasTrailingAction ? "" : "ml-auto w-1/4 justify-end"
+          }`}
+        >
+          <div className="relative size-[30px]">
+            <button
+              type="button"
+              onClick={onFilterPress}
+              disabled={disabled}
+              aria-label="Filtrar"
+              className="flex size-[30px] items-center justify-center p-0
+                         hover:opacity-80 transition-opacity
+                         disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <img
+                src={filter}
+                alt=""
+                aria-hidden="true"
+                width={30}
+                height={30}
+                className="block size-[30px]"
+              />
+            </button>
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-white text-[10px] font-bold px-1">
+                {activeFilterCount}
+              </span>
+            )}
+          </div>
+          {trailingAction}
         </div>
       </div>
 
