@@ -28,11 +28,46 @@ export const TOAST_PRIORITY: Record<ToastKind, number> = {
   task: 1,
 };
 
-export const TASK_SINGLE_MESSAGE = "¡Una menos! Lo estas haciendo bien";
-export const TASK_GROUP_MESSAGE = "¡Qué Ritmo! Lo estas haciendo increible";
-export const GOAL_MESSAGE = "No dejaste nada atrás ¡Llegaste al final!✨  ";
-export const STREAK_MESSAGE = "Seguí nadando así, Nuri te acompaña";
+export const TASK_SINGLE_MESSAGES = [
+  "¡Una menos! Lo estás haciendo bien",
+  "¡Tachada! Un pasito más",
+  "Hecho es mejor que perfecto",
+  "Una menos en la lista, una más en tu historia",
+];
 
+export const TASK_GROUP_MESSAGES = [
+  "¡Qué ritmo! Lo estás haciendo increíble",
+  "¡Nadás como nutria en el agua!",
+  "Una tras otra, ¡imparable!",
+  "Nuri no te puede seguir el ritmo",
+  "¡Estás en modo productivo!",
+];
+
+export const GOAL_MESSAGES = [
+  "No dejaste nada atrás ¡Llegaste al final!✨",
+  "¡Cruzaste el río entero!",
+  "Lo soñaste, lo planeaste, lo lograste",
+  "¡Meta cumplida! Nuri está de fiesta",
+  "Llegaste a la orilla, ¡qué orgullo!",
+  "Esto merece un chapuzón de festejo",
+];
+
+function pickMessage(messages: string[]): string {
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+export const STREAK_MESSAGES = [
+  "Día a día, brazada a brazada",
+  "La constancia también es un logro",
+  "A tu ritmo, pero sin soltar el remo",
+  "Paso chiquito, racha grande",
+  "No importa la velocidad, importa seguir nadando",
+  "¡Nuri está chapoteando de alegría!",
+  "Hoy también nadamos juntos",
+];
+
+export function streakMessageFor(days: number): string {
+  return STREAK_MESSAGES[Math.abs(days) % STREAK_MESSAGES.length];
+}
 export const initialToastQueueState: ToastQueueState = {
   visible: null,
   visibleLeaving: false,
@@ -61,7 +96,7 @@ export function eventsToToasts(
       id: createId(),
       kind: "goal",
       title: events.goalCompleted.title,
-      message: GOAL_MESSAGE,
+      message: pickMessage(GOAL_MESSAGES),
     });
   }
 
@@ -71,7 +106,7 @@ export function eventsToToasts(
       id: createId(),
       kind: "streak",
       title: days === 1 ? "¡1 día seguido!" : `¡${days} días seguidos!`,
-      message: STREAK_MESSAGE,
+      message: streakMessageFor(days),
     });
   }
 
@@ -80,7 +115,7 @@ export function eventsToToasts(
       id: createId(),
       kind: "task",
       title: events.taskCompleted.title,
-      message: TASK_SINGLE_MESSAGE,
+      message: pickMessage(TASK_SINGLE_MESSAGES),
       count: 1,
     });
   }
@@ -93,7 +128,10 @@ function groupTask(target: ToastItem, count: number): ToastItem {
     ...target,
     count,
     title: `${count} tareas completadas`,
-    message: TASK_GROUP_MESSAGE,
+    message:
+      (target.count ?? 1) > 1
+        ? target.message
+        : pickMessage(TASK_GROUP_MESSAGES),
   };
 }
 
