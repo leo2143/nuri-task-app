@@ -1,8 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { nuriCorazonCortado } from "../assets/ilustrations";
+import { nuriCorazonAnimado } from "../assets/ilustrations";
 import StateMessage from "../components/StateMessage";
-import { GoalCard, TaskCard, ButtonLink, Spinner, ConfirmModal } from "../components/ui";
+import {
+  GoalCard,
+  TaskCard,
+  ButtonLink,
+  Spinner,
+  ConfirmModal,
+} from "../components/ui";
 import TabGroup from "../components/ui/TabGroup";
 import { goalService } from "../services/goalService";
 import { todoservice } from "../services/todoService";
@@ -12,14 +18,18 @@ import type { IGoal, ITodo } from "../interfaces";
 export default function Home() {
   const { user } = useAuth();
   const { notifyCompletion } = useToastActions();
-  const { isSupported, permission, isSubscribed, subscribe } = useNotifications();
+  const { isSupported, permission, isSubscribed, subscribe } =
+    useNotifications();
   const [pushBannerDismissed, setPushBannerDismissed] = useState(
     () => sessionStorage.getItem("nuri_push_banner_dismissed") === "true",
   );
   const [activeTab, setActiveTab] = useState("goals");
 
   const showPushBanner =
-    isSupported && !isSubscribed && permission !== "denied" && !pushBannerDismissed;
+    isSupported &&
+    !isSubscribed &&
+    permission !== "denied" &&
+    !pushBannerDismissed;
 
   const handleDismissPushBanner = () => {
     setPushBannerDismissed(true);
@@ -39,7 +49,9 @@ export default function Home() {
   // Estado para tareas recientes
   const [recentTasks, setRecentTasks] = useState<ITodo[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
-  const [localTaskStates, setLocalTaskStates] = useState<Record<string, boolean>>({});
+  const [localTaskStates, setLocalTaskStates] = useState<
+    Record<string, boolean>
+  >({});
   const [lockedTasks, setLockedTasks] = useState<Record<string, boolean>>({});
   const [taskToConfirm, setTaskToConfirm] = useState<ITodo | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -52,7 +64,10 @@ export default function Home() {
     const fetchGoals = async () => {
       setLoadingGoals(true);
       try {
-        const response = await goalService.getAllGoals({ limit: 5, sortOrder: "desc" });
+        const response = await goalService.getAllGoals({
+          limit: 5,
+          sortOrder: "desc",
+        });
         if (cancelled) return;
         setGoals(response.data || []);
       } catch {
@@ -76,7 +91,10 @@ export default function Home() {
     const fetchTasks = async () => {
       setLoadingTasks(true);
       try {
-        const response = await todoservice.gettodos({ limit: 10, sortOrder: "desc" });
+        const response = await todoservice.gettodos({
+          limit: 10,
+          sortOrder: "desc",
+        });
         if (cancelled) return;
         setRecentTasks(response.data || []);
         setLocalTaskStates({});
@@ -143,14 +161,18 @@ export default function Home() {
       <div className="home-trama-bg w-full  border rounded-lg bg-white overflow-hidden shadow-brand-glow relative">
         <div className="flex justify-center gap-4 relative z-10">
           <div className="flex flex-col justify-center">
-            <h2 className="font-bold text-2xl font-body text-tertiary leading-tight">
+            <h2 className="font-bold text-2xl font-body text-tertiary leading-tight pl-5">
               {user?.name ?? ""},
             </h2>
-            <h2 className="font-bold text-2xl font-body text-tertiary leading-tight">
+            <h2 className="font-bold text-2xl font-body text-tertiary leading-tight pl-5">
               ¡Tú Puedes!
             </h2>
           </div>
-          <img className="relative top-2 h-36 w-auto" src={nuriCorazonCortado} alt="nuri con corazon en la mano" />
+          <img
+            className="relative top-3 right-3 h-36 w-auto"
+            src={nuriCorazonAnimado}
+            alt="nuri con corazon en la mano"
+          />
         </div>
         <div
           className="absolute bottom-0 left-0 w-full max-h-[50px] home-trama-bg"
@@ -160,13 +182,16 @@ export default function Home() {
 
       {showPushBanner && (
         <div className="flex items-start gap-3 rounded-xl border border-brand/30 bg-brand/10 p-4">
-          <span className="mt-0.5 text-xl" aria-hidden="true">🔔</span>
+          <span className="mt-0.5 text-xl" aria-hidden="true">
+            🔔
+          </span>
           <div className="flex-1">
             <p className="font-body text-sm font-semibold text-tertiary">
               ¡Activá las notificaciones!
             </p>
             <p className="font-body text-xs text-gray-700 mt-0.5">
-              Recibí alertas cuando completes tareas, metas y desbloquees logros.
+              Recibí alertas cuando completes tareas, metas y desbloquees
+              logros.
             </p>
             <div className="flex gap-2 mt-3">
               <button
@@ -225,10 +250,16 @@ export default function Home() {
         {activeTab === "tasks" && (
           <div className="flex flex-col gap-6">
             <div className="flex gap-6 items-stretch justify-center">
-              <Link to="/tasks" className="flex-1 py-20 rounded-lg bg-primary text-white font-heading font-bold text-center">
+              <Link
+                to="/tasks"
+                className="flex-1 py-20 rounded-lg bg-primary text-white font-heading font-bold text-center"
+              >
                 Lista de Tareas
               </Link>
-              <Link to="/tasks?completed=true" className="flex-1 py-20 rounded-lg bg-secondary text-white font-heading font-bold text-center">
+              <Link
+                to="/tasks?completed=true"
+                className="flex-1 py-20 rounded-lg bg-secondary text-white font-heading font-bold text-center"
+              >
                 Tareas Completadas
               </Link>
             </div>
