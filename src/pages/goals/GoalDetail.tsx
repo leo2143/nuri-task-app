@@ -46,6 +46,17 @@ function withTrailingPeriod(text: string): string {
   return `${trimmed}.`;
 }
 
+/**
+ * Mensaje del diálogo de reapertura. Si el padre directo también está
+ * completado, se reabre en cascada y el texto lo nombra.
+ */
+function buildReopenMessage(goalTitle: string, parentTitle: string | null) {
+  const cascade = parentTitle
+    ? ` Como es parte de “${parentTitle}”, esa meta también se reabre.`
+    : "";
+  return `“${goalTitle}” vuelve a estar activa y le podés sumar tareas y submetas.${cascade} Lo que lograste no se pierde: tu progreso, métricas y logros quedan como están.`;
+}
+
 export default function GoalDetail() {
   const navigate = useAppNavigate();
   const { notifyCompletion } = useToastActions();
@@ -70,6 +81,11 @@ export default function GoalDetail() {
   const [isClosingGoal, setIsClosingGoal] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isReopenModalOpen, setIsReopenModalOpen] = useState(false);
+  const [isReopening, setIsReopening] = useState(false);
+  const [reopenParentTitle, setReopenParentTitle] = useState<string | null>(
+    null,
+  );
   const { handleError } = useHttpError();
 
   const taskFilterConfig: FilterConfig[] = useMemo(
@@ -111,6 +127,7 @@ export default function GoalDetail() {
   }, [fetchedGoal]);
 
   const goal = localGoal;
+  const isGoalCompleted = goal?.status === "completed";
 
   const dueDate = useFormatDate(goal?.dueDate);
 
@@ -290,6 +307,7 @@ export default function GoalDetail() {
         priority={task.priority}
         completed={task.completed}
         isLocked={task.isLocked}
+        isReadOnly={isGoalCompleted}
         onToggleComplete={handleToggleTaskComplete}
         onDeleted={(taskId) => {
           setTasks((prev) => prev.filter((item) => item._id !== taskId));
@@ -297,7 +315,7 @@ export default function GoalDetail() {
         }}
       />
     ),
-    [handleToggleTaskComplete, refreshGoal],
+    [handleToggleTaskComplete, refreshGoal, isGoalCompleted],
   );
 
   const renderSubGoalItem = useCallback(
@@ -351,6 +369,44 @@ export default function GoalDetail() {
       setIsErrorModalOpen(true);
     } finally {
       setIsClosingGoal(false);
+    }
+  };
+
+  /**
+   * En una meta completada, "+" y "Asociar Meta" piden reabrirla primero.
+   * Solo se nombra el padre directo, y solo si también está completado.
+   */
+  const handleRequestReopen = async () => {
+    if (!goal) return;
+    setReopenParentTitle(null);
+    if (goal.parentGoalId) {
+      try {
+        const parent = await goalService.getGoalById(goal.parentGoalId);
+        if (parent?.status === "completed") setReopenParentTitle(parent.title);
+      } catch (error) {
+        console.error("Error al consultar la meta padre:", error);
+      }
+    }
+    setIsReopenModalOpen(true);
+  };
+
+  const handleConfirmReopen = async () => {
+    if (!goal?._id) return;
+    setIsReopening(true);
+    try {
+      const { goal: reopenedGoal } = await goalService.reopenGoal(goal._id);
+      setLocalGoal((prev) =>
+        prev ? { ...prev, ...reopenedGoal } : reopenedGoal,
+      );
+      setIsReopenModalOpen(false);
+      await refreshGoal();
+    } catch (error) {
+      setIsReopenModalOpen(false);
+      setErrorModalMessage(handleError(error));
+      setIsErrorModalOpen(true);
+      await refreshGoal();
+    } finally {
+      setIsReopening(false);
     }
   };
 
@@ -413,20 +469,34 @@ export default function GoalDetail() {
       : `/goals/new?parentGoalId=${goal._id}`;
   const createChildLabel =
     activeTab === "tasks" ? "Crear tarea" : "Crear meta asociada";
-  const createChildAction = (
-    <Link
-      to={createChildPath}
-      className="flex size-[30px] items-center justify-center hover:opacity-80 transition-opacity"
+  const createChildIcon = (
+    <img
+      src={addButtonBrand}
+      alt=""
+      aria-hidden="true"
+      width={30}
+      height={30}
+      className="block size-[30px]"
+    />
+  );
+  const createChildClassName =
+    "flex size-[30px] items-center justify-center hover:opacity-80 transition-opacity";
+  const createChildAction = isGoalCompleted ? (
+    <button
+      type="button"
+      onClick={() => void handleRequestReopen()}
+      className={createChildClassName}
       aria-label={createChildLabel}
     >
-      <img
-        src={addButtonBrand}
-        alt=""
-        aria-hidden="true"
-        width={30}
-        height={30}
-        className="block size-[30px]"
-      />
+      {createChildIcon}
+    </button>
+  ) : (
+    <Link
+      to={createChildPath}
+      className={createChildClassName}
+      aria-label={createChildLabel}
+    >
+      {createChildIcon}
     </Link>
   );
 
@@ -533,16 +603,29 @@ export default function GoalDetail() {
         </div>
       </div>
 
-      <ButtonLink
-        to={`/goals/${goal._id}/new/subgoal`}
-        variant="primary"
-        fullWidth
-        size="sm"
-        icon="add"
-        className="mt-3 h-[42px] rounded-[9px] text-base shadow-none hover:scale-100 [&_img]:size-6 [&_img]:left-5"
-      >
-        Asociar Meta
-      </ButtonLink>
+      {isGoalCompleted ? (
+        <Button
+          variant="primary"
+          fullWidth
+          size="sm"
+          icon="add"
+          className="mt-3 h-[42px] rounded-[9px] text-base shadow-none hover:scale-100 [&_img]:size-6 [&_img]:left-5"
+          onClick={() => void handleRequestReopen()}
+        >
+          Asociar Meta
+        </Button>
+      ) : (
+        <ButtonLink
+          to={`/goals/${goal._id}/new/subgoal`}
+          variant="primary"
+          fullWidth
+          size="sm"
+          icon="add"
+          className="mt-3 h-[42px] rounded-[9px] text-base shadow-none hover:scale-100 [&_img]:size-6 [&_img]:left-5"
+        >
+          Asociar Meta
+        </ButtonLink>
+      )}
 
       <div className="flex flex-col gap-5 mt-5">
         <TabGroup
@@ -626,6 +709,18 @@ export default function GoalDetail() {
         cancelText="Todavía no"
         variant="success"
         loading={isClosingGoal}
+      />
+
+      <ConfirmModal
+        isOpen={isReopenModalOpen}
+        onClose={() => setIsReopenModalOpen(false)}
+        onConfirm={() => void handleConfirmReopen()}
+        title="¿La reabrimos?"
+        message={buildReopenMessage(goal.title, reopenParentTitle)}
+        confirmText="Reabrir"
+        cancelText="Ahora no"
+        variant="reopen"
+        loading={isReopening}
       />
 
       <ConfirmModal
