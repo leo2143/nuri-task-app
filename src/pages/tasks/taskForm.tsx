@@ -26,6 +26,9 @@ export default function TaskForm() {
   const [task, setTask] = useState<ITodo | null>(null);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
   const [associatedGoal, setAssociatedGoal] = useState<IGoal | null>(null);
+  // Meta actual de la tarea en modo edición (puede estar completada y fuera del catálogo)
+  const [currentGoalOption, setCurrentGoalOption] =
+    useState<IGoalCatalog | null>(null);
 
   // Estados para modales
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -67,6 +70,29 @@ export default function TaskForm() {
     dueDate,
     goalId,
   }), [title, description, priority, dueDate, goalId]);
+
+  // Opciones del selector: el catálogo oculta metas completadas, salvo la meta actual de la tarea en edición
+  const goalOptions = useMemo(() => {
+    const catalogOptions = goalCatalogs.map((catalogGoal) => ({
+      id: catalogGoal.id,
+      title: catalogGoal.title,
+    }));
+    if (
+      !currentGoalOption ||
+      catalogOptions.some((option) => option.id === currentGoalOption.id)
+    ) {
+      return catalogOptions;
+    }
+    return [
+      {
+        id: currentGoalOption.id,
+        title: currentGoalOption.title,
+        badge:
+          currentGoalOption.status === "completed" ? "Completada" : undefined,
+      },
+      ...catalogOptions,
+    ];
+  }, [goalCatalogs, currentGoalOption]);
 
   // Hook para detectar cambios sin guardar
   const {
@@ -133,6 +159,22 @@ export default function TaskForm() {
           setDescription(data.description || "");
           setPriority(data.priority);
           setGoalId(data.GoalId || "");
+
+          // La meta actual puede estar completada y por eso fuera del catálogo: la traemos para mostrarla
+          if (data.GoalId) {
+            try {
+              const currentGoal = await goalService.getGoalById(data.GoalId);
+              if (!cancelled && currentGoal) {
+                setCurrentGoalOption({
+                  id: currentGoal._id,
+                  title: currentGoal.title,
+                  status: currentGoal.status,
+                });
+              }
+            } catch (goalError) {
+              console.error("Error fetching current goal:", goalError);
+            }
+          }
 
           let formattedDate = "";
           if (data.dueDate) {
@@ -336,14 +378,14 @@ export default function TaskForm() {
           withDivider
         />
 
-        {!preselectedGoalId && goalCatalogs.length > 0 && (
+        {!preselectedGoalId && goalOptions.length > 0 && (
           <Select
             id="goalId"
             name="goalId"
             label="Meta relacionada (Opcional)"
             value={goalId}
             onChange={(e) => setGoalId(e.target.value)}
-            options={goalCatalogs}
+            options={goalOptions}
             placeholder="Sin meta asociada"
             disabled={loading}
             withDivider
