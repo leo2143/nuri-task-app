@@ -45,11 +45,14 @@ export const userService = {
    * POST /api/auth/google
    * @public
    */
-  googleLogin: async (code: string): Promise<IAuthResponse> => {
+  googleLogin: async (
+    code: string,
+    timezone?: string,
+  ): Promise<IAuthResponse> => {
     try {
       const response = await apiClient.post<ISuccessResponse<IAuthResponse>>(
         `${API_BASE_URL}/api/auth/google`,
-        { code },
+        { code, timezone },
       );
 
       return response.data.data!;
@@ -159,6 +162,26 @@ export const userService = {
       return response.data.data!;
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Sincroniza la zona horaria del usuario con la del dispositivo
+   * PUT /api/user/timezone
+   * El servidor descarta una zona inválida y responde igual con la guardada (updated: false).
+   * @requires validarToken
+   */
+  updateTimezone: async (
+    timezone: string,
+  ): Promise<{ timezone: string; updated: boolean }> => {
+    try {
+      const response = await apiClient.put<
+        ISuccessResponse<{ timezone: string; updated: boolean }>
+      >(`${API_BASE_URL}/api/user/timezone`, { timezone });
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error updating timezone:", error);
       throw error;
     }
   },
@@ -395,10 +418,14 @@ export const userService = {
     }
   },
 
-  verifyEmail: async (token: string): Promise<{ message: string; user?: IAuthResponse["user"] }> => {
+  verifyEmail: async (
+    token: string,
+    timezone?: string,
+  ): Promise<{ message: string; user?: IAuthResponse["user"] }> => {
     try {
       const response = await apiClient.get<ISuccessResponse<{ user: IAuthResponse["user"] }>>(
         `${API_BASE_URL}/api/users/verify-email/${token}`,
+        { params: timezone ? { timezone } : undefined },
       );
       return {
         message: response.data.message || "Email verificado",
