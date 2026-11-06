@@ -1,10 +1,18 @@
-import { createContext, useState, useCallback, useMemo, useEffect } from "react";
+import {
+  createContext,
+  useState,
+  useCallback,
+  useMemo,
+  useEffect,
+  useRef,
+} from "react";
 import type { ReactNode } from "react";
 import type { IAuthUser, IUserProfile } from "../interfaces";
 import { offlineStorage } from "../utils/offlineStorage";
 import { subscriptionService } from "../services/subscriptionService";
 import { userService } from "../services/userService";
 import { setSessionExpiredHandler } from "../config/axios";
+import { canonicalTimeZone, getDeviceTimeZone } from "../utils/timezone";
 
 export interface AuthState {
   user: IAuthUser | null;
@@ -24,6 +32,9 @@ export type AuthContextType = AuthState & AuthActions;
 
 const USER_STORAGE_KEY = "user";
 
+// Espera tras volver a la pestaña antes de comparar zonas, para no disparar un sync por cada cambio rápido de foco
+const TIMEZONE_SYNC_DEBOUNCE_MS = 1500;
+
 /**
  * Perfil de API → usuario de sesión (sin JWT).
  */
@@ -41,6 +52,7 @@ function toAuthUser(profile: IUserProfile): IAuthUser {
     onboardingCompleted: profile.onboardingCompleted,
     emailVerified: profile.emailVerified,
     hasPassword: profile.hasPassword,
+    timezone: profile.timezone ?? undefined,
   };
 }
 
@@ -61,6 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<IAuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const userRef = useRef<IAuthUser | null>(null);
+  // Último par usuario|zona del dispositivo que se intentó sincronizar: evita reintentos en bucle (solo en memoria)
+  const lastTimezoneAttemptRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     setSessionExpiredHandler(() => {
@@ -115,6 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     clearStoredUser();
     offlineStorage.clear();
+    lastTimezoneAttemptRef.current = null;
     setUser(null);
     setIsAuthenticated(false);
   }, []);
@@ -140,6 +160,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Error al refrescar suscripción:", error);
     }
   }, []);
+
+  // Sincroniza la zona del dispositivo con la del servidor. Compara las claves canónicas de ambas con el mismo Intl
+  // del navegador, así dos grafías de una misma zona (alias) nunca disparan un sync. Un valor del servidor que
+  // Intl no puede resolver cuenta como "distinto".
+  const syncTimezone = useCallback(async () => {
+    const currentUser = userRef.current;
+    if (!currentUser) return;
+
+    const deviceTimeZone = getDeviceTimeZone();
+    const deviceKey = canonicalTimeZone(deviceTimeZone);
+    if (!deviceTimeZone || !deviceKey) return;
+    if (deviceKey === canonicalTimeZone(currentUser.timezone)) return;
+
+    const attemptKey = `${currentUser._id}|${deviceKey}`;
+    if (lastTimezoneAttemptRef.current === attemptKey) return;
+    lastTimezoneAttemptRef.current = attemptKey;
+
+    try {
+      const { timezone } = await userService.updateTimezone(deviceTimeZone);
+      setUser((prevUser) => {
+        if (!prevUser || prevUser._id !== currentUser._id) return prevUser;
+        const updated: IAuthUser = { ...prevUser, timezone };
+        persistUser(updated);
+        return updated;
+      });
+    } catch (error) {
+      console.error("Error al sincronizar la zona horaria:", error);
+    }
+  }, []);
+
+  const userId = user?._id;
+  const storedTimezone = user?.timezone;
+
+  // Al hidratar o iniciar sesión, y cuando cambia la zona guardada
+  useEffect(() => {
+    if (!isAuthenticated || !userId) return;
+    void syncTimezone();
+  }, [isAuthenticated, userId, storedTimezone, syncTimezone]);
+
+  // Al volver a la pestaña, con debounce
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const handleVisibilityChange = () => {
+      clearTimeout(timer);
+      if (document.visibilityState !== "visible") return;
+      timer = setTimeout(() => void syncTimezone(), TIMEZONE_SYNC_DEBOUNCE_MS);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [isAuthenticated, syncTimezone]);
 
   const isPremium = !!user?.isAdmin || !!user?.subscription?.isActive;
 
