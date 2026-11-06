@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Button,
@@ -86,6 +86,8 @@ export default function GoalDetail() {
   const [reopenParentTitle, setReopenParentTitle] = useState<string | null>(
     null,
   );
+  // Evita que un doble toque en "+" dispare dos consultas del padre
+  const isPreparingReopenRef = useRef(false);
   const { handleError } = useHttpError();
 
   const taskFilterConfig: FilterConfig[] = useMemo(
@@ -377,17 +379,25 @@ export default function GoalDetail() {
    * Solo se nombra el padre directo, y solo si también está completado.
    */
   const handleRequestReopen = async () => {
-    if (!goal) return;
-    setReopenParentTitle(null);
-    if (goal.parentGoalId) {
-      try {
-        const parent = await goalService.getGoalById(goal.parentGoalId);
-        if (parent?.status === "completed") setReopenParentTitle(parent.title);
-      } catch (error) {
-        console.error("Error al consultar la meta padre:", error);
+    if (!goal || isPreparingReopenRef.current) return;
+    isPreparingReopenRef.current = true;
+    try {
+      setReopenParentTitle(null);
+      if (goal.parentGoalId) {
+        try {
+          const parent = await goalService.getGoalById(goal.parentGoalId);
+          if (parent?.status === "completed") {
+            setReopenParentTitle(parent.title);
+          }
+        } catch (error) {
+          // Sin el dato del padre no se puede garantizar la frase de cascada: el diálogo se muestra sin ella
+          console.error("Error al consultar la meta padre:", error);
+        }
       }
+      setIsReopenModalOpen(true);
+    } finally {
+      isPreparingReopenRef.current = false;
     }
-    setIsReopenModalOpen(true);
   };
 
   const handleConfirmReopen = async () => {
