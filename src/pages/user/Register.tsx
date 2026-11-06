@@ -6,6 +6,7 @@ import Alert from "../../components/Alert";
 import Loading from "../../components/Loading";
 import { useAppNavigate, useAuthActions, useField, useHttpError } from "../../hooks";
 import { Button, Input, TramaHeader } from "../../components/ui";
+import { getDeviceTimeZone } from "../../utils/timezone";
 import {
   isConflictResponse,
   isBadRequestResponse,
@@ -111,11 +112,13 @@ export default function Register() {
     setLoading(true);
 
     try {
-      // 3. Preparar datos del usuario
+      // 3. Preparar datos del usuario (con la zona horaria del dispositivo)
+      const timezone = getDeviceTimeZone() ?? undefined;
       const userData: ICreateUser = {
         name: name.value,
         email: email.value,
         password: password.value,
+        timezone,
       };
 
       const { emailSent } = await userService.createUser(userData);
@@ -123,6 +126,7 @@ export default function Register() {
       const authResponse = await userService.login({
         email: email.value,
         password: password.value,
+        timezone,
       });
       authLogin(authResponse.user);
       navigate(emailSent ? "/" : "/verify-email-pending", { replace: true });

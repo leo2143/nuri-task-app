@@ -4,6 +4,7 @@ import { Button, TramaHeader } from "../../components/ui";
 import Loading from "../../components/Loading";
 import { useAppNavigate, useAuthActions } from "../../hooks";
 import { userService } from "../../services/userService";
+import { getDeviceTimeZone } from "../../utils/timezone";
 import { nuriAlegre, nuriTriste } from "../../assets/ilustrations";
 
 type VerifyState = "loading" | "success" | "error";
@@ -28,7 +29,10 @@ export default function VerifyEmail() {
 
     const verify = async () => {
       try {
-        const result = await userService.verifyEmail(token);
+        const result = await userService.verifyEmail(
+          token,
+          getDeviceTimeZone() ?? undefined,
+        );
         if (result.user) {
           login(result.user);
         }
