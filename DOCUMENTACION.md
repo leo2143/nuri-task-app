@@ -271,7 +271,7 @@ Los servicios concatenan `${API_BASE_URL}/api/...` aunque Axios ya tiene `baseUR
 |----------|-----------------|-------------------|
 | `userService` | Auth, perfil, admin users, email/password | `/api/users/*`, `/api/user/*`, `/api/auth/google`, `/api/admin/users/*` |
 | `todoService` | CRUD tareas, estado, comentarios | `/api/todos/*`, `/api/goals/:goalId/todos` |
-| `goalService` | CRUD metas, submetas, catálogo, status | `/api/goals/*` |
+| `goalService` | CRUD metas, submetas, catálogo (`excludeCompleted`, `excludeRelatedTo`), status, reabrir | `/api/goals/*` |
 | `achievementService` | Plantillas (admin) | `/api/achievements/*` |
 | `userAchievementService` | Progreso del usuario | `GET /api/user/achievements` |
 | `metricsService` | Dashboard admin, métricas, racha | `/api/admin/dashboard`, `/api/metrics`, `/api/metrics/current-streak` |
@@ -332,7 +332,7 @@ No existe `components/features/` (aparece en convenciones viejas). Hay **design 
 
 Controles: `Button`, `ButtonLink`, `Input`, `TextArea`, `Select`, `InputFilter`, `CustomCheckbox`, `ToggleSwitch`, `Spinner`.
 
-Feedback: `ConfirmModal` (`<dialog class="nuri-dialog">`), `BottomSheet`, `FilterBottomSheet`, `Badge`, `StatusBadge`, `ProgressBar`, `Alert` (en `components/`).
+Feedback: `ConfirmModal` (`<dialog class="nuri-dialog">`; variantes `danger`, `warning`, `success` y `reopen`), `BottomSheet`, `FilterBottomSheet`, `Badge`, `StatusBadge`, `ProgressBar`, `Alert` (en `components/`).
 
 Navegación/marca: `TramaHeader`, `TabGroup`, `Avatar`, `IconWrapper`.
 
@@ -381,11 +381,11 @@ Paywall: `SubscriptionPlan`. Acción flotante: `ActionSelect`.
 |---------|------|----------|-------|
 | Home | `/` | Tabs metas/tareas recientes, toggle completar, banner push | `goalService`, `todoService`, `useNotifications` |
 | TaskList | `/tasks` | Lista filtrable + cursor | `useFilterableList` + `todoService` |
-| taskForm | new / edit | CRUD; no edita locked | `todoService`, `goalService`, `useUnsavedChanges` |
+| taskForm | new / edit | CRUD; no edita locked; el selector de meta no lista metas completadas y se oculta si no hay | `todoService`, `goalService`, `useUnsavedChanges` |
 | GoalList | `/goals` | Lista filtrable | `useFilterableList` + `goalService` |
-| GoalDetail | `/goals/:id` | Tabs tareas/submetas, status | `useFetchByIdOffline`, `goalService`, `todoService` |
+| GoalDetail | `/goals/:id` | Tabs tareas/submetas, status; meta completada = solo lectura + reapertura | `useFetchByIdOffline`, `goalService`, `todoService` |
 | GoalForm | new / edit | CRUD meta | `goalService`, `useUnsavedChanges` |
-| GoalSubGoalForm | `.../subgoal` | Crear submeta | `goalService` |
+| GoalSubGoalForm | `.../subgoal` | Asociar una meta existente; lista completadas con badge y excluye la meta actual, sus ancestros y descendientes | `goalService` |
 | Achievements | `/achievements` | Grid por tier | `useFetchListOffline` + `userAchievementService` |
 | UserProfile | `/profile` | Avatar, push, suscripción | `useFetchData`, `useCloudinaryUpload`, `subscriptionService` |
 | Moodboard | `/moodboard` | CRUD imágenes (premium) | `moodboardService` + `offlineStorage` |
@@ -394,6 +394,16 @@ Paywall: `SubscriptionPlan`. Acción flotante: `ActionSelect`.
 | Subscription | `/subscription` | `SubscriptionPlan` | — |
 | SubscriptionCallback | `/callback` | Poll `refreshSubscription` | Auth |
 | SubscriptionSuccess | `/success` | Confirmación | — |
+
+### Metas completadas y reapertura
+
+Una meta `completed` es de solo lectura para su contenido; el API es la fuente de verdad (responde 409 antes de cualquier escritura) y la app solo lo refleja:
+
+- `TaskCard` recibe `isReadOnly` desde `GoalDetail`: el checkbox y el botón "Hecho" quedan bloqueados. Editar título, descripción, fecha y prioridad de la meta sigue permitido.
+- En una meta completada, el "+" de cada pestaña y "Asociar Meta" abren el diálogo "¿La reabrimos?" (`ConfirmModal` variante `reopen`) en lugar de ir al formulario. "Reabrir" llama a `goalService.reopenGoal` (`POST /api/goals/:id/reopen`) y refresca la meta; "Ahora no" cierra sin cambios.
+- Si el padre directo también está completado, el API lo reabre en cascada y el diálogo lo nombra. Solo se nombra el padre directo.
+- Un 409 al sumar tareas o submetas (por ejemplo desde una PWA vieja) se muestra con el mensaje del servidor. El 409 de ciclo ("una ya forma parte de la otra") se muestra en un popup con el botón "Entendido".
+- `ITodo.completedAt` trae la hora del servidor de la completación. `IUpdateTodo` ya no tiene `completed`: completar se hace solo con `todoservice.updateTodoState`.
 
 ### Admin
 
