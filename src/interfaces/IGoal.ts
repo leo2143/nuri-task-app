@@ -19,6 +19,26 @@ export type GoalPriority = "low" | "medium" | "high";
 export interface IGoalCatalog {
   id?: string;
   title: string;
+  status: GoalStatus;
+}
+
+/**
+ * Parámetros del catálogo de metas
+ * - excludeCompleted: oculta las metas completadas
+ * - excludeRelatedTo: oculta esa meta, sus ancestros y sus descendientes
+ */
+export interface IGoalCatalogParams {
+  excludeCompleted?: boolean;
+  excludeRelatedTo?: string;
+}
+
+/**
+ * Resultado de reabrir una meta completada
+ * cascaded lista los IDs de los ancestros completados que también se reabrieron
+ */
+export interface IReopenGoalResult {
+  goal: IGoal;
+  cascaded: string[];
 }
 
 /**

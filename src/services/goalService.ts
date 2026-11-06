@@ -5,6 +5,8 @@ import type {
   ISuccessResponse,
   ICreateGoal,
   IGoalCatalog,
+  IGoalCatalogParams,
+  IReopenGoalResult,
   IAddSubGoal,
   IGoalFilters,
   ITodo,
@@ -216,6 +218,24 @@ export const goalService = {
     }
   },
   /**
+   * Reabrir una meta completada (reabre también los ancestros completados)
+   * POST /api/goals/:id/reopen
+   * @requires Bearer Token
+   * Responde 409 si la meta no está completada
+   */
+  reopenGoal: async (id: string): Promise<IReopenGoalResult> => {
+    try {
+      const response = await apiClient.post<
+        ISuccessResponse<IReopenGoalResult>
+      >(`${API_BASE_URL}/api/goals/${id}/reopen`);
+      return response.data.data!;
+    } catch (error) {
+      console.error(`Error reopening goal ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /**
    * Agrega una submeta a una meta padre
    * patch /api/goals/:id
    * @requires Bearer Token
@@ -249,17 +269,29 @@ export const goalService = {
 
   /**
    * Obtener todas los catalogos de metas
-   * GET /api/goals/catalogs
+   * GET /api/goals/catalogs?excludeCompleted=&excludeRelatedTo=
    * @requires Bearer Token
    */
-  getCatalogGoals: async (): Promise<IGoalCatalog[]> => {
+  getCatalogGoals: async (
+    params?: IGoalCatalogParams,
+  ): Promise<IGoalCatalog[]> => {
     try {
-      const response = await apiClient.get<ISuccessResponse<IGoalCatalog[]>>(
-        `${API_BASE_URL}/api/goals/catalogs`,
-      );
+      const query = new URLSearchParams();
+      if (params?.excludeCompleted) query.append("excludeCompleted", "true");
+      if (params?.excludeRelatedTo) {
+        query.append("excludeRelatedTo", params.excludeRelatedTo);
+      }
+
+      const queryString = query.toString();
+      const url = queryString
+        ? `${API_BASE_URL}/api/goals/catalogs?${queryString}`
+        : `${API_BASE_URL}/api/goals/catalogs`;
+
+      const response =
+        await apiClient.get<ISuccessResponse<IGoalCatalog[]>>(url);
       return response.data.data || [];
     } catch (error) {
-      console.error("Error fetching paused goals:", error);
+      console.error("Error fetching goal catalog:", error);
       throw error;
     }
   },
