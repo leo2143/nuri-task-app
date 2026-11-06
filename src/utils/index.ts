@@ -4,5 +4,8 @@
 
 export * from "./typeGuards";
 export * from "./formatRelativeTime";
+export * from "./formatDateInZone";
+export * from "./timezone";
+export * from "./getTaskCompletionInstant";
 export * from "./canCloseGoal";
 export * from "./goalFilterConfig";
