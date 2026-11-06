@@ -91,7 +91,9 @@ export default function TaskForm() {
       try {
         setLoading(true);
         clearError();
-        const data = await goalService.getCatalogGoals();
+        const data = await goalService.getCatalogGoals({
+          excludeCompleted: true,
+        });
 
         if (cancelled) return;
         if (data) {
@@ -334,7 +336,7 @@ export default function TaskForm() {
           withDivider
         />
 
-        {!preselectedGoalId && (
+        {!preselectedGoalId && goalCatalogs.length > 0 && (
           <Select
             id="goalId"
             name="goalId"
