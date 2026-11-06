@@ -14,6 +14,8 @@ export default function GoalSubGoalForm() {
   const { handleError, clearError } = useHttpError();
   const [loading, setLoading] = useState(false);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
+  // Evita mostrar el estado vacío antes de que termine la primera consulta
+  const [catalogFetched, setCatalogFetched] = useState(false);
 
   // Estados para modales
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -65,6 +67,7 @@ export default function GoalSubGoalForm() {
         }
 
         setGoalCatalogs(catalogData);
+        setCatalogFetched(true);
       } catch (err) {
         if (cancelled) return;
         console.error("Error fetching data:", err);
@@ -159,6 +162,11 @@ export default function GoalSubGoalForm() {
       </div>
 
       <form onSubmit={handleSubmit} noValidate method="post">
+        {catalogFetched && goalOptions.length === 0 && (
+          <p className="text-center font-body text-base text-tertiary">
+            Todavía no hay otras metas para asociar.
+          </p>
+        )}
         {goalOptions.length > 0 && (
           <>
             <div>
