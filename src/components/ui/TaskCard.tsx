@@ -51,7 +51,9 @@ export function TaskCard({
   const [isDeleting, setIsDeleting] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
   const { user } = useAuth();
-  const formattedDueDate = useFormatDate(dueDate);
+  const formattedDueDate = useFormatDate(dueDate, {
+    kind: "calendarDate",
+  });
   const isDone = completed || isLocked;
   const canEdit = Boolean(id) && !isDone;
   const canDelete = Boolean(id) && (!isDone || Boolean(user?.isAdmin));

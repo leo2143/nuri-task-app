@@ -131,7 +131,9 @@ export default function GoalDetail() {
   const goal = localGoal;
   const isGoalCompleted = goal?.status === "completed";
 
-  const dueDate = useFormatDate(goal?.dueDate);
+  const dueDate = useFormatDate(goal?.dueDate, {
+    kind: "calendarDate",
+  });
 
   const goalId = fetchedGoal?._id;
 
