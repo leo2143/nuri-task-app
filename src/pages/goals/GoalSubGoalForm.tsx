@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 import { Select, Button, ConfirmModal, GoalCard } from "../../components/ui";
 import type { IGoal, IGoalCatalog, IAddSubGoal } from "../../interfaces";
 import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
+import { isConflictError } from "../../hooks/useHttpError";
 import { goalService } from "../../services/goalService";
 import { arrowsUpDown } from "../../assets/svg-icons";
 
@@ -18,6 +19,7 @@ export default function GoalSubGoalForm() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [isConflictModal, setIsConflictModal] = useState(false);
 
   const pageTitle = "Asociar Metas";
 
@@ -54,7 +56,7 @@ export default function GoalSubGoalForm() {
 
         const [parentGoalData, catalogData] = await Promise.all([
           id ? goalService.getGoalById(id) : Promise.resolve(null),
-          goalService.getCatalogGoals(),
+          goalService.getCatalogGoals({ excludeRelatedTo: id }),
         ]);
 
         if (cancelled) return;
@@ -62,8 +64,7 @@ export default function GoalSubGoalForm() {
           setParentGoal(parentGoalData);
         }
 
-        const filteredData = id ? catalogData.filter((goal) => goal.id !== id) : catalogData;
-        setGoalCatalogs(filteredData);
+        setGoalCatalogs(catalogData);
       } catch (err) {
         if (cancelled) return;
         console.error("Error fetching data:", err);
@@ -77,6 +78,17 @@ export default function GoalSubGoalForm() {
     };
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // La meta completada se puede asociar: se muestra con su etiqueta en la lista
+  const goalOptions = useMemo(
+    () =>
+      goalCatalogs.map((catalogGoal) => ({
+        id: catalogGoal.id,
+        title: catalogGoal.title,
+        badge: catalogGoal.status === "completed" ? "Completada" : undefined,
+      })),
+    [goalCatalogs],
+  );
+
   // Handlers para modales
   const handleSuccessModalClose = () => {
     setIsSuccessModalOpen(false);
@@ -85,6 +97,7 @@ export default function GoalSubGoalForm() {
 
   const handleErrorModalClose = () => {
     setIsErrorModalOpen(false);
+    setIsConflictModal(false);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -110,8 +123,15 @@ export default function GoalSubGoalForm() {
       setModalMessage("¡Metas asociadas exitosamente!");
       setIsSuccessModalOpen(true);
     } catch (err) {
-      handleError(err);
-      setModalMessage("No pudimos asociar las metas, ¿podés intentar de nuevo?");
+      const serverMessage = handleError(err);
+      // 409: la meta ya está completada o una ya forma parte de la otra. Mostramos el motivo del servidor.
+      const isConflict = isConflictError(err);
+      setIsConflictModal(isConflict);
+      setModalMessage(
+        isConflict
+          ? serverMessage
+          : "No pudimos asociar las metas, ¿podés intentar de nuevo?",
+      );
       setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
@@ -139,28 +159,32 @@ export default function GoalSubGoalForm() {
       </div>
 
       <form onSubmit={handleSubmit} noValidate method="post">
-        <div>
-          <Select
-            id="goalId"
-            name="goalId"
-            label="Elegí la meta que querés asociar"
-            value={goalId}
-            onChange={(e) => setGoalId(e.target.value)}
-            options={goalCatalogs}
-            placeholder="Sin meta asociada"
-            disabled={loading}
-          />
-        </div>
+        {goalOptions.length > 0 && (
+          <>
+            <div>
+              <Select
+                id="goalId"
+                name="goalId"
+                label="Elegí la meta que querés asociar"
+                value={goalId}
+                onChange={(e) => setGoalId(e.target.value)}
+                options={goalOptions}
+                placeholder="Sin meta asociada"
+                disabled={loading}
+              />
+            </div>
 
-        <Button
-          className="mt-8"
-          fullWidth
-          variant="primary"
-          type="submit"
-          ariaLabel="Asociar"
-        >
-          Asociar
-        </Button>
+            <Button
+              className="mt-8"
+              fullWidth
+              variant="primary"
+              type="submit"
+              ariaLabel="Asociar"
+            >
+              Asociar
+            </Button>
+          </>
+        )}
       </form>
 
       {/* Modal de confirmación de navegación (cambios sin guardar) */}
@@ -196,7 +220,7 @@ export default function GoalSubGoalForm() {
         onConfirm={handleErrorModalClose}
         title="¡Ups!"
         message={modalMessage}
-        confirmText="Aceptar"
+        confirmText={isConflictModal ? "Entendido" : "Aceptar"}
         cancelText=""
         variant="danger"
         loading={false}

@@ -13,6 +13,17 @@ export function isNotFoundError(err: unknown): boolean {
 }
 
 /**
+ * Verifica si un error es un 409 (conflicto con el estado actual del recurso)
+ */
+export function isConflictError(err: unknown): boolean {
+  if (err && typeof err === "object" && "response" in err) {
+    const axiosError = err as AxiosError;
+    return axiosError.response?.status === 409;
+  }
+  return false;
+}
+
+/**
  * Hook para manejar errores HTTP de forma centralizada
  */
 export function useHttpError() {
