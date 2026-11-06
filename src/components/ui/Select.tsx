@@ -5,6 +5,8 @@ import { chevronDown } from "../../assets/svg-icons";
 export interface SelectOption {
   id?: string;
   title: string;
+  /** Etiqueta opcional junto al título dentro de la lista (p. ej. "Completada") */
+  badge?: string;
 }
 
 export interface SelectProps
@@ -232,7 +234,18 @@ export default function Select({
                   onClick={() => handleOptionClick(option.id || "")}
                   className={optionStyles(value === option.id)}
                 >
-                  {option.title}
+                  {option.badge ? (
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="min-w-0 break-words">
+                        {option.title}
+                      </span>
+                      <span className="shrink-0 rounded-full bg-blue-100 px-3 py-0.5 text-xs font-bold text-blue-800">
+                        {option.badge}
+                      </span>
+                    </span>
+                  ) : (
+                    option.title
+                  )}
                 </li>
               ))}
             </ul>
