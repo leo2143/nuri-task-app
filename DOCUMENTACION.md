@@ -238,6 +238,14 @@ Al montar `AuthProvider`:
 3. Si hay perfil → `persistUser` + estado autenticado.
 4. Si 401 → `null`, sin redirigir (puede estar en `/login`).
 
+### Zona horaria
+
+El usuario tiene una zona IANA guardada en el API (`user.timezone`). La app **no** tiene selector: manda la del dispositivo (`Intl.DateTimeFormat().resolvedOptions().timeZone`, `getDeviceTimeZone`) en login, registro, Google y verify-email, y `AuthProvider` la mantiene sincronizada:
+
+- Al hidratar/iniciar sesión y, con debounce de 1,5 s, al volver a la pestaña (`visibilitychange`), compara la clave canónica del dispositivo con la del servidor (`canonicalTimeZone`: `new Intl.DateTimeFormat(undefined, { timeZone }).resolvedOptions().timeZone`, evaluada en el mismo navegador). Si difieren, o si el valor del servidor falta o `Intl` lo rechaza, llama `PUT /api/user/timezone`. Dos grafías de una misma zona (alias) dan la misma clave y no generan requests.
+- Un guardia en memoria (`usuario|zona del dispositivo`) evita reintentar en bucle, por ejemplo si el servidor descarta una zona como `UTC` y responde con la guardada. No hay caché en `localStorage`.
+- **Formato de fechas.** `useFormatDate` y `formatRelativeTime` distinguen dos tipos: *instante* (por defecto; `createdAt`, `completedAt`) se muestra en la zona del usuario, y *calendarDate* (`{ kind: "calendarDate" }`; `dueDate`, guardada a las 12:00Z) se muestra como el día guardado, sin corrimiento en ninguna zona. La zona entra en las dependencias del `useMemo`. `getTaskCompletionInstant` devuelve `completedAt ?? updatedAt` para las tareas legacy; hoy ninguna pantalla muestra la fecha de completado.
+
 ### 401 coordinado
 
 1. Interceptor Axios: borra `localStorage.user`, llama `sessionExpiredHandler`, luego `unauthorizedHandler` (salvo el skip).
