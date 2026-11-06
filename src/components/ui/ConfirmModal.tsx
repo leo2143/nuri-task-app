@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "./Button";
-import { nuriAlegreOjos, nuriError, nuriWarning } from "../../assets/ilustrations";
+import {
+  nuriAlegreOjos,
+  nuriError,
+  nuriReabrir,
+  nuriWarning,
+} from "../../assets/ilustrations";
 import { close } from "../../assets/svg-icons";
 
 interface ConfirmModalProps {
@@ -11,7 +16,7 @@ interface ConfirmModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: "danger" | "warning" | "success";
+  variant?: "danger" | "warning" | "success" | "reopen";
   loading?: boolean;
 }
 
@@ -19,18 +24,21 @@ const illustrationMap = {
   danger: nuriError,
   warning: nuriWarning,
   success: nuriAlegreOjos,
+  reopen: nuriReabrir,
 } as const;
 
 const borderColorMap = {
   danger: "border-[#962F2F]",
   warning: "border-[#FFDB25]",
   success: "border-primary",
+  reopen: "border-primary",
 } as const;
 
 const glowMap = {
   danger: "shadow-[inset_0_0_20px_8px_rgba(150,47,47,0.2)]",
   warning: "shadow-[inset_0_0_20px_8px_rgba(255,219,37,0.2)]",
   success: "shadow-[inset_0_0_20px_8px_rgba(47,150,133,0.2)]",
+  reopen: "shadow-[inset_0_0_20px_8px_rgba(47,150,133,0.2)]",
 } as const;
 
 export default function ConfirmModal({
@@ -49,7 +57,9 @@ export default function ConfirmModal({
   const [shouldRender, setShouldRender] = useState(false);
 
   const illustration = illustrationMap[variant];
-  const hasCancel = Boolean(cancelText) && (variant === "warning" || variant === "success");
+  const hasCancel =
+    Boolean(cancelText) &&
+    (variant === "warning" || variant === "success" || variant === "reopen");
   const isSuccessPrompt = variant === "success" && hasCancel;
   const borderColor = isSuccessPrompt ? "border-[#2A9D8F]" : borderColorMap[variant];
   const glow = isSuccessPrompt
