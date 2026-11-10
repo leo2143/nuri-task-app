@@ -10,7 +10,12 @@ import type {
   ITodo,
   TodoPriority,
 } from "../../interfaces";
-import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
+import {
+  useAppNavigate,
+  useHttpError,
+  useToastActions,
+  useUnsavedChanges,
+} from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import { Input, Select, TextArea } from "../../components/ui";
 import Loading from "../../components/Loading";
@@ -22,6 +27,7 @@ export default function TaskForm() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const { handleError, clearError } = useHttpError();
+  const { notifyCompletion } = useToastActions();
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<ITodo | null>(null);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
@@ -292,7 +298,8 @@ export default function TaskForm() {
       };
 
       if (isEditMode) {
-        await todoservice.updateTodo(id!, taskData);
+        const { events } = await todoservice.updateTodo(id!, taskData);
+        notifyCompletion(events);
         setModalMessage("¡Tarea actualizada exitosamente!");
       } else {
         await todoservice.createTodo(taskData);

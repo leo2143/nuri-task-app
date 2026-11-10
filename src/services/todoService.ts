@@ -151,15 +151,23 @@ export const todoservice = {
   /**
    * Actualizar una tarea existente
    * PUT /api/todos/:id
+   * Devuelve también los eventos: mover la tarea de una meta a otra puede desbloquear logros.
    * @requires Bearer Token
    */
-  updateTodo: async (id: string, TodoData: IUpdateTodo): Promise<ITodo> => {
+  updateTodo: async (
+    id: string,
+    TodoData: IUpdateTodo,
+  ): Promise<IWithCompletionEvents<ITodo>> => {
     try {
-      const response = await apiClient.put<ISuccessResponse<ITodo>>(
-        `${API_BASE_URL}/api/todos/${id}`,
-        TodoData,
-      );
-      return response.data.data!;
+      const response = await apiClient.put<
+        ISuccessResponse<ITodo> & {
+          meta: { events?: ICompletionEvents } | null;
+        }
+      >(`${API_BASE_URL}/api/todos/${id}`, TodoData);
+      return {
+        data: response.data.data!,
+        events: response.data.meta?.events ?? EMPTY_COMPLETION_EVENTS,
+      };
     } catch (error) {
       console.error(`Error updating Todo ${id}:`, error);
       throw error;
