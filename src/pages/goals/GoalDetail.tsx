@@ -385,9 +385,13 @@ export default function GoalDetail() {
     isPreparingReopenRef.current = true;
     try {
       setReopenParentTitle(null);
-      if (goal.parentGoalId) {
+      const parentId =
+        typeof goal.parentGoalId === "string"
+          ? goal.parentGoalId
+          : goal.parentGoalId?._id;
+      if (parentId) {
         try {
-          const parent = await goalService.getGoalById(goal.parentGoalId);
+          const parent = await goalService.getGoalById(parentId);
           if (parent?.status === "completed") {
             setReopenParentTitle(parent.title);
           }

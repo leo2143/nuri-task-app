@@ -63,8 +63,20 @@ export interface IGoalUser {
 }
 
 /**
+ * Meta padre poblada por el backend: GET /api/goals (lista) trae { _id, title } y
+ * GET /api/goals/:id (detalle) trae { _id, description }
+ */
+export interface IGoalParent {
+  _id: string;
+  title?: string;
+  description?: string;
+}
+
+/**
  * Interface para el modelo de Goal
  * NOTA: userId puede venir como string (lista) o como objeto poblado (detalle)
+ * NOTA: parentGoalId viene poblado (IGoalParent) en lista y detalle; en el resto de
+ * respuestas (crear, actualizar, estado, reabrir) llega como id. null si no tiene padre
  */
 export interface IGoal {
   _id?: string;
@@ -74,7 +86,7 @@ export interface IGoal {
   status: GoalStatus;
   priority: GoalPriority;
   dueDate: Date | string | null;
-  parentGoalId?: string | null;
+  parentGoalId?: string | IGoalParent | null;
   totalSubGoals: number;
   completedSubGoals: number;
   totalTasks: number;
