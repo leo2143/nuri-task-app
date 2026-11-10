@@ -6,6 +6,7 @@ export { useFormatDate } from "./useFormatDate";
 export type { FormattedDateResult } from "./useFormatDate";
 export { useCloudinaryUpload } from "./useCloudinaryUpload";
 export { useUnsavedChanges } from "./useUnsavedChanges";
+export { useGoalLimit } from "./useGoalLimit";
 
 export { useFetchById, useFetchList, useFetchData } from "./useFetch";
 export type {

@@ -2,16 +2,15 @@ import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ButtonLink, GoalCard } from "../../components/ui";
 import type { IGoal, IGoalFilters, FilterValues, GoalStatus, GoalPriority } from "../../interfaces";
-import { useFilterableList, useAuth } from "../../hooks";
+import { useFilterableList, useGoalLimit } from "../../hooks";
 import { goalService } from "../../services/goalService";
 import FilterableList from "../../components/FilterableList";
 import { goalFilterConfig } from "../../utils/goalFilterConfig";
 
 const ITEMS_PER_PAGE = 5;
-const FREE_GOALS_LIMIT = 2;
 
 export default function GoalList() {
-  const { isPremium } = useAuth();
+  const { quota, limitReached } = useGoalLimit();
   const [searchParams] = useSearchParams();
 
   const initialFilters = useMemo(() => {
@@ -48,9 +47,6 @@ export default function GoalList() {
     initialFilters,
   });
 
-  const totalGoals = filterableList.data?.length ?? 0;
-  const reachedFreeLimit = !isPremium && totalGoals >= FREE_GOALS_LIMIT;
-
   const renderGoalItem = (goal: IGoal) => (
     <GoalCard
       key={goal._id}
@@ -72,10 +68,11 @@ export default function GoalList() {
           Organizá tus metas y avanzá paso a paso
         </p>
 
-        {reachedFreeLimit ? (
+        {limitReached ? (
           <div className="flex flex-col gap-3 rounded-xl bg-brand/10 border border-brand/30 p-4 text-center">
             <p className="text-sm text-tertiary font-body">
-              Llegaste al límite de <strong>{FREE_GOALS_LIMIT} metas</strong> del plan gratuito.
+              Llegaste al límite de <strong>{quota?.limit} metas</strong> del
+              plan gratuito.
             </p>
             <ButtonLink to="/subscription" variant="primary" fullWidth>
               Desbloquear metas ilimitadas
