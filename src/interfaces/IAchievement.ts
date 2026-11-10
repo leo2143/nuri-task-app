@@ -5,11 +5,48 @@
 
 export type AchievementType = "task" | "goal" | "metric" | "streak";
 
-/** Evento que dispara el progreso automático del logro */
-export type AchievementTriggerEvent =
-  | "task:completed"
-  | "goal:completed"
-  | "streak:updated";
+/**
+ * Evento que dispara el progreso automático del logro.
+ * Los eventos válidos los define el catálogo del backend (`GET /api/achievements/catalog`), no el cliente.
+ */
+export type AchievementTriggerEvent = string;
+
+/** Claves de condición que el admin puede configurar en un logro */
+export type AchievementConditionKey =
+  | "timeWindow"
+  | "sameWindow"
+  | "maxDurationHours";
+
+/** Franja horaria local del usuario en formato HH:mm; el fin no se incluye */
+export interface IAchievementTimeWindow {
+  start: string;
+  end: string;
+}
+
+/** Condiciones que el evento debe cumplir para sumar progreso */
+export interface IAchievementConditions {
+  timeWindow?: IAchievementTimeWindow;
+  sameWindow?: boolean;
+  maxDurationHours?: number;
+}
+
+/** Evento del catálogo con las condiciones que admite */
+export interface IAchievementCatalogTrigger {
+  triggerEvent: AchievementTriggerEvent;
+  allowedConditions: AchievementConditionKey[];
+}
+
+/** Respuesta de GET /api/achievements/catalog */
+export interface IAchievementCatalog {
+  triggers: IAchievementCatalogTrigger[];
+  types: AchievementType[];
+  conditionKeys: AchievementConditionKey[];
+}
+
+/** Respuesta de GET /api/achievements/:id/in-progress-count */
+export interface IAchievementInProgressCount {
+  inProgressCount: number;
+}
 
 /** basic: visible y desbloqueable por todos — premium: solo suscriptores */
 export type AchievementTier = "basic" | "premium";
@@ -21,6 +58,7 @@ export interface IAchievement {
   targetCount: number;
   type: AchievementType;
   triggerEvent: AchievementTriggerEvent;
+  conditions?: IAchievementConditions;
   tier: AchievementTier;
   isActive: boolean;
   imageUrl: string;
@@ -53,6 +91,7 @@ export interface ICreateAchievement {
   targetCount: number;
   type: AchievementType;
   triggerEvent: AchievementTriggerEvent;
+  conditions?: IAchievementConditions;
   tier?: AchievementTier;
   isActive?: boolean;
   imageUrl: string;
@@ -60,7 +99,8 @@ export interface ICreateAchievement {
 }
 
 /**
- * Interface para actualizar un logro (solo admin)
+ * Interface para actualizar un logro (solo admin).
+ * No lleva `tier`: el nivel de acceso es inmutable y el backend rechaza cualquier valor.
  */
 export interface IUpdateAchievement {
   title?: string;
@@ -68,7 +108,7 @@ export interface IUpdateAchievement {
   targetCount?: number;
   type?: AchievementType;
   triggerEvent?: AchievementTriggerEvent;
-  tier?: AchievementTier;
+  conditions?: IAchievementConditions;
   isActive?: boolean;
   imageUrl?: string;
   reward?: string;

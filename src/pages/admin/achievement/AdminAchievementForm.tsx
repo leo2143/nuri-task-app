@@ -240,7 +240,6 @@ export default function AdminAchievementForm() {
           targetCount: Number.parseInt(targetCount, 10),
           type,
           triggerEvent,
-          tier,
           isActive,
           imageUrl: imageUrl.trim(),
         };
