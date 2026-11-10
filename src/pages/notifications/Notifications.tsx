@@ -25,6 +25,7 @@ const TYPE_ICONS: Record<NotificationType, string> = {
   overdue_backlog: "/notifications/nuri-happy.svg",
   moodboard_nudge: "/notifications/nuri-happy.svg",
   premium_nag: "/notifications/nuri-happy.svg",
+  achievements_premium_summary: "/notifications/crown.svg",
 };
 
 function NotificationIcon({ type }: { type: NotificationType }) {

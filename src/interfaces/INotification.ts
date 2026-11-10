@@ -16,7 +16,8 @@ export type NotificationType =
   | "pause_too_long"
   | "overdue_backlog"
   | "moodboard_nudge"
-  | "premium_nag";
+  | "premium_nag"
+  | "achievements_premium_summary";
 
 export interface INotification {
   _id: string;
