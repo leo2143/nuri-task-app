@@ -5,6 +5,7 @@ import type {
   ISuccessResponse,
   ICreateGoal,
   IGoalCatalog,
+  IGoalQuota,
   IGoalCatalogParams,
   IReopenGoalResult,
   IAddSubGoal,
@@ -137,6 +138,23 @@ export const goalService = {
       return response.data.data;
     } catch (error) {
       console.error(`Error fetching goal ${id}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Obtener el cupo de metas del usuario
+   * GET /api/goals/quota
+   * @requires Bearer Token
+   */
+  getGoalQuota: async (): Promise<IGoalQuota> => {
+    try {
+      const response = await apiClient.get<ISuccessResponse<IGoalQuota>>(
+        `${API_BASE_URL}/api/goals/quota`,
+      );
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error fetching goal quota:", error);
       throw error;
     }
   },

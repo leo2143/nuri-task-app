@@ -16,7 +16,12 @@ import type {
   GoalPriority,
   IUpdateGoal,
 } from "../../interfaces";
-import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
+import {
+  useAppNavigate,
+  useGoalLimit,
+  useHttpError,
+  useUnsavedChanges,
+} from "../../hooks";
 import { goalService } from "../../services/goalService";
 import { validateMinLength } from "../../utils/validations";
 import Loading from "../../components/Loading";
@@ -31,6 +36,12 @@ export default function GoalForm() {
   const [parentGoal, setParentGoal] = useState<IGoal | null>(null);
   const isEditMode = !!id;
   const parentGoalId = !isEditMode ? searchParams.get("parentGoalId") : null;
+  const { limitReached } = useGoalLimit({ enabled: !isEditMode });
+
+  // Con el cupo agotado el alta no tiene sentido: se vuelve al listado, que muestra el aviso
+  useEffect(() => {
+    if (!isEditMode && limitReached) navigate("/goals", { replace: true });
+  }, [isEditMode, limitReached, navigate]);
 
   // Estados para modales
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);

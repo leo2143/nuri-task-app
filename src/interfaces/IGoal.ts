@@ -23,6 +23,17 @@ export interface IGoalCatalog {
 }
 
 /**
+ * Cupo de metas del usuario (GET /api/goals/quota)
+ * - limit: null cuando el usuario es Premium/admin (sin límite)
+ * - used: metas que cuentan hacia el límite (cualquier estado, submetas incluidas)
+ */
+export interface IGoalQuota {
+  limit: number | null;
+  used: number;
+  canCreate: boolean;
+}
+
+/**
  * Parámetros del catálogo de metas
  * - excludeCompleted: oculta las metas completadas
  * - excludeRelatedTo: oculta esa meta, sus ancestros y sus descendientes
