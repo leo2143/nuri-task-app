@@ -10,7 +10,12 @@ import type {
   ITodo,
   TodoPriority,
 } from "../../interfaces";
-import { useAppNavigate, useHttpError, useUnsavedChanges } from "../../hooks";
+import {
+  useAppNavigate,
+  useHttpError,
+  useToastActions,
+  useUnsavedChanges,
+} from "../../hooks";
 import { todoservice } from "../../services/todoService";
 import { Input, Select, TextArea } from "../../components/ui";
 import Loading from "../../components/Loading";
@@ -22,10 +27,14 @@ export default function TaskForm() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const { handleError, clearError } = useHttpError();
+  const { notifyCompletion } = useToastActions();
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<ITodo | null>(null);
   const [goalCatalogs, setGoalCatalogs] = useState<IGoalCatalog[]>([]);
   const [associatedGoal, setAssociatedGoal] = useState<IGoal | null>(null);
+  // Meta actual de la tarea en modo edición (puede estar completada y fuera del catálogo)
+  const [currentGoalOption, setCurrentGoalOption] =
+    useState<IGoalCatalog | null>(null);
 
   // Estados para modales
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -68,6 +77,29 @@ export default function TaskForm() {
     goalId,
   }), [title, description, priority, dueDate, goalId]);
 
+  // Opciones del selector: el catálogo oculta metas completadas, salvo la meta actual de la tarea en edición
+  const goalOptions = useMemo(() => {
+    const catalogOptions = goalCatalogs.map((catalogGoal) => ({
+      id: catalogGoal.id,
+      title: catalogGoal.title,
+    }));
+    if (
+      !currentGoalOption ||
+      catalogOptions.some((option) => option.id === currentGoalOption.id)
+    ) {
+      return catalogOptions;
+    }
+    return [
+      {
+        id: currentGoalOption.id,
+        title: currentGoalOption.title,
+        badge:
+          currentGoalOption.status === "completed" ? "Completada" : undefined,
+      },
+      ...catalogOptions,
+    ];
+  }, [goalCatalogs, currentGoalOption]);
+
   // Hook para detectar cambios sin guardar
   const {
     isBlocked,
@@ -91,7 +123,9 @@ export default function TaskForm() {
       try {
         setLoading(true);
         clearError();
-        const data = await goalService.getCatalogGoals();
+        const data = await goalService.getCatalogGoals({
+          excludeCompleted: true,
+        });
 
         if (cancelled) return;
         if (data) {
@@ -131,6 +165,22 @@ export default function TaskForm() {
           setDescription(data.description || "");
           setPriority(data.priority);
           setGoalId(data.GoalId || "");
+
+          // La meta actual puede estar completada y por eso fuera del catálogo: la traemos para mostrarla
+          if (data.GoalId) {
+            try {
+              const currentGoal = await goalService.getGoalById(data.GoalId);
+              if (!cancelled && currentGoal) {
+                setCurrentGoalOption({
+                  id: currentGoal._id,
+                  title: currentGoal.title,
+                  status: currentGoal.status,
+                });
+              }
+            } catch (goalError) {
+              console.error("Error fetching current goal:", goalError);
+            }
+          }
 
           let formattedDate = "";
           if (data.dueDate) {
@@ -248,7 +298,8 @@ export default function TaskForm() {
       };
 
       if (isEditMode) {
-        await todoservice.updateTodo(id!, taskData);
+        const { events } = await todoservice.updateTodo(id!, taskData);
+        notifyCompletion(events);
         setModalMessage("¡Tarea actualizada exitosamente!");
       } else {
         await todoservice.createTodo(taskData);
@@ -334,14 +385,14 @@ export default function TaskForm() {
           withDivider
         />
 
-        {!preselectedGoalId && (
+        {!preselectedGoalId && goalOptions.length > 0 && (
           <Select
             id="goalId"
             name="goalId"
             label="Meta relacionada (Opcional)"
             value={goalId}
             onChange={(e) => setGoalId(e.target.value)}
-            options={goalCatalogs}
+            options={goalOptions}
             placeholder="Sin meta asociada"
             disabled={loading}
             withDivider

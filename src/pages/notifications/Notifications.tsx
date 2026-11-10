@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Loading from "../../components/Loading";
-import { useAppNavigate } from "../../hooks";
+import { useAppNavigate, useAuthState } from "../../hooks";
 import StateMessage from "../../components/StateMessage";
 import { notificationApiService } from "../../services/notificationApiService";
 import { formatRelativeTime } from "../../utils";
@@ -25,6 +25,7 @@ const TYPE_ICONS: Record<NotificationType, string> = {
   overdue_backlog: "/notifications/nuri-happy.svg",
   moodboard_nudge: "/notifications/nuri-happy.svg",
   premium_nag: "/notifications/nuri-happy.svg",
+  achievements_premium_summary: "/notifications/crown.svg",
 };
 
 function NotificationIcon({ type }: { type: NotificationType }) {
@@ -40,6 +41,7 @@ function NotificationIcon({ type }: { type: NotificationType }) {
 
 export default function Notifications() {
   const navigate = useAppNavigate();
+  const { user } = useAuthState();
   const [notifications, setNotifications] = useState<INotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -142,7 +144,7 @@ export default function Notifications() {
                       {notif.body}
                     </p>
                     <span className="font-body text-xs text-gray-400 mt-1 block">
-                      {formatRelativeTime(notif.createdAt)}
+                      {formatRelativeTime(notif.createdAt, { timeZone: user?.timezone })}
                     </span>
                   </div>
                 </button>

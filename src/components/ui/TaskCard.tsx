@@ -21,6 +21,8 @@ interface TaskCardProps {
   goalTitle?: string | null;
   completed: boolean;
   isLocked?: boolean;
+  /** Bloquea el checkbox y el botón "Hecho" (p. ej. tareas dentro de una meta completada). */
+  isReadOnly?: boolean;
   dueDate?: Date | string | null;
   priority?: TodoPriority;
   onToggleComplete: (id: string, currentCompleted: boolean) => void;
@@ -36,6 +38,7 @@ export function TaskCard({
   goalTitle,
   completed,
   isLocked = false,
+  isReadOnly = false,
   dueDate,
   priority,
   onToggleComplete,
@@ -48,7 +51,9 @@ export function TaskCard({
   const [isDeleting, setIsDeleting] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
   const { user } = useAuth();
-  const formattedDueDate = useFormatDate(dueDate);
+  const formattedDueDate = useFormatDate(dueDate, {
+    kind: "calendarDate",
+  });
   const isDone = completed || isLocked;
   const canEdit = Boolean(id) && !isDone;
   const canDelete = Boolean(id) && (!isDone || Boolean(user?.isAdmin));
@@ -121,6 +126,7 @@ export function TaskCard({
             className="shrink-0"
             checked={completed}
             locked={isLocked}
+            disabled={isReadOnly}
             onChange={(e) => {
               e.stopPropagation();
               if (id) onToggleComplete(id, completed);
@@ -129,7 +135,9 @@ export function TaskCard({
             ariaLabel={
               isLocked
                 ? `Tarea "${title}" completada`
-                : `Marcar tarea "${title}" como ${completed ? "incompleta" : "completa"}`
+                : isReadOnly
+                  ? `Tarea "${title}" bloqueada porque la meta está completada`
+                  : `Marcar tarea "${title}" como ${completed ? "incompleta" : "completa"}`
             }
           />
         </div>
@@ -197,7 +205,7 @@ export function TaskCard({
             )}
           </div>
 
-          {!isDone && id && (
+          {!isDone && !isReadOnly && id && (
             <Button
               type="button"
               variant="primary"

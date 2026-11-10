@@ -238,6 +238,14 @@ Al montar `AuthProvider`:
 3. Si hay perfil → `persistUser` + estado autenticado.
 4. Si 401 → `null`, sin redirigir (puede estar en `/login`).
 
+### Zona horaria
+
+El usuario tiene una zona IANA guardada en el API (`user.timezone`). La app **no** tiene selector: manda la del dispositivo (`Intl.DateTimeFormat().resolvedOptions().timeZone`, `getDeviceTimeZone`) en login, registro, Google y verify-email, y `AuthProvider` la mantiene sincronizada:
+
+- Al hidratar/iniciar sesión y, con debounce de 1,5 s, al volver a la pestaña (`visibilitychange`), compara la clave canónica del dispositivo con la del servidor (`canonicalTimeZone`: `new Intl.DateTimeFormat(undefined, { timeZone }).resolvedOptions().timeZone`, evaluada en el mismo navegador). Si difieren, o si el valor del servidor falta o `Intl` lo rechaza, llama `PUT /api/user/timezone`. Dos grafías de una misma zona (alias) dan la misma clave y no generan requests.
+- Un guardia en memoria (`usuario|zona del dispositivo`) evita reintentar en bucle, por ejemplo si el servidor descarta una zona como `UTC` y responde con la guardada. No hay caché en `localStorage`.
+- **Formato de fechas.** `useFormatDate` y `formatRelativeTime` distinguen dos tipos: *instante* (por defecto; `createdAt`, `completedAt`) se muestra en la zona del usuario, y *calendarDate* (`{ kind: "calendarDate" }`; `dueDate`, guardada a las 12:00Z) se muestra como el día guardado, sin corrimiento en ninguna zona. La zona entra en las dependencias del `useMemo`.
+
 ### 401 coordinado
 
 1. Interceptor Axios: borra `localStorage.user`, llama `sessionExpiredHandler`, luego `unauthorizedHandler` (salvo el skip).
@@ -271,7 +279,7 @@ Los servicios concatenan `${API_BASE_URL}/api/...` aunque Axios ya tiene `baseUR
 |----------|-----------------|-------------------|
 | `userService` | Auth, perfil, admin users, email/password | `/api/users/*`, `/api/user/*`, `/api/auth/google`, `/api/admin/users/*` |
 | `todoService` | CRUD tareas, estado, comentarios | `/api/todos/*`, `/api/goals/:goalId/todos` |
-| `goalService` | CRUD metas, submetas, catálogo, status | `/api/goals/*` |
+| `goalService` | CRUD metas, submetas, catálogo (`excludeCompleted`, `excludeRelatedTo`), status, reabrir | `/api/goals/*` |
 | `achievementService` | Plantillas (admin) | `/api/achievements/*` |
 | `userAchievementService` | Progreso del usuario | `GET /api/user/achievements` |
 | `metricsService` | Dashboard admin, métricas, racha | `/api/admin/dashboard`, `/api/metrics`, `/api/metrics/current-streak` |
@@ -332,7 +340,7 @@ No existe `components/features/` (aparece en convenciones viejas). Hay **design 
 
 Controles: `Button`, `ButtonLink`, `Input`, `TextArea`, `Select`, `InputFilter`, `CustomCheckbox`, `ToggleSwitch`, `Spinner`.
 
-Feedback: `ConfirmModal` (`<dialog class="nuri-dialog">`), `BottomSheet`, `FilterBottomSheet`, `Badge`, `StatusBadge`, `ProgressBar`, `Alert` (en `components/`).
+Feedback: `ConfirmModal` (`<dialog class="nuri-dialog">`; variantes `danger`, `warning`, `success` y `reopen`), `BottomSheet`, `FilterBottomSheet`, `Badge`, `StatusBadge`, `ProgressBar`, `Alert` (en `components/`).
 
 Navegación/marca: `TramaHeader`, `TabGroup`, `Avatar`, `IconWrapper`.
 
@@ -381,12 +389,12 @@ Paywall: `SubscriptionPlan`. Acción flotante: `ActionSelect`.
 |---------|------|----------|-------|
 | Home | `/` | Tabs metas/tareas recientes, toggle completar, banner push | `goalService`, `todoService`, `useNotifications` |
 | TaskList | `/tasks` | Lista filtrable + cursor | `useFilterableList` + `todoService` |
-| taskForm | new / edit | CRUD; no edita locked | `todoService`, `goalService`, `useUnsavedChanges` |
+| taskForm | new / edit | CRUD; no edita locked; el selector de meta no lista metas completadas y se oculta si no hay | `todoService`, `goalService`, `useUnsavedChanges` |
 | GoalList | `/goals` | Lista filtrable | `useFilterableList` + `goalService` |
-| GoalDetail | `/goals/:id` | Tabs tareas/submetas, status | `useFetchByIdOffline`, `goalService`, `todoService` |
+| GoalDetail | `/goals/:id` | Tabs tareas/submetas, status; meta completada = solo lectura + reapertura | `useFetchByIdOffline`, `goalService`, `todoService` |
 | GoalForm | new / edit | CRUD meta | `goalService`, `useUnsavedChanges` |
-| GoalSubGoalForm | `.../subgoal` | Crear submeta | `goalService` |
-| Achievements | `/achievements` | Grid por tier | `useFetchListOffline` + `userAchievementService` |
+| GoalSubGoalForm | `.../subgoal` | Asociar una meta existente; lista completadas con badge y excluye la meta actual, sus ancestros y descendientes | `goalService` |
+| Achievements | `/achievements` | Grid por tier; los premium se ven bloqueados (PRO, sin barra de progreso ni estado completado) para un usuario free, con la línea "Con Premium hay {n} logros más para descubrir." cuando `premiumLocked > 0` | `useFetchListOffline` + `useFetchDataOffline` + `userAchievementService` |
 | UserProfile | `/profile` | Avatar, push, suscripción | `useFetchData`, `useCloudinaryUpload`, `subscriptionService` |
 | Moodboard | `/moodboard` | CRUD imágenes (premium) | `moodboardService` + `offlineStorage` |
 | Metrics | `/metrics` | KPIs y rachas (premium) | `useFetchDataOffline` + `metricsService` |
@@ -395,6 +403,16 @@ Paywall: `SubscriptionPlan`. Acción flotante: `ActionSelect`.
 | SubscriptionCallback | `/callback` | Poll `refreshSubscription` | Auth |
 | SubscriptionSuccess | `/success` | Confirmación | — |
 
+### Metas completadas y reapertura
+
+Una meta `completed` es de solo lectura para su contenido; el API es la fuente de verdad (responde 409 antes de cualquier escritura) y la app solo lo refleja:
+
+- `TaskCard` recibe `isReadOnly` desde `GoalDetail`: el checkbox y el botón "Hecho" quedan bloqueados. Editar título, descripción, fecha y prioridad de la meta sigue permitido.
+- En una meta completada, el "+" de cada pestaña y "Asociar Meta" abren el diálogo "¿La reabrimos?" (`ConfirmModal` variante `reopen`) en lugar de ir al formulario. "Reabrir" llama a `goalService.reopenGoal` (`POST /api/goals/:id/reopen`) y refresca la meta; "Ahora no" cierra sin cambios.
+- Si el padre directo también está completado, el API lo reabre en cascada y el diálogo lo nombra. Solo se nombra el padre directo.
+- Un 409 al sumar tareas o submetas (por ejemplo desde una PWA vieja) se muestra con el mensaje del servidor. El 409 de ciclo ("una ya forma parte de la otra") se muestra en un popup con el botón "Entendido".
+- `ITodo.completedAt` trae la hora del servidor de la completación. `IUpdateTodo` ya no tiene `completed`: completar se hace solo con `todoservice.updateTodoState`.
+
 ### Admin
 
 | Archivo | Ruta | Datos |
@@ -402,6 +420,19 @@ Paywall: `SubscriptionPlan`. Acción flotante: `ActionSelect`.
 | AdminDashboard | `/admin` | `metricsService.getAdminStats` |
 | AdminUser / Detail / Form | `/admin/users/*` | `userService` |
 | AdminAchievement / Detail / Form | `/admin/achievements/*` | `achievementService` + upload |
+
+**Visibilidad premium de logros.** El API oculta lo premium a un usuario free: nunca ve un logro premium completado ni su progreso (`isAccessible: false`, progreso por defecto), y los totales de `GET /api/user/achievements/stats` y de `achievementsProgress` en `GET /api/metrics` cuentan solo los logros básicos. `premiumLocked` indica cuántos premium activos quedan por descubrir (0 para un usuario premium). `Achievements` lo lee de `userAchievementService.fetchAchievementStats`. Al activar Premium llega una sola notificación `achievements_premium_summary` (ícono `crown.svg`) con los logros ganados en silencio.
+
+**Condiciones de logros (`AdminAchievementForm`).** El formulario no tiene eventos ni condiciones fijas: los pide al API con `achievementService.getCatalog` (`GET /api/achievements/catalog`).
+
+- El selector de evento sale del catálogo. La sección "Condiciones" muestra solo lo que el evento elegido admite: franja "Desde" / "Hasta" (hora local de cada usuario, el fin no se incluye) y la casilla "Tienen que ser en la misma franja". Un evento sin condiciones (`streak:updated`) no muestra la sección.
+- `goal:completed` también muestra "Tiempo máximo (horas)" (`maxDurationHours`, "Horas desde que se creó la meta hasta completarla."). Vacío significa sin condición. El `PUT` siempre envía el objeto `conditions` completo, así que vaciar un campo quita esa condición.
+- `reward` no tiene campo en el formulario y el `PUT` no lo envía, así que guardar no lo modifica.
+- El evento `task:goal-changed` se muestra como "Mover una tarea a otra meta"; un evento nuevo del catálogo sin nombre en el formulario se muestra con su id.
+- El nivel de acceso (`tier`) queda deshabilitado al editar y el `PUT` no lo envía: el API lo rechaza con 400 porque es inmutable.
+- Cambiar el evento o las condiciones reinicia el progreso en curso de los usuarios. Antes de guardar, el formulario pregunta `achievementService.getInProgressCount` y, si hay usuarios, abre el aviso "¿Cambiamos cómo se gana este logro?" con la cantidad. Con 0 usuarios guarda directo.
+- Los errores del guardado (validación, 409 por edición concurrente, 503 por tiempo agotado) se muestran con el mensaje del servidor.
+- `todoservice.updateTodo` devuelve `{ data, events }` como `updateTodoState`, y `TaskForm` pasa los eventos a `notifyCompletion`: mover una tarea de una meta a otra puede desbloquear un logro.
 
 ### Status
 

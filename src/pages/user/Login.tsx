@@ -8,6 +8,7 @@ import Loading from "../../components/Loading";
 import { useAppNavigate, useField, useHttpError, useAuthActions } from "../../hooks";
 import { Button, Input, TramaHeader } from "../../components/ui";
 import { validateEmail, validatePassword } from "../../utils/validations";
+import { getDeviceTimeZone } from "../../utils/timezone";
 import GoogleIcon from "../../assets/icons/google.svg";
 
 export default function Login() {
@@ -54,7 +55,10 @@ export default function Login() {
       clearError();
       setLoading(true);
       try {
-        const authResponse = await userService.googleLogin(codeResponse.code);
+        const authResponse = await userService.googleLogin(
+          codeResponse.code,
+          getDeviceTimeZone() ?? undefined,
+        );
         login(authResponse.user);
         handleSuccessfulLogin(authResponse.user);
       } catch (error: unknown) {
@@ -92,6 +96,7 @@ export default function Login() {
       const loginData: ILoginUser = {
         email: email.value,
         password: password.value,
+        timezone: getDeviceTimeZone() ?? undefined,
       };
       const authResponse = await userService.login(loginData);
       login(authResponse.user);

@@ -49,6 +49,8 @@ export interface ICreateUser {
   name: string;
   email: string;
   password: string;
+  /** Zona IANA del dispositivo (opcional; el servidor descarta una inválida) */
+  timezone?: string;
 }
 
 /**
@@ -66,6 +68,8 @@ export interface IUpdateUser {
 export interface ILoginUser {
   email: string;
   password: string;
+  /** Zona IANA del dispositivo (opcional; el servidor descarta una inválida) */
+  timezone?: string;
 }
 
 /**
@@ -96,6 +100,7 @@ export interface IUserProfile {
   emailVerified?: boolean;
   hasPassword?: boolean;
   onboardingCompleted?: boolean;
+  timezone?: string | null;
 }
 
 /**
@@ -115,6 +120,8 @@ export interface IAuthUser {
   onboardingCompleted?: boolean;
   emailVerified?: boolean;
   hasPassword?: boolean;
+  /** Zona IANA guardada en el servidor; falta en usuarios legados */
+  timezone?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

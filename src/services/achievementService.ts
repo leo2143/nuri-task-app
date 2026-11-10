@@ -2,6 +2,8 @@ import apiClient from "../config/axios";
 import type {
   IAchievement,
   IAchievementStats,
+  IAchievementCatalog,
+  IAchievementInProgressCount,
   ICreateAchievement,
   IUpdateAchievement,
   ISuccessResponse,
@@ -92,6 +94,40 @@ export const achievementService = {
       return response.data.data || [];
     } catch (error) {
       console.error(`Error fetching achievements by type ${type}:`, error);
+      throw error;
+    }
+  },
+
+  /**
+   * Obtiene los eventos disponibles y las condiciones que admite cada uno
+   * GET /api/achievements/catalog
+   * @requires validarAdminToken
+   */
+  getCatalog: async (): Promise<IAchievementCatalog> => {
+    try {
+      const response = await apiClient.get<
+        ISuccessResponse<IAchievementCatalog>
+      >(`${API_BASE_URL}/api/achievements/catalog`);
+      return response.data.data!;
+    } catch (error) {
+      console.error("Error fetching achievement catalog:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Cuenta los usuarios que tienen el logro en progreso (sin completar)
+   * GET /api/achievements/:id/in-progress-count
+   * @requires validarAdminToken
+   */
+  getInProgressCount: async (id: string): Promise<number> => {
+    try {
+      const response = await apiClient.get<
+        ISuccessResponse<IAchievementInProgressCount>
+      >(`${API_BASE_URL}/api/achievements/${id}/in-progress-count`);
+      return response.data.data!.inProgressCount;
+    } catch (error) {
+      console.error(`Error fetching in-progress count for ${id}:`, error);
       throw error;
     }
   },

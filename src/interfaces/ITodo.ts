@@ -33,6 +33,8 @@ export interface ITodo {
   comments: ITodoComment[];
   completed: boolean;
   isLocked?: boolean;
+  /** Hora del servidor en que se completó; null en tareas pendientes o legacy */
+  completedAt?: string | null;
   userId: string | ITodoUser;
   GoalId?: string | null;
   goalTitle?: string | null;
@@ -57,11 +59,11 @@ export interface ICreateTodo {
 
 /**
  * Interface para actualizar una tarea
+ * NOTA: completar solo se hace con updateTodoState (PATCH /api/todos/:id/state)
  */
 export interface IUpdateTodo {
   title?: string;
   description?: string;
-  completed?: boolean;
   GoalId?: string | null;
   priority?: TodoPriority;
   dueDate?: Date | string | null;
