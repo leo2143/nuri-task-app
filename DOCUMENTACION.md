@@ -394,7 +394,7 @@ Paywall: `SubscriptionPlan`. Acción flotante: `ActionSelect`.
 | GoalDetail | `/goals/:id` | Tabs tareas/submetas, status; meta completada = solo lectura + reapertura | `useFetchByIdOffline`, `goalService`, `todoService` |
 | GoalForm | new / edit | CRUD meta | `goalService`, `useUnsavedChanges` |
 | GoalSubGoalForm | `.../subgoal` | Asociar una meta existente; lista completadas con badge y excluye la meta actual, sus ancestros y descendientes | `goalService` |
-| Achievements | `/achievements` | Grid por tier | `useFetchListOffline` + `userAchievementService` |
+| Achievements | `/achievements` | Grid por tier; los premium se ven bloqueados (PRO, sin barra de progreso ni estado completado) para un usuario free, con la línea "Con Premium hay {n} logros más para descubrir." cuando `premiumLocked > 0` | `useFetchListOffline` + `useFetchDataOffline` + `userAchievementService` |
 | UserProfile | `/profile` | Avatar, push, suscripción | `useFetchData`, `useCloudinaryUpload`, `subscriptionService` |
 | Moodboard | `/moodboard` | CRUD imágenes (premium) | `moodboardService` + `offlineStorage` |
 | Metrics | `/metrics` | KPIs y rachas (premium) | `useFetchDataOffline` + `metricsService` |
@@ -420,6 +420,8 @@ Una meta `completed` es de solo lectura para su contenido; el API es la fuente d
 | AdminDashboard | `/admin` | `metricsService.getAdminStats` |
 | AdminUser / Detail / Form | `/admin/users/*` | `userService` |
 | AdminAchievement / Detail / Form | `/admin/achievements/*` | `achievementService` + upload |
+
+**Visibilidad premium de logros.** El API oculta lo premium a un usuario free: nunca ve un logro premium completado ni su progreso (`isAccessible: false`, progreso por defecto), y los totales de `GET /api/user/achievements/stats` y de `achievementsProgress` en `GET /api/metrics` cuentan solo los logros básicos. `premiumLocked` indica cuántos premium activos quedan por descubrir (0 para un usuario premium). `Achievements` lo lee de `userAchievementService.fetchAchievementStats`. Al activar Premium llega una sola notificación `achievements_premium_summary` (ícono `crown.svg`) con los logros ganados en silencio.
 
 **Condiciones de logros (`AdminAchievementForm`).** El formulario no tiene eventos ni condiciones fijas: los pide al API con `achievementService.getCatalog` (`GET /api/achievements/catalog`).
 
