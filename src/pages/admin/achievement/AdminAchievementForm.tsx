@@ -166,7 +166,10 @@ export default function AdminAchievementForm() {
         const data = await achievementService.getCatalog();
         if (!cancelled) setCatalog(data);
       } catch (err) {
-        if (!cancelled) handleError(err);
+        if (!cancelled) {
+          setModalMessage(handleError(err));
+          setIsErrorModalOpen(true);
+        }
       }
     };
 
@@ -275,6 +278,8 @@ export default function AdminAchievementForm() {
   // Manejador del submit
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Sin catálogo no se sabe qué condiciones admite el evento y se guardaría `conditions` vacío
+    if (!catalog) return;
     clearError();
 
     let hasErrors = false;
@@ -661,7 +666,7 @@ export default function AdminAchievementForm() {
             type="submit"
             variant="primary"
             size="lg"
-            disabled={loading}
+            disabled={loading || !catalog}
             className="flex-1"
           >
             {loading ? loadingButtonText : submitButtonText}
