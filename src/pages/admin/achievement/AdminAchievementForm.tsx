@@ -17,6 +17,8 @@ import type {
   AchievementType,
   AchievementTier,
   AchievementTriggerEvent,
+  IAchievementCatalog,
+  IAchievementConditions,
 } from "../../../interfaces";
 import { useHttpError, useCloudinaryUpload, useUnsavedChanges, useAppNavigate } from "../../../hooks";
 import { achievementService } from "../../../services/achievementService";
@@ -30,11 +32,13 @@ const ACHIEVEMENT_TYPE_OPTIONS = [
   { id: "streak", title: "Racha" },
 ];
 
-const ACHIEVEMENT_TRIGGER_OPTIONS = [
-  { id: "task:completed", title: "Tarea completada" },
-  { id: "goal:completed", title: "Meta completada" },
-  { id: "streak:updated", title: "Racha actualizada" },
-];
+// Los eventos disponibles vienen del catálogo del backend; esto solo les pone nombre.
+// Un evento sin nombre acá se muestra con su id hasta que se apruebe el texto.
+const ACHIEVEMENT_TRIGGER_LABELS: Record<string, string> = {
+  "task:completed": "Tarea completada",
+  "goal:completed": "Meta completada",
+  "streak:updated": "Racha actualizada",
+};
 
 const ACHIEVEMENT_TIER_OPTIONS = [
   { id: "basic", title: "Basic — visible para todos" },
@@ -53,6 +57,7 @@ export default function AdminAchievementForm() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [inProgressCount, setInProgressCount] = useState<number | null>(null);
 
   const isEditMode = !!id;
 
@@ -72,6 +77,14 @@ export default function AdminAchievementForm() {
   const [tier, setTier] = useState<AchievementTier>("basic");
   const [isActive, setIsActive] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
+  const [catalog, setCatalog] = useState<IAchievementCatalog | null>(null);
+  const [timeStart, setTimeStart] = useState("");
+  const [timeEnd, setTimeEnd] = useState("");
+  const [sameWindow, setSameWindow] = useState(false);
+  // El formulario no edita maxDurationHours: se conserva tal cual para que guardar no lo borre
+  const [maxDurationHours, setMaxDurationHours] = useState<
+    number | undefined
+  >();
 
   // Valores iniciales para detectar cambios
   const [initialValues, setInitialValues] = useState({
@@ -83,6 +96,9 @@ export default function AdminAchievementForm() {
     tier: "basic" as AchievementTier,
     isActive: true,
     imageUrl: "",
+    timeStart: "",
+    timeEnd: "",
+    sameWindow: false,
   });
 
   // Valores actuales del formulario
@@ -95,7 +111,29 @@ export default function AdminAchievementForm() {
     tier,
     isActive,
     imageUrl,
-  }), [title, description, targetCount, type, triggerEvent, tier, isActive, imageUrl]);
+    timeStart,
+    timeEnd,
+    sameWindow,
+  }), [title, description, targetCount, type, triggerEvent, tier, isActive, imageUrl, timeStart, timeEnd, sameWindow]);
+
+  const triggerOptions = useMemo(
+    () =>
+      (catalog?.triggers ?? []).map(({ triggerEvent: eventId }) => ({
+        id: eventId,
+        title: ACHIEVEMENT_TRIGGER_LABELS[eventId] ?? eventId,
+      })),
+    [catalog],
+  );
+
+  // Condiciones que admite el evento elegido; el resto no se muestra ni se envía
+  const allowedConditions = useMemo(
+    () =>
+      catalog?.triggers.find((trigger) => trigger.triggerEvent === triggerEvent)
+        ?.allowedConditions ?? [],
+    [catalog, triggerEvent],
+  );
+  const allowsTimeWindow = allowedConditions.includes("timeWindow");
+  const allowsSameWindow = allowedConditions.includes("sameWindow");
 
   // URL de imagen pendiente (nueva imagen que no existía originalmente)
   const pendingImageUrl = imageUrl && imageUrl !== initialValues.imageUrl
@@ -119,6 +157,25 @@ export default function AdminAchievementForm() {
   const [descriptionError, setDescriptionError] = useState("");
   const [targetCountError, setTargetCountError] = useState("");
 
+  // Cargar el catálogo de eventos y condiciones
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCatalog = async () => {
+      try {
+        const data = await achievementService.getCatalog();
+        if (!cancelled) setCatalog(data);
+      } catch (err) {
+        if (!cancelled) handleError(err);
+      }
+    };
+
+    void fetchCatalog();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Cargar logro en modo edición
   useEffect(() => {
     if (!isEditMode) return;
@@ -141,6 +198,10 @@ export default function AdminAchievementForm() {
           setTier(data.tier);
           setIsActive(data.isActive);
           setImageUrl(data.imageUrl);
+          setTimeStart(data.conditions?.timeWindow?.start ?? "");
+          setTimeEnd(data.conditions?.timeWindow?.end ?? "");
+          setSameWindow(data.conditions?.sameWindow ?? false);
+          setMaxDurationHours(data.conditions?.maxDurationHours);
 
           setInitialValues({
             title: data.title,
@@ -151,6 +212,9 @@ export default function AdminAchievementForm() {
             tier: data.tier,
             isActive: data.isActive,
             imageUrl: data.imageUrl,
+            timeStart: data.conditions?.timeWindow?.start ?? "",
+            timeEnd: data.conditions?.timeWindow?.end ?? "",
+            sameWindow: data.conditions?.sameWindow ?? false,
           });
         }
       } catch (err) {
@@ -195,6 +259,13 @@ export default function AdminAchievementForm() {
     }
   };
 
+  // Cambiar el evento o las condiciones reinicia el progreso en curso de los usuarios
+  const changesProgressMeaning =
+    triggerEvent !== initialValues.triggerEvent ||
+    timeStart !== initialValues.timeStart ||
+    timeEnd !== initialValues.timeEnd ||
+    sameWindow !== initialValues.sameWindow;
+
   // Manejador del submit
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -230,6 +301,46 @@ export default function AdminAchievementForm() {
 
     if (hasErrors) return;
 
+    if (isEditMode && changesProgressMeaning) {
+      try {
+        setLoading(true);
+        const count = await achievementService.getInProgressCount(id!);
+        if (count > 0) {
+          setInProgressCount(count);
+          return;
+        }
+      } catch (err) {
+        setModalMessage(handleError(err));
+        setIsErrorModalOpen(true);
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    await saveAchievement();
+  };
+
+  // Condiciones a enviar: solo las que admite el evento elegido
+  const buildConditions = (): IAchievementConditions => {
+    const conditions: IAchievementConditions = {};
+    if (allowsTimeWindow && (timeStart || timeEnd)) {
+      // Si falta una hora se envía vacía y el backend responde con el motivo
+      conditions.timeWindow = { start: timeStart, end: timeEnd };
+    }
+    if (allowsSameWindow) {
+      conditions.sameWindow = sameWindow;
+    }
+    if (
+      allowedConditions.includes("maxDurationHours") &&
+      maxDurationHours !== undefined
+    ) {
+      conditions.maxDurationHours = maxDurationHours;
+    }
+    return conditions;
+  };
+
+  const saveAchievement = async () => {
     try {
       setLoading(true);
 
@@ -240,6 +351,7 @@ export default function AdminAchievementForm() {
           targetCount: Number.parseInt(targetCount, 10),
           type,
           triggerEvent,
+          conditions: buildConditions(),
           isActive,
           imageUrl: imageUrl.trim(),
         };
@@ -255,6 +367,7 @@ export default function AdminAchievementForm() {
           targetCount: Number.parseInt(targetCount, 10),
           type,
           triggerEvent,
+          conditions: buildConditions(),
           tier,
           isActive,
           imageUrl: imageUrl.trim(),
@@ -273,17 +386,25 @@ export default function AdminAchievementForm() {
         setTier("basic");
         setIsActive(true);
         setImageUrl("");
+        setTimeStart("");
+        setTimeEnd("");
+        setSameWindow(false);
       }
     } catch (err) {
-      handleError(err);
-      setModalMessage(
-        errorMessage ||
-        "Algo salió mal, ¿podés intentar de nuevo?",
-      );
+      setModalMessage(handleError(err));
       setIsErrorModalOpen(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProgressWarningConfirm = () => {
+    setInProgressCount(null);
+    void saveAchievement();
+  };
+
+  const handleProgressWarningClose = () => {
+    setInProgressCount(null);
   };
 
   // Manejador para cerrar modal de éxito y redirigir
@@ -403,11 +524,65 @@ export default function AdminAchievementForm() {
           onChange={(e) =>
             setTriggerEvent(e.target.value as AchievementTriggerEvent)
           }
-          options={ACHIEVEMENT_TRIGGER_OPTIONS}
+          options={triggerOptions}
           required
           disabled={loading}
           helperText="Define qué acción del usuario incrementa el contador de este logro"
         />
+
+        {(allowsTimeWindow || allowsSameWindow) && (
+          <fieldset className="space-y-4">
+            <legend className="font-heading font-bold text-tertiary mb-2">
+              Condiciones
+            </legend>
+
+            {allowsTimeWindow && (
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <Input
+                    type="time"
+                    id="timeStart"
+                    name="timeStart"
+                    label="Desde"
+                    value={timeStart}
+                    onChange={(e) => setTimeStart(e.target.value)}
+                    disabled={loading}
+                  />
+                  <Input
+                    type="time"
+                    id="timeEnd"
+                    name="timeEnd"
+                    label="Hasta"
+                    value={timeEnd}
+                    onChange={(e) => setTimeEnd(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+                <p className="text-xs text-gray-500">
+                  Hora local de cada usuario. El fin no se incluye.
+                </p>
+              </div>
+            )}
+
+            {allowsSameWindow && (
+              <div className="flex items-center gap-3">
+                <CustomCheckbox
+                  id="sameWindow"
+                  checked={sameWindow}
+                  onChange={(e) => setSameWindow(e.target.checked)}
+                  disabled={loading}
+                  ariaLabel="Tienen que ser en la misma franja"
+                />
+                <label
+                  htmlFor="sameWindow"
+                  className="text-sm font-medium text-tertiary cursor-pointer"
+                >
+                  Tienen que ser en la misma franja
+                </label>
+              </div>
+            )}
+          </fieldset>
+        )}
 
         <Select
           id="tier"
@@ -417,7 +592,12 @@ export default function AdminAchievementForm() {
           onChange={(e) => setTier(e.target.value as AchievementTier)}
           options={ACHIEVEMENT_TIER_OPTIONS}
           required
-          disabled={loading}
+          disabled={loading || isEditMode}
+          helperText={
+            isEditMode
+              ? "El tier de un logro no se puede cambiar. Desactivalo y creá uno nuevo."
+              : undefined
+          }
         />
 
         {/* Achievement Image */}
@@ -489,6 +669,23 @@ export default function AdminAchievementForm() {
         message="Si salís ahora, vas a perder lo que escribiste. ¿Querés salir igual?"
         confirmText="Salir"
         cancelText="Quedarme"
+        variant="warning"
+        loading={false}
+      />
+
+      {/* Aviso: cambiar el evento o las condiciones reinicia el progreso en curso */}
+      <ConfirmModal
+        isOpen={inProgressCount !== null}
+        onClose={handleProgressWarningClose}
+        onConfirm={handleProgressWarningConfirm}
+        title="¿Cambiamos cómo se gana este logro?"
+        message={
+          inProgressCount === 1
+            ? "1 usuario lo tiene en progreso. Si guardás este cambio, su avance vuelve a cero. Quienes ya lo ganaron lo conservan."
+            : `${inProgressCount} usuarios lo tienen en progreso. Si guardás este cambio, su avance vuelve a cero. Quienes ya lo ganaron lo conservan.`
+        }
+        confirmText="Guardar igual"
+        cancelText="Cancelar"
         variant="warning"
         loading={false}
       />
