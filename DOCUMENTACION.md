@@ -424,7 +424,9 @@ Una meta `completed` es de solo lectura para su contenido; el API es la fuente d
 **Condiciones de logros (`AdminAchievementForm`).** El formulario no tiene eventos ni condiciones fijas: los pide al API con `achievementService.getCatalog` (`GET /api/achievements/catalog`).
 
 - El selector de evento sale del catálogo. La sección "Condiciones" muestra solo lo que el evento elegido admite: franja "Desde" / "Hasta" (hora local de cada usuario, el fin no se incluye) y la casilla "Tienen que ser en la misma franja". Un evento sin condiciones (`streak:updated`) no muestra la sección.
-- `maxDurationHours` no tiene campo en el formulario: si el logro ya lo trae, se reenvía sin cambios para que guardar no lo borre.
+- `goal:completed` también muestra "Tiempo máximo (horas)" (`maxDurationHours`, "Horas desde que se creó la meta hasta completarla."). Vacío significa sin condición. El `PUT` siempre envía el objeto `conditions` completo, así que vaciar un campo quita esa condición.
+- `reward` no tiene campo en el formulario y el `PUT` no lo envía, así que guardar no lo modifica.
+- El evento `task:goal-changed` se muestra como "Mover una tarea a otra meta"; un evento nuevo del catálogo sin nombre en el formulario se muestra con su id.
 - El nivel de acceso (`tier`) queda deshabilitado al editar y el `PUT` no lo envía: el API lo rechaza con 400 porque es inmutable.
 - Cambiar el evento o las condiciones reinicia el progreso en curso de los usuarios. Antes de guardar, el formulario pregunta `achievementService.getInProgressCount` y, si hay usuarios, abre el aviso "¿Cambiamos cómo se gana este logro?" con la cantidad. Con 0 usuarios guarda directo.
 - Los errores del guardado (validación, 409 por edición concurrente, 503 por tiempo agotado) se muestran con el mensaje del servidor.

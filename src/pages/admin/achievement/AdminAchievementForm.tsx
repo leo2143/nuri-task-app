@@ -38,6 +38,7 @@ const ACHIEVEMENT_TRIGGER_LABELS: Record<string, string> = {
   "task:completed": "Tarea completada",
   "goal:completed": "Meta completada",
   "streak:updated": "Racha actualizada",
+  "task:goal-changed": "Mover una tarea a otra meta",
 };
 
 const ACHIEVEMENT_TIER_OPTIONS = [
@@ -81,10 +82,7 @@ export default function AdminAchievementForm() {
   const [timeStart, setTimeStart] = useState("");
   const [timeEnd, setTimeEnd] = useState("");
   const [sameWindow, setSameWindow] = useState(false);
-  // El formulario no edita maxDurationHours: se conserva tal cual para que guardar no lo borre
-  const [maxDurationHours, setMaxDurationHours] = useState<
-    number | undefined
-  >();
+  const [maxDurationHours, setMaxDurationHours] = useState("");
 
   // Valores iniciales para detectar cambios
   const [initialValues, setInitialValues] = useState({
@@ -99,6 +97,7 @@ export default function AdminAchievementForm() {
     timeStart: "",
     timeEnd: "",
     sameWindow: false,
+    maxDurationHours: "",
   });
 
   // Valores actuales del formulario
@@ -114,7 +113,8 @@ export default function AdminAchievementForm() {
     timeStart,
     timeEnd,
     sameWindow,
-  }), [title, description, targetCount, type, triggerEvent, tier, isActive, imageUrl, timeStart, timeEnd, sameWindow]);
+    maxDurationHours,
+  }), [title, description, targetCount, type, triggerEvent, tier, isActive, imageUrl, timeStart, timeEnd, sameWindow, maxDurationHours]);
 
   const triggerOptions = useMemo(
     () =>
@@ -134,6 +134,7 @@ export default function AdminAchievementForm() {
   );
   const allowsTimeWindow = allowedConditions.includes("timeWindow");
   const allowsSameWindow = allowedConditions.includes("sameWindow");
+  const allowsMaxDuration = allowedConditions.includes("maxDurationHours");
 
   // URL de imagen pendiente (nueva imagen que no existía originalmente)
   const pendingImageUrl = imageUrl && imageUrl !== initialValues.imageUrl
@@ -201,7 +202,9 @@ export default function AdminAchievementForm() {
           setTimeStart(data.conditions?.timeWindow?.start ?? "");
           setTimeEnd(data.conditions?.timeWindow?.end ?? "");
           setSameWindow(data.conditions?.sameWindow ?? false);
-          setMaxDurationHours(data.conditions?.maxDurationHours);
+          setMaxDurationHours(
+            data.conditions?.maxDurationHours?.toString() ?? "",
+          );
 
           setInitialValues({
             title: data.title,
@@ -215,6 +218,8 @@ export default function AdminAchievementForm() {
             timeStart: data.conditions?.timeWindow?.start ?? "",
             timeEnd: data.conditions?.timeWindow?.end ?? "",
             sameWindow: data.conditions?.sameWindow ?? false,
+            maxDurationHours:
+              data.conditions?.maxDurationHours?.toString() ?? "",
           });
         }
       } catch (err) {
@@ -264,7 +269,8 @@ export default function AdminAchievementForm() {
     triggerEvent !== initialValues.triggerEvent ||
     timeStart !== initialValues.timeStart ||
     timeEnd !== initialValues.timeEnd ||
-    sameWindow !== initialValues.sameWindow;
+    sameWindow !== initialValues.sameWindow ||
+    maxDurationHours !== initialValues.maxDurationHours;
 
   // Manejador del submit
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -331,11 +337,9 @@ export default function AdminAchievementForm() {
     if (allowsSameWindow) {
       conditions.sameWindow = sameWindow;
     }
-    if (
-      allowedConditions.includes("maxDurationHours") &&
-      maxDurationHours !== undefined
-    ) {
-      conditions.maxDurationHours = maxDurationHours;
+    if (allowsMaxDuration && maxDurationHours.trim()) {
+      // Un valor no numérico llega como NaN (null en JSON) y el backend responde con el motivo
+      conditions.maxDurationHours = Number(maxDurationHours);
     }
     return conditions;
   };
@@ -389,6 +393,7 @@ export default function AdminAchievementForm() {
         setTimeStart("");
         setTimeEnd("");
         setSameWindow(false);
+        setMaxDurationHours("");
       }
     } catch (err) {
       setModalMessage(handleError(err));
@@ -530,7 +535,7 @@ export default function AdminAchievementForm() {
           helperText="Define qué acción del usuario incrementa el contador de este logro"
         />
 
-        {(allowsTimeWindow || allowsSameWindow) && (
+        {(allowsTimeWindow || allowsSameWindow || allowsMaxDuration) && (
           <fieldset className="space-y-4">
             <legend className="font-heading font-bold text-tertiary mb-2">
               Condiciones
@@ -580,6 +585,20 @@ export default function AdminAchievementForm() {
                   Tienen que ser en la misma franja
                 </label>
               </div>
+            )}
+
+            {allowsMaxDuration && (
+              <Input
+                type="number"
+                id="maxDurationHours"
+                name="maxDurationHours"
+                label="Tiempo máximo (horas)"
+                value={maxDurationHours}
+                onChange={(e) => setMaxDurationHours(e.target.value)}
+                min={1}
+                disabled={loading}
+                helperText="Horas desde que se creó la meta hasta completarla."
+              />
             )}
           </fieldset>
         )}
