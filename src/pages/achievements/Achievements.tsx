@@ -1,8 +1,8 @@
 import Loading from "../../components/Loading";
 import StateMessage from "../../components/StateMessage";
 import { AchievementCard } from "../../components/ui";
-import { useFetchListOffline } from "../../hooks";
-import type { IUserAchievement } from "../../interfaces";
+import { useFetchDataOffline, useFetchListOffline } from "../../hooks";
+import type { IUserAchievement, IUserAchievementStats } from "../../interfaces";
 import { userAchievementService } from "../../services/userAchievementService";
 
 const TIER_ORDER: Record<string, number> = { basic: 0, premium: 1 };
@@ -13,6 +13,12 @@ export default function AchievementList() {
       fetchFn: userAchievementService.getAllAchievements,
       cacheKey: "achievements",
     });
+
+  const { data: stats } = useFetchDataOffline<IUserAchievementStats>({
+    fetchFn: userAchievementService.fetchAchievementStats,
+    cacheKey: "achievements-stats",
+  });
+  const premiumLocked = stats?.premiumLocked ?? 0;
 
   const sortedAchievements = [...(response?.data || [])].sort(
     (currentAchievement, nextAchievement) => {
@@ -39,11 +45,23 @@ export default function AchievementList() {
       {errorMessage ? (
         <StateMessage itemName="los logros" variant="error" />
       ) : !isEmpty ? (
-        <div className="grid grid-cols-2 gap-4">
-          {sortedAchievements.map((achievement) => (
-            <AchievementCard key={achievement._id} achievement={achievement} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            {sortedAchievements.map((achievement) => (
+              <AchievementCard
+                key={achievement._id}
+                achievement={achievement}
+              />
+            ))}
+          </div>
+          {premiumLocked > 0 && (
+            <p className="text-center font-bold text-sm">
+              {premiumLocked === 1
+                ? "Con Premium hay 1 logro más para descubrir."
+                : `Con Premium hay ${premiumLocked} logros más para descubrir.`}
+            </p>
+          )}
+        </>
       ) : (
         <StateMessage itemName="los logros" variant="notFoundList" />
       )}

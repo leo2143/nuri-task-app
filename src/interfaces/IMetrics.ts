@@ -29,5 +29,6 @@ export interface IUserMetrics {
     completed: number;
     total: number;
     percentage: number;
+    premiumLocked: number;
   };
 }
