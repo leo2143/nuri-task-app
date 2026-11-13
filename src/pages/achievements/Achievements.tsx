@@ -1,8 +1,8 @@
 import Loading from "../../components/Loading";
 import StateMessage from "../../components/StateMessage";
 import { AchievementCard } from "../../components/ui";
-import { useFetchDataOffline, useFetchListOffline } from "../../hooks";
-import type { IUserAchievement, IUserAchievementStats } from "../../interfaces";
+import { useFetchListOffline } from "../../hooks";
+import type { IUserAchievement } from "../../interfaces";
 import { userAchievementService } from "../../services/userAchievementService";
 
 const TIER_ORDER: Record<string, number> = { basic: 0, premium: 1 };
@@ -14,12 +14,6 @@ export default function AchievementList() {
       cacheKey: "achievements",
     });
 
-  const { data: stats } = useFetchDataOffline<IUserAchievementStats>({
-    fetchFn: userAchievementService.fetchAchievementStats,
-    cacheKey: "achievements-stats",
-  });
-  const premiumLocked = stats?.premiumLocked ?? 0;
-
   const sortedAchievements = [...(response?.data || [])].sort(
     (currentAchievement, nextAchievement) => {
       const tierDiff =
@@ -27,6 +21,14 @@ export default function AchievementList() {
         (TIER_ORDER[nextAchievement.tier] ?? 1);
 
       if (tierDiff !== 0) return tierDiff;
+
+      // Los bloqueados no traen título: van después de los accesibles del mismo tier
+      if (!currentAchievement.isAccessible || !nextAchievement.isAccessible) {
+        return (
+          Number(!currentAchievement.isAccessible) -
+          Number(!nextAchievement.isAccessible)
+        );
+      }
 
       return currentAchievement.title.localeCompare(nextAchievement.title, "es");
     },
@@ -45,23 +47,11 @@ export default function AchievementList() {
       {errorMessage ? (
         <StateMessage itemName="los logros" variant="error" />
       ) : !isEmpty ? (
-        <>
-          <div className="grid grid-cols-2 gap-4">
-            {sortedAchievements.map((achievement) => (
-              <AchievementCard
-                key={achievement._id}
-                achievement={achievement}
-              />
-            ))}
-          </div>
-          {premiumLocked > 0 && (
-            <p className="text-center font-bold text-sm">
-              {premiumLocked === 1
-                ? "Con Premium hay 1 logro más para descubrir."
-                : `Con Premium hay ${premiumLocked} logros más para descubrir.`}
-            </p>
-          )}
-        </>
+        <div className="grid grid-cols-2 gap-4">
+          {sortedAchievements.map((achievement) => (
+            <AchievementCard key={achievement._id} achievement={achievement} />
+          ))}
+        </div>
       ) : (
         <StateMessage itemName="los logros" variant="notFoundList" />
       )}

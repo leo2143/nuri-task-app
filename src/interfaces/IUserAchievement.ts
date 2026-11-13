@@ -17,26 +17,27 @@ export interface IUserProgress {
   completedAt: Date;
 }
 /**
- * Interface para el progreso individual de un logro de usuario.
- * isAccessible indica si el usuario puede desbloquearlo:
- * false cuando el logro es premium y el usuario no tiene suscripción activa.
+ * Logro que el usuario puede desbloquear: llega completo.
  */
-export interface IUserAchievement extends IAchievement {
+export type IAccessibleUserAchievement = IAchievement & {
+  isAccessible: true;
   userProgress: IUserProgress;
-  isAccessible: boolean;
-}
+};
 
 /**
- * Estadísticas de logros del usuario autenticado.
- * Para un usuario free, `total`, `notStarted` y `completionRate` cuentan solo los logros básicos;
- * `premiumLocked` es cuántos logros premium activos quedan por descubrir.
+ * Logro premium bloqueado (usuario sin suscripción activa): la API no envía título, descripción ni reglas.
  */
-export interface IUserAchievementStats {
-  total: number;
-  notStarted: number;
-  locked: number;
-  unlocked: number;
-  completed: number;
-  premiumLocked: number;
-  completionRate: number | string;
-}
+export type ILockedUserAchievement = Pick<
+  IAchievement,
+  "_id" | "tier" | "imageUrl" | "isActive"
+> & {
+  isAccessible: false;
+  userProgress: IUserProgress;
+};
+
+/**
+ * Progreso individual de un logro de usuario, discriminado por isAccessible.
+ */
+export type IUserAchievement =
+  | IAccessibleUserAchievement
+  | ILockedUserAchievement;

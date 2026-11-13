@@ -1,9 +1,5 @@
 import apiClient from "../config/axios";
-import type {
-  ISuccessResponse,
-  IUserAchievement,
-  IUserAchievementStats,
-} from "../interfaces";
+import type { ISuccessResponse, IUserAchievement } from "../interfaces";
 import { API_BASE_URL } from "../config/env";
 
 /**
@@ -24,22 +20,6 @@ export const userAchievementService = {
       return response.data;
     } catch (error) {
       console.error("Error fetching achievements:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Trae las estadísticas de logros del usuario, incluido `premiumLocked`.
-   * GET /api/user/achievements/stats
-   */
-  fetchAchievementStats: async (): Promise<IUserAchievementStats> => {
-    try {
-      const response = await apiClient.get<
-        ISuccessResponse<IUserAchievementStats>
-      >(`${API_BASE_URL}/api/user/achievements/stats`);
-      return response.data.data!;
-    } catch (error) {
-      console.error("Error fetching achievement stats:", error);
       throw error;
     }
   },
