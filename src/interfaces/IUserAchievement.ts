@@ -41,18 +41,3 @@ export type ILockedUserAchievement = Pick<
 export type IUserAchievement =
   | IAccessibleUserAchievement
   | ILockedUserAchievement;
-
-/**
- * Estadísticas de logros del usuario autenticado.
- * Para un usuario free, `total`, `notStarted` y `completionRate` cuentan solo los logros básicos;
- * `premiumLocked` es cuántos logros premium activos quedan por descubrir.
- */
-export interface IUserAchievementStats {
-  total: number;
-  notStarted: number;
-  locked: number;
-  unlocked: number;
-  completed: number;
-  premiumLocked: number;
-  completionRate: number | string;
-}
