@@ -8,27 +8,22 @@ interface AchievementCardProps {
 
 /**
  * Tarjeta de logro con tres estados:
- * - inaccessible (premium + usuario free): saturado-0 + overlay PRO
+ * - bloqueado (premium + usuario free): gris, sin título ni descripción; candado sobre el borde inferior del avatar y la pastilla PRO debajo
  * - en progreso (locked/unlocked): saturado-0 + barra de progreso
  * - completado: color completo
  */
 export default function AchievementCard({ achievement }: AchievementCardProps) {
-  const { userProgress, isAccessible, imageUrl, title, description, targetCount } = achievement;
-  const isCompleted = isAccessible && userProgress.status === "completed";
-  const progressPercent =
-    isAccessible && targetCount > 0
-      ? Math.min(Math.round((userProgress.currentCount / targetCount) * 100), 100)
-      : 0;
+  if (!achievement.isAccessible) {
+    return (
+      <article className="relative flex flex-col items-center justify-center min-h-full shadow-brand-achievement pt-5 pb-8 px-2 bg-white rounded-xl overflow-hidden saturate-0">
+        <div className="absolute inset-0 bg-white/60" aria-hidden="true" />
 
-  return (
-    <article
-      className={`relative flex flex-col gap-3 items-center shadow-brand-achievement pt-5 pb-8 px-2 bg-white rounded-xl overflow-hidden
-        ${!isCompleted ? "saturate-0" : ""}`}
-    >
-      {!isAccessible && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 z-10 gap-1">
+        <div className="relative z-10">
+          <div className="opacity-40">
+            <Avatar imageUrl={achievement.imageUrl} name="Logro premium" size="md" />
+          </div>
           <svg
-            className="w-7 h-7 text-gray-400"
+            className="absolute left-1/2 -translate-x-1/2 bottom-[-6px] w-7 h-7 text-gray-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -41,12 +36,28 @@ export default function AchievementCard({ achievement }: AchievementCardProps) {
               d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
             />
           </svg>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-            PRO
-          </span>
         </div>
-      )}
 
+        <span className="relative z-10 mt-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+          PRO
+        </span>
+        <span className="sr-only">Logro premium bloqueado</span>
+      </article>
+    );
+  }
+
+  const { userProgress, imageUrl, title, description, targetCount } = achievement;
+  const isCompleted = userProgress.status === "completed";
+  const progressPercent =
+    targetCount > 0
+      ? Math.min(Math.round((userProgress.currentCount / targetCount) * 100), 100)
+      : 0;
+
+  return (
+    <article
+      className={`relative flex flex-col gap-3 items-center shadow-brand-achievement pt-5 pb-8 px-2 bg-white rounded-xl overflow-hidden
+        ${!isCompleted ? "saturate-0" : ""}`}
+    >
       <div className="flex flex-col gap-1 items-center">
         <Avatar imageUrl={imageUrl} name={title} size="md" />
         <h3 className="text-base text-center">{title}</h3>
@@ -54,7 +65,7 @@ export default function AchievementCard({ achievement }: AchievementCardProps) {
 
       <p className="text-center font-bold text-xs">{description}</p>
 
-      {isAccessible && !isCompleted && (
+      {!isCompleted && (
         <div className="w-full px-2">
           <ProgressBar
             variant="inline"
